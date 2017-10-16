@@ -1,6 +1,4 @@
-
-from h5py_gadget import gather_data, gather_attr
-import h5py as h5
+from hdf5_io import get as hdf5_get
 import numpy as np
 from vic_paths import victoria_LG_paths as lgpaths
 import z_a_t_conversions as zat
@@ -118,9 +116,9 @@ class ApostleFileset(dict):
 
         E = self._Extractors[key]
         if E.attr is None:
-            self[key] = E.convert(gather_data(path, fname, E.hpath), path, fname, E.hpath)
+            self[key] = E.convert(hdf5_get(path, fname, E.hpath), path, fname, E.hpath)
         else:
-            self[key] = E.convert(gather_attr(path, fname, E.hpath, E.attr), path, fname, E.hpath)
+            self[key] = E.convert(hdf5_get(path, fname, E.hpath, attr=E.attr), path, fname, E.hpath)
             
         loaded_keys.update((key, ))
         
@@ -132,7 +130,7 @@ class ApostleFileset(dict):
 
         self._Extractors = {}
 
-        h_a_powers = lambda path, fname, hpath: np.power(self.h, gather_attr(path, fname, hpath, 'h-scale-exponent')) * np.power(self.a, gather_attr(path, fname, hpath, 'h-scale-exponent'))
+        h_a_powers = lambda path, fname, hpath: np.power(self.h, hdf5_get(path, fname, hpath, attr='h-scale-exponent')) * np.power(self.a, hdf5_get(path, fname, hpath, attr='aexp-scale-exponent'))
 
         #G
         self._Extractors['G'] = Extractor(
