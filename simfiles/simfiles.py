@@ -1,57 +1,21 @@
 from hdf5_io import get as hdf5_get
 import numpy as np
-from vic_paths import victoria_LG_paths as lgpaths
 import z_a_t_conversions as zat
 from rahmati2013_neutral_frac import rahmati2013_neutral_frac as HI_frac, molecular_frac
 import warnings
 from collections import namedtuple
-suffix = np.genfromtxt('/astro/koman/utilities/eagle_suffix.txt',dtype='string')
 
-T = {
-    'g': '0',
-    'dm': '1',
-    'b2': '2',
-    'b3': '3',
-    's': '4',
-    'bh': '5'
-}
+class SimFiles(dict):
+    def __init__(self, snap_id, configfile=None):
 
-elements = {
-    'H': 'ElementAbundance/Hydrogen',
-    'He': 'ElementAbundance/Helium',
-    'C': 'ElementAbundance/Carbon',
-    'Mg': 'ElementAbundance/Magnesium',
-    'Fe': 'ElementAbundance/Iron',
-    'Ne': 'ElementAbundance/Neon',
-    'N': 'ElementAbundance/Nitrogen',
-    'O': 'ElementAbundance/Oxygen',
-    'Si': 'ElementAbundance/Silicon',
-    'Z': 'Metallicity'
-}
-
-softstrings = {
-    'g': 'Gas', 
-    'dm': 'Halo', 
-    'b2': 'Disk', 
-    'b3': 'Bulge', 
-    's': 'Stars', 
-    'bh': 'Bndry'
-}
-
-class ApostleFileset(dict):
-    def __init__(self, res=None, vol=None, phys=None, snap=None):
+        config = dict()
+        execfile(configfile, config)
+        try:
+            self.snapshots = config['snapshots']
+        except KeyError:
+            print "SimFiles configfile missing 'snapshots' definition."
+            raise
         
-        if (res not in ('L', 'M', 'H')):
-            raise ValueError("ApostleFileset: res must be in 'L', 'M', 'H'")
-        if (vol not in [str(i) for i in range(1,13)]):
-            raise ValueError("ApostleFileset: vol must be in '1', '2', ..., '12'")
-        if (phys not in ('fix', 'DMO')):
-            raise ValueError("ApostleFileset: phys must be 'fix' or 'DMO'")
-        if (type(snap) != int):
-            raise ValueError('ApostleFileset: provide snapshot number as integer')
-
-        self.res, self.vol, self.phys, self.snap = res, vol, phys, snap
-
         self._init_extractors()
         
         return
@@ -63,16 +27,14 @@ class ApostleFileset(dict):
         try:
             return self.__getitem__(key)
         except KeyError:
-            raise AttributeError("'ApostleFileset' object has no attribute '"+str(key)+"'")
+            raise AttributeError("'SimFiles' object has no attribute '"+str(key)+"'.")
     
-    def load(self, ftype, keys=tuple()):
+    def load(self, file_id, keys=tuple()):
 
         loaded_keys = set()
 
-        if (ftype not in ('group', 'particle', 'snapshot')):
-            raise ValueError("ApostleFileset: ftype must be in 'group', 'particle', 'snapshot'")
         if (type(keys) != tuple):
-            raise ValueError('ApostleFileset: keys must be tuple')
+            raise ValueError('SimFiles.load(file_id, keys=tuple()): keys must be tuple')
 
         if ftype == 'group':
             path = lgpaths[self.res][self.phys][self.vol]+'/groups_'+suffix[self.snap]
@@ -84,7 +46,7 @@ class ApostleFileset(dict):
             path = lgpaths[self.res][self.phys][self.vol]+'/snapshot_'+suffix[self.snap]
             fname = 'snap_'+suffix[self.snap]
         
-        for key in keys:
+            for key in keys:
             loaded_keys.update(self._load_key(path, fname, key))
 
         return loaded_keys
