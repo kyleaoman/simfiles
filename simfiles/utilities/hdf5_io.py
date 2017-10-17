@@ -63,7 +63,7 @@ class hdf5_io():
     def get_parts(self):
         return self.__parts
 
-def get(path, fbase, hpath, attr=None):
+def hdf5_get(path, fbase, hpath, attr=None):
     '''
     path: path of simulation data (can be particle or group)
     fbase: filename of data file (omit '.X.hdf5' portion)

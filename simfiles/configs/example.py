@@ -3,8 +3,8 @@ from collections import namedtuple
 from itertools import product
 from astropy import units as U
 from astropy.cosmology import FlatLambdaCDM
-from hdf5_io import get as hdf5_get
-from rahmati2013_neutral_frac import rahmati2013_neutral_frac as HI_frac, molecular_frac
+from ..utilities.hdf5_io import hdf5_get
+from ..utilities.neutral_fractions import neutral_frac, molecular_frac
 
 #----------------------------------- DEFINE SIMULATION SNAPSHOTS -------------------------------------
 #
@@ -616,7 +616,7 @@ extractors['mHI_g'] = extractor(
         fH=vals.fH, 
         T0=vals.T0
     )) * \
-    HI_frac(
+    neutral_frac(
         vals.redshift, 
         vals.rho_g * vals.Habundance_g / (mu(vals) * vals.proton_mass), 
         vals.T_g, 

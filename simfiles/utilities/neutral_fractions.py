@@ -10,7 +10,8 @@ def molecular_frac(SFR, T, rho, Habundance, mu=1.22, proton_mass=1.6726219E-24, 
     SFR[P_margin > .5] = 0
     return np.where(SFR > 0, 1. / (1. + 1. / np.power(P / 4.3E4, .92)), 0.)
 
-def rahmati2013_neutral_frac(redshift, nH, T, onlyA1=False, noCol=False, onlyCol=False, SSH_Thresh=False, local=False, APOSTLE_corrections=False, SFR=None, mu=1.22, proton_mass=1.6726219E-24, gamma=4./3., fH=0.752, Habundance=None, T0=8.E3, rho=None):
+#function below based on Rahmati+ 2013
+def neutral_frac(redshift, nH, T, onlyA1=False, noCol=False, onlyCol=False, SSH_Thresh=False, local=False, APOSTLE_corrections=False, SFR=None, mu=1.22, proton_mass=1.6726219E-24, gamma=4./3., fH=0.752, Habundance=None, T0=8.E3, rho=None):
 
     #APOSTLE pre-treatment for gas temperature
     if APOSTLE_corrections:

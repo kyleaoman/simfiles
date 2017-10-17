@@ -1,7 +1,7 @@
 import numpy as np
 import warnings
 from collections import namedtuple
-from hdf5_io import get as hdf5_get
+from utilities.hdf5_io import hdf5_get
 
 class SimFiles(dict):
     def __init__(self, snap_id, configfile=None):
