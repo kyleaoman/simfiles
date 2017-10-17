@@ -96,7 +96,7 @@ softstrings = {
     'bh': 'Bndry'
 }
 
-extractor = namedtuple('extractor', ['keytype', 'dependencies', 'hpath', 'attr', 'convert', 'units'])
+extractor = namedtuple('extractor', ['keytype', 'filetype', 'dependencies', 'hpath', 'attr', 'convert', 'units'])
 
 extractors = {}
 
@@ -108,6 +108,7 @@ cosmo = lambda vals: FlatLambdaCDM(H0 = vals.h * 100. * U.km * U.s ** -1 * U.Mpc
 #a
 extractors['a'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Header',
     attr = 'Time',
@@ -118,6 +119,7 @@ extractors['a'] = extractor(
 #h
 extractors['h'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Header',
     attr = 'HubbleParam',
@@ -128,6 +130,7 @@ extractors['h'] = extractor(
 #code_to_g
 extractors['code_to_g'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Units',
     attr = 'UnitMass_in_g',
@@ -138,6 +141,7 @@ extractors['code_to_g'] = extractor(
 #code_to_cm
 extractors['code_to_cm'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Units',
     attr = 'UnitLength_in_cm',
@@ -148,6 +152,7 @@ extractors['code_to_cm'] = extractor(
 #code_to_cm_s
 extractors['code_to_cm_s'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Units',
     attr = 'UnitVelocity_in_cm_per_s',
@@ -158,6 +163,7 @@ extractors['code_to_cm_s'] = extractor(
 #Lbox
 extractors['Lbox'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = ('code_to_cm', 'h'),
     hpath = '/Header',
     attr = 'BoxSize',
@@ -168,6 +174,7 @@ extractors['Lbox'] = extractor(
 #proton_mass
 extractors['proton_mass'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Constants',
     attr = 'PROTONMASS',
@@ -178,6 +185,7 @@ extractors['proton_mass'] = extractor(
 #redshift
 extractors['redshift'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Header',
     attr = 'Redshift',
@@ -188,6 +196,7 @@ extractors['redshift'] = extractor(
 #fH
 extractors['fH'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/RuntimePars',
     attr = 'InitAbundance_Hydrogen',
@@ -198,6 +207,7 @@ extractors['fH'] = extractor(
 #fHe
 extractors['fHe'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/RuntimePars',
     attr = 'InitAbundance_Helium',
@@ -208,6 +218,7 @@ extractors['fHe'] = extractor(
 #Omega0
 extractors['Omega0'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Header',
     attr = 'Omega0',
@@ -218,6 +229,7 @@ extractors['Omega0'] = extractor(
 #Omegab
 extractors['Omegab'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Header',
     attr = 'OmegaBaryon',
@@ -228,6 +240,7 @@ extractors['Omegab'] = extractor(
 #gamma
 extractors['gamma'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/RuntimePars',
     attr = 'EOS_Jeans_GammaEffective',
@@ -238,6 +251,7 @@ extractors['gamma'] = extractor(
 #T0
 extractors['T0'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/RuntimePars',
     attr = 'EOS_Jeans_TempNorm_K',
@@ -248,6 +262,7 @@ extractors['T0'] = extractor(
 #p_mass
 extractors['p_mass'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = ('code_to_g', 'h'),
     hpath = '/Header',
     attr = 'MassTable',
@@ -258,6 +273,7 @@ extractors['p_mass'] = extractor(
 #eps_g
 extractors['eps_g'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_g'),
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['g'],
@@ -268,6 +284,7 @@ extractors['eps_g'] = extractor(
 #eps_dm
 extractors['eps_dm'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_dm'),
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['dm'],
@@ -278,6 +295,7 @@ extractors['eps_dm'] = extractor(
 #eps_b2
 extractors['eps_b2'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_b2'),
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['b2'],
@@ -288,6 +306,7 @@ extractors['eps_b2'] = extractor(
 #eps_b3
 extractors['eps_b3'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_b3'),
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['b3'],
@@ -298,6 +317,7 @@ extractors['eps_b3'] = extractor(
 #eps_s
 extractors['eps_s'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_s'),
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['s'],
@@ -308,6 +328,7 @@ extractors['eps_s'] = extractor(
 #eps_bh
 extractors['eps_bh'] = extractor(
     keytype = 'header',
+    filetype = 'snapshot',
     dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_bh'),
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['bh'],
@@ -319,6 +340,7 @@ extractors['eps_bh'] = extractor(
 for ptype in T.keys():
     extractors['eps_maxphys_' + ptype] = extractor(
         keytype = 'header',
+        filetype = 'snapshot',
         dependencies = ('code_to_cm', 'h', 'a'),
         hpath = '/RuntimePars',
         attr = 'Softening' + softstrings[ptype] + 'MaxPhys',
@@ -329,6 +351,7 @@ for ptype in T.keys():
 #contamination
 extractors['contamination'] = extractor(
     keytype = 'group',
+    filetype = 'group',
     dependencies = tuple(),
     hpath = '/FOF/ContaminationCount',
     attr = None,
@@ -339,6 +362,7 @@ extractors['contamination'] = extractor(
 #nsubhalos
 extractors['nsubhalos'] = extractor(
     keytype = 'group',
+    filetype = 'group',
     dependencies = tuple(),
     hpath = '/FOF/NumOfSubhalos',
     attr = None,
@@ -349,6 +373,7 @@ extractors['nsubhalos'] = extractor(
 #gns
 extractors['gns'] = extractor(
     keytype = 'group',
+    filetype = 'group',
     dependencies = tuple(),
     hpath = '/Subhalo/GroupNumber',
     attr = None,
@@ -359,6 +384,7 @@ extractors['gns'] = extractor(
 #sgns
 extractors['sgns'] = extractor(
     keytype = 'group',
+    filetype = 'group',
     dependencies = tuple(),
     hpath = '/Subhalo/SubGroupNumber',
     attr = None,
@@ -369,6 +395,7 @@ extractors['sgns'] = extractor(
 #cops
 extractors['cops'] = extractor(
     keytype = 'group',
+    filetype = 'group',
     dependencies = ('code_to_cm', 'h', 'a'),
     hpath = '/Subhalo/CentreOfPotential',
     attr = None,
@@ -379,6 +406,7 @@ extractors['cops'] = extractor(
 #vcents
 extractors['vcents'] = extractor(
     keytype = 'group',
+    filetype = 'group',
     dependencies = ('code_to_cm_s', 'h', 'a'),
     hpath = '/Subhalo/Velocity',
     attr = None,
@@ -389,6 +417,7 @@ extractors['vcents'] = extractor(
 #nID
 extractors['nID'] = extractor(
     keytype = 'group',
+    filetype = 'group',
     dependencies = tuple(),
     hpath = '/Subhalo/SubLength',
     attr = None,
@@ -399,6 +428,7 @@ extractors['nID'] = extractor(
 #offID
 extractors['offID'] = extractor(
     keytype = 'group',
+    filetype = 'group',
     dependencies = tuple(),
     hpath = '/Subhalo/SubOffset',
     attr = None,
@@ -410,6 +440,7 @@ extractors['offID'] = extractor(
 for ptype in T.keys():
     extractors['msubfind_' + ptype] = extractor(
         keytype = 'group',
+        filetype = 'group',
         dependencies = ('code_to_g', 'h', 'a'),
         hpath = '/Subhalo/MassType',
         attr = None,
@@ -420,6 +451,7 @@ for ptype in T.keys():
 #nfof
 extractors['nfof'] = extractor(
     keytype = 'header',
+    filetype = 'group'
     dependencies = tuple(),
     hpath = '/FOF',
     attr = 'TotNgroups',
@@ -430,6 +462,7 @@ extractors['nfof'] = extractor(
 #M200
 extractors['M200'] = extractor(
     keytype = 'fofgroup',
+    filetype = 'group',
     dependencies = ('code_to_g', 'h', 'a'),
     hpath = '/FOF/Group_M_Crit200',
     attr = None,
@@ -440,6 +473,7 @@ extractors['M200'] = extractor(
 #R200
 extractors['R200'] = extractor(
     keytype = 'fofgroup',
+    filetype = 'group',
     dependencies = ('code_to_cm', 'h', 'a'),
     hpath = '/FOF/Group_R_Crit200',
     attr = None,
@@ -450,6 +484,7 @@ extractors['R200'] = extractor(
 #ids
 extractors['ids'] = extractor(
     keytype = 'idgroup',
+    filetype = 'group',
     dependencies = tuple(),
     hpath = '/IDs/ParticleID',
     attr = None,
@@ -461,6 +496,7 @@ extractors['ids'] = extractor(
 for ptype in T.keys():
     extractors['ids_' + ptype] = extractor(
         keytype = 'particle',
+        filetype = 'particle',
         dependencies = tuple(),
         hpath = '/PartType' + T[ptype] + '/ParticleIDs',
         attr = None,
@@ -472,6 +508,7 @@ for ptype in T.keys():
 for ptype in T.keys():
     extractors['xyz_' + ptype] = extractor(
         keytype = 'particle',
+        filetype = 'particle',
         dependencies = ('code_to_cm', 'h', 'a'),
         hpath = '/PartType' + T[ptype] + '/Coordinates',
         attr = None,
@@ -483,6 +520,7 @@ for ptype in T.keys():
 for ptype in T.keys():
     extractors['vxyz_' + ptype] = extractor(
         keytype = 'particle',
+        filetype = 'particle',
         dependencies = ('code_to_cm_s', 'h', 'a'),
         hpath = '/PartType' + T[ptype] + '/Velocities',
         attr = None,
@@ -494,6 +532,7 @@ for ptype in T.keys():
 for ptype in T.keys():
     extractors['ng_' + ptype] = extractor(
         keytype = 'particle',
+        filetype = 'particle',
         dependencies = tuple(),
         hpath = '/PartType' + T[ptype] + '/GroupNumber',
         attr = None,
@@ -505,6 +544,7 @@ for ptype in T.keys():
 for ptype in T.keys():
     extractors['nsg_'+ptype] = extractor(
         keytype = 'particle',
+        filetype = 'particle',
         dependencies = tuple(),
         hpath = '/PartType' + T[ptype] + '/SubGroupNumber',
         attr = None,
@@ -516,6 +556,7 @@ for ptype in T.keys():
 for ptype in ['g', 'b2', 'b3', 's', 'bh']:
     extractors['m_' + ptype] = extractor(
         keytype = 'particle',
+        filetype = 'particle',
         dependencies = ('code_to_g', 'h', 'a'),
         hpath = '/PartType' + T[ptype] + '/Masses',
         attr = None,
@@ -526,6 +567,7 @@ for ptype in ['g', 'b2', 'b3', 's', 'bh']:
 #m_dm
 extractors['m_dm'] = extractor(
     keytype = 'particle',
+    filetype = 'particle',
     dependencies = ('p_mass',),
     hpath = '/PartType1/ParticleIDs',
     attr = None,
@@ -536,6 +578,7 @@ extractors['m_dm'] = extractor(
 #T_g
 extractors['T_g'] = extractor(
     keytype = 'particle',
+    filetype = 'particle',
     dependencies = ('h', 'a'),
     hpath = '/PartType0/Temperature',
     attr = None,
@@ -546,6 +589,7 @@ extractors['T_g'] = extractor(
 #rho_g
 extractors['rho_g'] = extractor(
     keytype = 'particle',
+    filetype = 'particle',
     dependencies = ('code_to_g', 'code_to_cm', 'h', 'a'),
     hpath = '/PartType0/Density',
     attr = None,
@@ -559,6 +603,7 @@ for typesuffix in ['g', 's']:
         for prefix, smooth in {'sm': 'Smoothed', '': ''}.items():
             extractors[prefix+element+'abundance_'+typesuffix] = extractor(
                 keytype = 'particle',
+                filetype = 'particle',
                 dependencies = ('h', 'a'),
                 hpath = '/PartType'+T[typesuffix]+'/'+smooth+elements[element],
                 attr = None,
@@ -568,6 +613,7 @@ for typesuffix in ['g', 's']:
 #SFR_g
 extractors['SFR_g'] = extractor(
     keytype = 'particle',
+    filetype = 'particle',
     dependencies = ('h', 'a'),
     hpath = '/PartType0/StarFormationRate',
     attr = None,
@@ -579,6 +625,7 @@ extractors['SFR_g'] = extractor(
 for typesuffix in ['g', 's']:
     extractors['hsm_' + typesuffix] = extractor(
         keytype = 'particle',
+        filetype = 'particle',
         dependencies = ('code_to_cm', 'h', 'a'),
         hpath = '/PartType'+T[typesuffix]+'/SmoothingLength',
         attr = None,
@@ -589,6 +636,7 @@ for typesuffix in ['g', 's']:
 #age_s
 extractors['age_s'] = extractor(
     keytype = 'particle',
+    filetype = 'particle',
     dependencies = ('h', 'Omega0', 'Omegab'),
     hpath = '/PartType4/StellarFormationTime',
     attr = None,
@@ -599,6 +647,7 @@ extractors['age_s'] = extractor(
 #mHI_g
 extractors['mHI_g'] = extractor(
     keytype = 'particle',
+    filetype = 'particle',
     dependencies = ('redshift', 'rho_g', 'Habundance_g', 'proton_mass', 'SFR_g', 'fH', 'T_g', 'code_to_g', 'T0', 'gamma'),
     hpath = '/PartType0/Masses',
     attr = None,

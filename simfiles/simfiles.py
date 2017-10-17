@@ -6,6 +6,15 @@ from utilities.hdf5_io import hdf5_get
 class SimFiles(dict):
     def __init__(self, snap_id, configfile=None):
 
+        self.snap_id = snap_id
+        self.configfile = configfile
+
+        self._read_config(snap_id, configfile)
+
+        return
+        
+    def _read_config(self, snap_id, configfile):
+
         config = dict()
         try:
             execfile(configfile, config)
@@ -22,11 +31,11 @@ class SimFiles(dict):
             raise ValueError("SimFiles: unknown snapshot (not defined in configfile).")
         
         try:
-            self._Extractors = config['extractors']
+            self._extractors = config['extractors']
         except KeyError:
             raise ValueError("Simfiles: configfile missing 'extractors' definition.")
         
-        return
+        return        
 
     def __setattr__(self, key, value):
         return self.__setitem__(key, value)
@@ -37,48 +46,48 @@ class SimFiles(dict):
         except KeyError:
             raise AttributeError("'SimFiles' object has no attribute '"+str(key)+"'.")
     
-    def load(self, filetype, keys=tuple()):
+    def load(self, keys=tuple(), filetype=None):
 
         loaded_keys = set()
 
         if (type(keys) != tuple):
-            raise ValueError('SimFiles.load(file_id, keys=tuple()): keys must be tuple.')
+            raise ValueError('SimFiles.load: keys must be tuple.')
         
         for key in keys:
-            try:
-                path, filename = self._snapshot[filetype]
-            except KeyError:
-                raise ValueError("SimFiles: filetype '" + filetype + "' unknown.")
-            loaded_keys.update(self._load_key(path, filename, key))
+            loaded_keys.update(self._load_key(key, filetype=filetype))
 
         return loaded_keys
 
     def fields(self, keytype = 'all'):
         if keytype == 'all':
-            return [k for k in self._Extractors.keys()]
+            return [k for k in self._extractors.keys()]
         else:
-            return [k for k, E in self._Extractors.items() if E.keytype == keytype]
+            return [k for k, E in self._extractors.items() if E.keytype == keytype]
     
-    def _dependencies(self, _dependencies_list, path, fname):
+    def _dependencies(self, _dependencies_list, filetype=None):
 
         loaded_keys = set()
         
         for k in _dependencies_list:
             if k not in self:
-                loaded_keys.update(self._load_key(path, fname, k))
+                loaded_keys.update(self._load_key(k, filetype=filetype))
 
         return loaded_keys
 
-    def _load_key(self, path, fname, key):
+    def _load_key(self, key, filetype=None):
     
         loaded_keys = set()
     
         if key in self:
-            warnings.warn("ApostleFileset._load_key: overwriting key '"+key+"', may be possible to suppress by changing load order", RuntimeWarning)
+            warnings.warn("SimFiles._load_key: overwriting key '"+key+"', may be possible to suppress by changing load order.", RuntimeWarning)
 
-        loaded_keys.update(self._dependencies(self._Extractors[key].dependencies, path, fname))
+        loaded_keys.update(self._dependencies(self._extractors[key].dependencies, filetype=filetype))
 
-        E = self._Extractors[key]
+        E = self._extractors[key]
+        try:
+            path, filename = self._snapshot[E.filetype if filetype is None else filetype]
+        except KeyError:
+            raise ValueError("SimFiles: filetype '" + E.filetype if filetype is None else filetype + "' unknown.")
         self[key] = E.convert(self, hdf5_get(path, fname, E.hpath, attr=E.attr), path, fname, E.hpath) * E.units
             
         loaded_keys.update((key, ))
