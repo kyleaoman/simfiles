@@ -14,7 +14,7 @@ class hdf5_io():
     def __subitem(self, name, parts, output):
         accumulator = []
         for part in parts:
-            with h5py.File(part, 'r'):
+            with h5py.File(part, 'r') as f:
                 accumulator.append(f[name].value.copy())
         output.put(accumulator)
         return
@@ -40,7 +40,7 @@ class hdf5_io():
         else:
             items = []
             for part in self.__parts:
-                with h5py.File(part, 'r'):
+                with h5py.File(part, 'r') as f:
                     items.append(f[name].value.copy())
         if not(items):
             raise KeyError("Unable to open object (Object '" + name + "' doesn't exist in file with path '" + self.__path + "' and basename '" + self.__fbase + "')")
@@ -59,6 +59,9 @@ class hdf5_io():
             return retval
         else:
             raise IOError("Unable to open file (File with path '" + path + "' and basename '" + fbase + "' doesn't exist)")
+            
+    def get_parts(self):
+        return self.__parts
 
 def get(path, fbase, hpath, attr=None):
     '''
@@ -67,12 +70,12 @@ def get(path, fbase, hpath, attr=None):
     hpath: path of data table to gather, e.g. 'PartType1/ParticleIDs'
     attr: name of attribute to fetch (optional)
     '''
-    f = hdf5_io(path, fbase)
     if not attr:
-        retval = f[hpath]
+        hdf5_file = hdf5_io(path, fbase)
+        retval = hdf5_file[hpath]
         return retval
     else:
-        for fname in f.__parts:
+        for fname in hdf5_io(path, fbase).get_parts():
             with h5py.File(fname, 'r') as f:
                 try:
                     return f[hpath].attrs[attr]
