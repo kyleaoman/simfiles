@@ -9,26 +9,28 @@ class SimFiles(dict):
         self.snap_id = snap_id
         self.configfile = configfile
 
-        self._read_config(snap_id, configfile)
+        self._read_config()
 
         return
         
-    def _read_config(self, snap_id, configfile):
+    def _read_config(self):
 
         config = dict()
         try:
-            execfile(configfile, config)
+            execfile(self.configfile, config)
         except IOError:
-            raise IOError("SimFiles: configfile '" + configfile + "' not found.")
+            raise IOError("SimFiles: configfile '" + self.configfile + "' not found.")
         try:
-            self._snapshots = config['snapshots']
+            snapshots = config['snapshots']
         except KeyError:
             raise ValueError("SimFiles: configfile missing 'snapshots' definition.")            
 
         try:
-            self._snapshot = self._snapshots[snap_id]
+            self._snapshot = snapshots[self.snap_id]
         except KeyError:
             raise ValueError("SimFiles: unknown snapshot (not defined in configfile).")
+
+        del snapshots
         
         try:
             self._extractors = config['extractors']
@@ -49,9 +51,11 @@ class SimFiles(dict):
     def load(self, keys=tuple(), filetype=None):
 
         loaded_keys = set()
-
-        if (type(keys) != tuple):
-            raise ValueError('SimFiles.load: keys must be tuple.')
+        
+        try:
+            _  = (k for k in keys)
+        except TypeError:
+            raise ValueError('SimFiles.load: keys must be iterable.')
         
         for key in keys:
             loaded_keys.update(self._load_key(key, filetype=filetype))
@@ -84,8 +88,9 @@ class SimFiles(dict):
         loaded_keys.update(self._dependencies(self._extractors[key].dependencies, filetype=filetype))
 
         E = self._extractors[key]
+        path, fname = None, None
         try:
-            path, filename = self._snapshot[E.filetype if filetype is None else filetype]
+            path, fname = self._snapshot[E.filetype if filetype is None else filetype]
         except KeyError:
             raise ValueError("SimFiles: filetype '" + E.filetype if filetype is None else filetype + "' unknown.")
         self[key] = E.convert(self, hdf5_get(path, fname, E.hpath, attr=E.attr), path, fname, E.hpath) * E.units
