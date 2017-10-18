@@ -1,4 +1,4 @@
-from simfiles.utilities._setup_cfg import snapshots, extractor, extractors #don't change this line
+from simfiles._setup_cfg import snapshots, extractor, extractors #don't change this line
 from collections import namedtuple
 from astropy import units as U
 
@@ -101,15 +101,17 @@ for res, vol, phys, snapnum in product(range(1, 4), range(1, 13), ['hydro', 'DMO
 #                'multiplying' them with the values before they are stored. If using dependencies, be
 #                aware that they will have units when used in the 'convert' function.
 #
-# Below is a more complex example for the APOSTLE data.
+# Below is a more complex example for the APOSTLE data. Note that not all hdf5 tables have been made
+# available via extractors, and some extractor keys do not correspond directly to an hdf5 table (e.g.
+# 'mHI_g').
 #
 #-----------------------------------------------------------------------------------------------------
 
 #imports used in this example
 import numpy as np
 from astropy.cosmology import FlatLambdaCDM
-from ..utilities.hdf5_io import hdf5_get
-from ..utilities.neutral_fractions import neutral_frac, molecular_frac
+from utilities.hdf5_io import hdf5_get
+from utilities.neutral_fractions import neutral_frac, molecular_frac
 
 #define a mnemonic suffix for each particle type in EAGLE/APOSTLE
 T = {
