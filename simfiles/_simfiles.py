@@ -48,14 +48,12 @@ class SimFiles(dict):
         except KeyError:
             raise AttributeError("'SimFiles' object has no attribute '"+str(key)+"'.")
     
-    def load(self, keys=tuple(), filetype=None):
+    def load(self, keys=None, filetype=None):
 
         loaded_keys = set()
         
-        try:
-            _  = (k for k in keys)
-        except TypeError:
-            raise ValueError('SimFiles.load: keys must be iterable.')
+        if type(keys) is not tuple:
+            raise ValueError('SimFiles.load: keys must be tuple.')
         
         for key in keys:
             loaded_keys.update(self._load_key(key, filetype=filetype))
