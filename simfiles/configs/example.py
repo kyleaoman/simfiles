@@ -348,7 +348,7 @@ extractors['eps_g'] = extractor(
     dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_g'),
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['g'],
-    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_g / vals.code_to_cm) * vals.code_to_cm,
+    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_g / vals.code_to_cm / U.cm) * vals.code_to_cm,
     units = U.cm
 )
 
@@ -359,7 +359,7 @@ extractors['eps_dm'] = extractor(
     dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_dm'),
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['dm'],
-    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_dm / vals.code_to_cm) * vals.code_to_cm,
+    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_dm / vals.code_to_cm / U.cm) * vals.code_to_cm,
     units = U.cm
 )
 
@@ -370,7 +370,7 @@ extractors['eps_b2'] = extractor(
     dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_b2'),
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['b2'],
-    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_b2 / vals.code_to_cm) * vals.code_to_cm,
+    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_b2 / vals.code_to_cm / U.cm) * vals.code_to_cm,
     units = U.cm
 )
 
@@ -381,7 +381,7 @@ extractors['eps_b3'] = extractor(
     dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_b3'),
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['b3'],
-    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_b3 / vals.code_to_cm) * vals.code_to_cm,
+    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_b3 / vals.code_to_cm / U.cm) * vals.code_to_cm,
     units = U.cm
 )
 
@@ -392,7 +392,7 @@ extractors['eps_s'] = extractor(
     dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_s'),
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['s'],
-    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_s / vals.code_to_cm) * vals.code_to_cm,
+    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_s / vals.code_to_cm / U.cm) * vals.code_to_cm,
     units = U.cm
 )
 
@@ -403,7 +403,7 @@ extractors['eps_bh'] = extractor(
     dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_bh'),
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['bh'],
-    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_bh / vals.code_to_cm) * vals.code_to_cm,
+    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_bh / vals.code_to_cm / U.cm) * vals.code_to_cm,
     units = U.cm
 )
 
@@ -421,7 +421,7 @@ for ptype in T.keys():
 
 #contamination
 extractors['contamination'] = extractor(
-    keytype = 'group',
+    keytype = 'fofgroup',
     filetype = 'group',
     dependencies = tuple(),
     hpath = '/FOF/ContaminationCount',
@@ -432,7 +432,7 @@ extractors['contamination'] = extractor(
 
 #nsubhalos
 extractors['nsubhalos'] = extractor(
-    keytype = 'group',
+    keytype = 'fofgroup',
     filetype = 'group',
     dependencies = tuple(),
     hpath = '/FOF/NumOfSubhalos',
@@ -708,7 +708,7 @@ for ptype in ['g', 's']:
 extractors['age_s'] = extractor(
     keytype = 'particle_s',
     filetype = 'particle',
-    dependencies = ('h', 'Omega0', 'Omegab'),
+    dependencies = ('h', 'Omega0', 'Omegab', 'redshift'),
     hpath = '/PartType4/StellarFormationTime',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: (cosmo(vals).age(vals.redshift) - cosmo(vals).age(1. / raw - 1.)) / U.yr,
@@ -719,7 +719,7 @@ extractors['age_s'] = extractor(
 extractors['mHI_g'] = extractor(
     keytype = 'particle_g',
     filetype = 'particle',
-    dependencies = ('redshift', 'rho_g', 'Habundance_g', 'proton_mass', 'SFR_g', 'fH', 'T_g', 'code_to_g', 'T0', 'gamma'),
+    dependencies = ('redshift', 'rho_g', 'Habundance_g', 'proton_mass', 'SFR_g', 'fH', 'fHe', 'T_g', 'code_to_g', 'T0', 'gamma'),
     hpath = '/PartType0/Masses',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw * \
