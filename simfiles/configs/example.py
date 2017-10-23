@@ -125,6 +125,9 @@ for res, vol, phys, snapnum in product(range(1, 4), range(1, 13), ['hydro', 'DMO
 #                'multiplying' them with the values before they are stored. If using dependencies, be
 #                aware that they will have units when used in the 'convert' function.
 #
+# unit_convert:  (astropy.units) Specify another unit to which the data can be converted if desired,
+#                otherwise use None.
+#
 # Below is a more complex example for the APOSTLE data. Note that not all hdf5 tables have been made
 # available via extractors, and some extractor keys do not correspond directly to an hdf5 table (e.g.
 # 'mHI_g').
@@ -635,7 +638,7 @@ for ptype in T.keys():
         dependencies = ('code_to_cm_s', 'h', 'a'),
         hpath = '/PartType' + T[ptype] + '/Velocities',
         attr = None,
-        convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * code_to_cm_s,
+        convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * cals.code_to_cm_s,
         units = U.cm * U.s ** -1,
         unit_convert = U.km * U.s ** -1
     )
