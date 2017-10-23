@@ -92,6 +92,8 @@ class SimFiles(dict):
         except KeyError:
             raise ValueError("SimFiles: filetype '" + E.filetype if filetype is None else filetype + "' unknown.")
         self[key] = E.convert(self, hdf5_get(path, fname, E.hpath, attr=E.attr), path, fname, E.hpath) * E.units
+        if E.unit_convert is not None:
+            self[key] = self[key].to(E.unit_convert)
             
         loaded_keys.update((key, ))
         
