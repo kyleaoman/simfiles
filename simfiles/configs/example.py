@@ -184,7 +184,8 @@ extractors['a'] = extractor(
     hpath = '/Header',
     attr = 'Time',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled                     
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #h
@@ -195,7 +196,8 @@ extractors['h'] = extractor(
     hpath = '/Header',
     attr = 'HubbleParam',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #code_to_g
@@ -206,7 +208,8 @@ extractors['code_to_g'] = extractor(
     hpath = '/Units',
     attr = 'UnitMass_in_g',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #code_to_cm
@@ -217,7 +220,8 @@ extractors['code_to_cm'] = extractor(
     hpath = '/Units',
     attr = 'UnitLength_in_cm',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #code_to_cm_s
@@ -228,7 +232,8 @@ extractors['code_to_cm_s'] = extractor(
     hpath = '/Units',
     attr = 'UnitVelocity_in_cm_per_s',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #Lbox
@@ -239,7 +244,8 @@ extractors['Lbox'] = extractor(
     hpath = '/Header',
     attr = 'BoxSize',
     convert = lambda vals, raw, path, fname, hpath: raw / vals.h * vals.code_to_cm,
-    units = U.cm
+    units = U.cm,
+    unit_convert = U.kpc
 )
 
 #proton_mass
@@ -250,7 +256,8 @@ extractors['proton_mass'] = extractor(
     hpath = '/Constants',
     attr = 'PROTONMASS',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.g
+    units = U.g,
+    unit_convert = None
 )
 
 #redshift
@@ -261,7 +268,8 @@ extractors['redshift'] = extractor(
     hpath = '/Header',
     attr = 'Redshift',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #fH
@@ -272,7 +280,8 @@ extractors['fH'] = extractor(
     hpath = '/RuntimePars',
     attr = 'InitAbundance_Hydrogen',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #fHe
@@ -283,7 +292,8 @@ extractors['fHe'] = extractor(
     hpath = '/RuntimePars',
     attr = 'InitAbundance_Helium',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #Omega0
@@ -294,7 +304,8 @@ extractors['Omega0'] = extractor(
     hpath = '/Header',
     attr = 'Omega0',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #Omegab
@@ -305,7 +316,8 @@ extractors['Omegab'] = extractor(
     hpath = '/Header',
     attr = 'OmegaBaryon',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #gamma
@@ -316,7 +328,8 @@ extractors['gamma'] = extractor(
     hpath = '/RuntimePars',
     attr = 'EOS_Jeans_GammaEffective',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #T0
@@ -327,7 +340,8 @@ extractors['T0'] = extractor(
     hpath = '/RuntimePars',
     attr = 'EOS_Jeans_TempNorm_K',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.K
+    units = U.K,
+    unit_convert = None
 )
 
 #p_mass
@@ -338,20 +352,24 @@ extractors['p_mass'] = extractor(
     hpath = '/Header',
     attr = 'MassTable',
     convert = lambda vals, raw, path, fname, hpath: raw[1] / vals.h * vals.code_to_g,
-    units = U.g
+    units = U.g,
+    unit_convert = None
 )
 
-#eps_g
-extractors['eps_g'] = extractor(
-    keytype = 'header',
-    filetype = 'snapshot',
-    dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_g'),
-    hpath = '/RuntimePars',
-    attr = 'Softening' + softstrings['g'],
-    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_g / vals.code_to_cm / U.cm) * vals.code_to_cm,
-    units = U.cm
-)
+#eps_*
+for ptype in T.keys():
+    extractors['eps_' + ptype] = extractor(
+        keytype = 'header',
+        filetype = 'snapshot',
+        dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_' + ptype),
+        hpath = '/RuntimePars',
+        attr = 'Softening' + softstrings[ptype],
+        convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals['eps_maxphys_' + ptype].to(U.cm) / U.cm / vals.code_to_cm) * vals.code_to_cm,
+        units = U.cm,
+        unit_convert = U.kpc
+    )
 
+"""
 #eps_dm
 extractors['eps_dm'] = extractor(
     keytype = 'header',
@@ -360,7 +378,8 @@ extractors['eps_dm'] = extractor(
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['dm'],
     convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_dm / vals.code_to_cm / U.cm) * vals.code_to_cm,
-    units = U.cm
+    units = U.cm,
+    unit_convert = U.kpc
 )
 
 #eps_b2
@@ -371,7 +390,8 @@ extractors['eps_b2'] = extractor(
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['b2'],
     convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_b2 / vals.code_to_cm / U.cm) * vals.code_to_cm,
-    units = U.cm
+    units = U.cm,
+    unit_convert = U.kpc
 )
 
 #eps_b3
@@ -382,7 +402,8 @@ extractors['eps_b3'] = extractor(
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['b3'],
     convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_b3 / vals.code_to_cm / U.cm) * vals.code_to_cm,
-    units = U.cm
+    units = U.cm,
+    unit_convert = U.kpc
 )
 
 #eps_s
@@ -393,7 +414,8 @@ extractors['eps_s'] = extractor(
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['s'],
     convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_s / vals.code_to_cm / U.cm) * vals.code_to_cm,
-    units = U.cm
+    units = U.cm,
+    unit_convert = U.kpc
 )
 
 #eps_bh
@@ -404,8 +426,10 @@ extractors['eps_bh'] = extractor(
     hpath = '/RuntimePars',
     attr = 'Softening' + softstrings['bh'],
     convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_bh / vals.code_to_cm / U.cm) * vals.code_to_cm,
-    units = U.cm
+    units = U.cm,
+    unit_convert = U.kpc
 )
+"""
 
 #eps_maxphys_*
 for ptype in T.keys():
@@ -416,7 +440,8 @@ for ptype in T.keys():
         hpath = '/RuntimePars',
         attr = 'Softening' + softstrings[ptype] + 'MaxPhys',
         convert = lambda vals, raw, path, fname, hpath: raw / vals.h * vals.code_to_cm,
-        units = U.cm
+        units = U.cm,
+        unit_convert = U.kpc
     )
 
 #contamination
@@ -427,7 +452,8 @@ extractors['contamination'] = extractor(
     hpath = '/FOF/ContaminationCount',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #nsubhalos
@@ -438,7 +464,8 @@ extractors['nsubhalos'] = extractor(
     hpath = '/FOF/NumOfSubhalos',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #gns
@@ -449,7 +476,8 @@ extractors['gns'] = extractor(
     hpath = '/Subhalo/GroupNumber',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #sgns
@@ -460,7 +488,8 @@ extractors['sgns'] = extractor(
     hpath = '/Subhalo/SubGroupNumber',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #cops
@@ -471,7 +500,8 @@ extractors['cops'] = extractor(
     hpath = '/Subhalo/CentreOfPotential',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
-    units = U.cm
+    units = U.cm,
+    unit_convert = U.kpc
 )
 
 #vcents
@@ -481,8 +511,9 @@ extractors['vcents'] = extractor(
     dependencies = ('code_to_cm_s', 'h', 'a'),
     hpath = '/Subhalo/Velocity',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
-    units = U.cm
+    convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm_s,
+    units = U.cm * U.s ** -1,
+    unit_convert = None
 )
 
 #nID
@@ -493,7 +524,8 @@ extractors['nID'] = extractor(
     hpath = '/Subhalo/SubLength',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #offID
@@ -504,7 +536,8 @@ extractors['offID'] = extractor(
     hpath = '/Subhalo/SubOffset',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #msubfind_*
@@ -516,7 +549,8 @@ for ptype in T.keys():
         hpath = '/Subhalo/MassType',
         attr = None,
         convert = lambda vals, raw, path, fname, hpath: raw[:, int(T[ptype])] * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
-        units = U.g
+        units = U.g,
+        unit_convert = U.solMass
     )
 
 #nfof
@@ -527,7 +561,8 @@ extractors['nfof'] = extractor(
     hpath = '/FOF',
     attr = 'TotNgroups',
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #M200
@@ -538,7 +573,8 @@ extractors['M200'] = extractor(
     hpath = '/FOF/Group_M_Crit200',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
-    units = U.g
+    units = U.g,
+    unit_convert = U.solMass
 )
 
 #R200
@@ -548,8 +584,9 @@ extractors['R200'] = extractor(
     dependencies = ('code_to_cm', 'h', 'a'),
     hpath = '/FOF/Group_R_Crit200',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
-    units = U.g
+    convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
+    units = U.cm,
+    unit_convert = U.kpc
 )
 
 #ids
@@ -560,7 +597,8 @@ extractors['ids'] = extractor(
     hpath = '/IDs/ParticleID',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw,
-    units = U.dimensionless_unscaled
+    units = U.dimensionless_unscaled,
+    unit_convert = None
 )
 
 #ids_*
@@ -572,7 +610,8 @@ for ptype in T.keys():
         hpath = '/PartType' + T[ptype] + '/ParticleIDs',
         attr = None,
         convert = lambda vals, raw, path, fname, hpath: raw,
-        units = U.dimensionless_unscaled
+        units = U.dimensionless_unscaled,
+        unit_convert = None
     )
 
 #xyz_*
@@ -584,7 +623,8 @@ for ptype in T.keys():
         hpath = '/PartType' + T[ptype] + '/Coordinates',
         attr = None,
         convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
-        units = U.cm
+        units = U.cm,
+        unit_convert = U.kpc
     )
 
 #vxyz_*
@@ -596,7 +636,8 @@ for ptype in T.keys():
         hpath = '/PartType' + T[ptype] + '/Velocities',
         attr = None,
         convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * code_to_cm_s,
-        units = U.cm * U.s ** -1
+        units = U.cm * U.s ** -1,
+        unit_convert = U.km * U.s ** -1
     )
 
 #ng_*
@@ -608,7 +649,8 @@ for ptype in T.keys():
         hpath = '/PartType' + T[ptype] + '/GroupNumber',
         attr = None,
         convert = lambda vals, raw, path, fname, hpath: raw,
-        units = U.dimensionless_unscaled
+        units = U.dimensionless_unscaled,
+        unit_convert = None
     )
 
 #nsg_*
@@ -620,7 +662,8 @@ for ptype in T.keys():
         hpath = '/PartType' + T[ptype] + '/SubGroupNumber',
         attr = None,
         convert = lambda vals, raw, path, fname, hpath: raw,
-        units = U.dimensionless_unscaled
+        units = U.dimensionless_unscaled,
+        unit_convert = None
     )
 
 #m_g, m_b2, m_b3, m_s, m_bh
@@ -632,7 +675,8 @@ for ptype in ['g', 'b2', 'b3', 's', 'bh']:
         hpath = '/PartType' + T[ptype] + '/Masses',
         attr = None,
         convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
-        units = U.g
+        units = U.g,
+        unit_convert = U.solMass
     )
 
 #m_dm
@@ -642,8 +686,9 @@ extractors['m_dm'] = extractor(
     dependencies = ('p_mass',),
     hpath = '/PartType1/ParticleIDs',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: np.ones(raw.shape, dtype=np.float) * vals.p_mass / U.g,
-    units = U.g
+    convert = lambda vals, raw, path, fname, hpath: np.ones(raw.shape, dtype=np.float) * vals.p_mass.to(U.g) / U.g,
+    units = U.g,
+    unit_convert = U.solMass
 )
 
 #T_g
@@ -654,7 +699,8 @@ extractors['T_g'] = extractor(
     hpath = '/PartType0/Temperature',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath),
-    units = U.K
+    units = U.K,
+    unit_convert = None
 )
 
 #rho_g
@@ -665,7 +711,8 @@ extractors['rho_g'] = extractor(
     hpath = '/PartType0/Density',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g * np.power(vals.code_to_cm, -3),
-    units = U.g * U.cm ** -3
+    units = U.g * U.cm ** -3,
+    unit_convert = None
 )
 
 #*abundance_g, *abundance_s, sm*abundance_g, sm*abundance_s
@@ -679,7 +726,8 @@ for ptype in ['g', 's']:
                 hpath = '/PartType'+T[ptype]+'/'+smooth+elements[element],
                 attr = None,
                 convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath),
-                units = U.dimensionless_unscaled
+                units = U.dimensionless_unscaled,
+                unit_convert = None
             )
 #SFR_g
 extractors['SFR_g'] = extractor(
@@ -689,7 +737,8 @@ extractors['SFR_g'] = extractor(
     hpath = '/PartType0/StarFormationRate',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath),
-    units = U.solMass / U.yr
+    units = U.solMass / U.yr,
+    unit_convert = None
 )
 
 #hsm_g, hsm_s
@@ -701,7 +750,8 @@ for ptype in ['g', 's']:
         hpath = '/PartType'+T[ptype]+'/SmoothingLength',
         attr = None,
         convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
-        units = U.cm
+        units = U.cm,
+        unit_convert = U.kpc
     )
 
 #age_s
@@ -711,8 +761,9 @@ extractors['age_s'] = extractor(
     dependencies = ('h', 'Omega0', 'Omegab', 'redshift'),
     hpath = '/PartType4/StellarFormationTime',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: (cosmo(vals).age(vals.redshift) - cosmo(vals).age(1. / raw - 1.)) / U.yr,
-    units = U.Gyr
+    convert = lambda vals, raw, path, fname, hpath: (cosmo(vals).age(vals.redshift) - cosmo(vals).age(1. / raw - 1.)).to(U.yr) / U.yr,
+    units = U.Gyr,
+    unit_convert = None
 )
 
 #mHI_g
@@ -752,7 +803,8 @@ extractors['mHI_g'] = extractor(
         rho=vals.rho_g
     ) * \
     vals.code_to_g,
-    units = U.g
+    units = U.g,
+    unit_convert = U.solMass
 )
 
 #-----------------------------------------------------------------------------------------------------
