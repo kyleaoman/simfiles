@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='simfiles',
-    version='0.1',
+    version='1.0',
     description='Generic interface to HDF5 simulation files.',
     url='',
     author='Kyle Oman',
