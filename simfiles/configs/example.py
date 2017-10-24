@@ -55,7 +55,8 @@ snap_id = namedtuple('snap_id', ['res', 'phys', 'vol', 'snap'])
 
 path_base = '/sraid14/azadehf/LG/data_fix/'
 res_str = {1: 'HR', 2: 'MR', 3: 'LR'}
-vol_str = {1: 'V1', 2: 'V2', 3: 'V3', 4: 'V4', 5: 'V5', 6: 'V6', 7: 'S1', 8: 'S2', 9: 'S3', 10: 'S4', 11: 'S5', 12: 'S6'}
+vol_str = {1: 'V1', 2: 'V2', 3: 'V3',  4: 'V4',  5: 'V5',  6: 'V6',\
+           7: 'S1', 8: 'S2', 9: 'S3', 10: 'S4', 11: 'S5', 12: 'S6'}
 phys_str = {'hydro': 'fix', 'DMO': 'DMO'}
 
 for res, vol, phys, snapnum in product(range(1, 4), range(1, 13), ['hydro', 'DMO'], range(128)):
@@ -69,7 +70,12 @@ for res, vol, phys, snapnum in product(range(1, 4), range(1, 13), ['hydro', 'DMO
     snapshot_path = path_prefix + '/snapshot_' + suffix[snapnum]
     snapshot_file = 'snap_' + suffix[snapnum]
 
-    if (res == 1) and (((phys == 'hydro') and (vol not in [1, 4, 6, 10, 11])) or ((phys == 'DMO') and (vol not in [1, 4, 11]))):
+    if (res == 1) 
+    and (
+        ((phys == 'hydro') and (vol not in [1, 4, 6, 10, 11])) 
+         or 
+        ((phys == 'DMO') and (vol not in [1, 4, 11]))
+    ):
         continue
 
     #next line defines a snapshot by its id and specifies where to find its files
@@ -124,7 +130,6 @@ for res, vol, phys, snapnum in product(range(1, 4), range(1, 13), ['hydro', 'DMO
 # units:         (astropy.units) Specify the units of the quantity, which will be applied by 
 #                'multiplying' them with the values before they are stored. If using dependencies, be
 #                aware that they will have units when used in the 'convert' function.
-#
 # unit_convert:  (astropy.units) Specify another unit to which the data can be converted if desired,
 #                otherwise use None.
 #
@@ -134,13 +139,13 @@ for res, vol, phys, snapnum in product(range(1, 4), range(1, 13), ['hydro', 'DMO
 #
 #-----------------------------------------------------------------------------------------------------
 
-#imports used in this example
+# imports used in this example
 import numpy as np
 from astropy.cosmology import FlatLambdaCDM
 from utilities.hdf5_io import hdf5_get
 from utilities.neutral_fractions import neutral_frac, molecular_frac
 
-#define a mnemonic suffix for each particle type in EAGLE/APOSTLE
+# define a mnemonic suffix for each particle type in EAGLE/APOSTLE
 T = {
     'g': '0',
     'dm': '1',
@@ -150,7 +155,7 @@ T = {
     'bh': '5'
 }
 
-#define abbreviations for elemental abundance fields
+# define abbreviations for elemental abundance fields
 elements = {
     'H': 'ElementAbundance/Hydrogen',
     'He': 'ElementAbundance/Helium',
@@ -164,7 +169,7 @@ elements = {
     'Z': 'Metallicity'
 }
 
-#define abbreviations for annoying softening length suffixes in EAGLE/APOSTLE
+# define abbreviations for annoying softening length suffixes in EAGLE/APOSTLE
 softstrings = {
     'g': 'Gas',
     'dm': 'Halo',
@@ -174,192 +179,217 @@ softstrings = {
     'bh': 'Bndry'
 }
 
-h_a_powers = lambda vals, path, fname, hpath: np.power(vals.h, hdf5_get(path, fname, hpath, attr='h-scale-exponent')) * np.power(vals.a, hdf5_get(path, fname, hpath, attr='aexp-scale-exponent')) #many EAGLE/APOSTLE fields specify exponents for h and a; use this lambda to apply them concisely
+# many EAGLE/APOSTLE fields specify exponents for h and a; use this lambda to apply them concisely
+h_a_powers = lambda vals, path, fname, hpath: 
+        np.power(vals.h, hdf5_get(path, fname, hpath, attr='h-scale-exponent')) * \
+            np.power(vals.a, hdf5_get(path, fname, hpath, attr='aexp-scale-exponent')) 
 
-mu = lambda vals: 1. / (vals.fH + .25 * vals.fHe) #convenience function to get molecular weight once other parameters are defined
-cosmo = lambda vals: FlatLambdaCDM(H0 = vals.h * 100. * U.km * U.s ** -1 * U.Mpc ** -1, Om0 = vals.Omega0, Ob0 = vals.Omegab)
+# convenience function to get molecular weight once other parameters are defined
+mu = lambda vals: 
+        1. / (vals.fH + .25 * vals.fHe)
+cosmo = lambda vals: 
+        FlatLambdaCDM(
+            H0 = vals.h * 100. * U.km * U.s ** -1 * U.Mpc ** -1,
+            Om0 = vals.Omega0,
+            Ob0 = vals.Omegab
+        )
 
-#a
+# a
 extractors['a'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Header',
     attr = 'Time',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#h
+# h
 extractors['h'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Header',
     attr = 'HubbleParam',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#code_to_g
+# code_to_g
 extractors['code_to_g'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Units',
     attr = 'UnitMass_in_g',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#code_to_cm
+# code_to_cm
 extractors['code_to_cm'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Units',
     attr = 'UnitLength_in_cm',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#code_to_cm_s
+# code_to_cm_s
 extractors['code_to_cm_s'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Units',
     attr = 'UnitVelocity_in_cm_per_s',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#Lbox
+# Lbox
 extractors['Lbox'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = ('code_to_cm', 'h'),
     hpath = '/Header',
     attr = 'BoxSize',
-    convert = lambda vals, raw, path, fname, hpath: raw / vals.h * vals.code_to_cm,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw / vals.h * vals.code_to_cm,
     units = U.cm,
     unit_convert = U.kpc
 )
 
-#proton_mass
+# proton_mass
 extractors['proton_mass'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Constants',
     attr = 'PROTONMASS',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.g,
     unit_convert = None
 )
 
-#redshift
+# redshift
 extractors['redshift'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Header',
     attr = 'Redshift',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#fH
+# fH
 extractors['fH'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/RuntimePars',
     attr = 'InitAbundance_Hydrogen',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#fHe
+# fHe
 extractors['fHe'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/RuntimePars',
     attr = 'InitAbundance_Helium',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#Omega0
+# Omega0
 extractors['Omega0'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Header',
     attr = 'Omega0',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#Omegab
+# Omegab
 extractors['Omegab'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/Header',
     attr = 'OmegaBaryon',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#gamma
+# gamma
 extractors['gamma'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/RuntimePars',
     attr = 'EOS_Jeans_GammaEffective',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#T0
+# T0
 extractors['T0'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = tuple(),
     hpath = '/RuntimePars',
     attr = 'EOS_Jeans_TempNorm_K',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.K,
     unit_convert = None
 )
 
-#p_mass
+# p_mass
 extractors['p_mass'] = extractor(
     keytype = 'header',
     filetype = 'snapshot',
     dependencies = ('code_to_g', 'h'),
     hpath = '/Header',
     attr = 'MassTable',
-    convert = lambda vals, raw, path, fname, hpath: raw[1] / vals.h * vals.code_to_g,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw[1] / vals.h * vals.code_to_g,
     units = U.g,
     unit_convert = None
 )
 
-#eps_*
+# eps_*
 for ptype in T.keys():
     extractors['eps_' + ptype] = extractor(
         keytype = 'header',
@@ -367,74 +397,16 @@ for ptype in T.keys():
         dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_' + ptype),
         hpath = '/RuntimePars',
         attr = 'Softening' + softstrings[ptype],
-        convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals['eps_maxphys_' + ptype].to(U.cm) / U.cm / vals.code_to_cm) * vals.code_to_cm,
+        convert = lambda vals, raw, path, fname, hpath: \
+        min(
+            raw * vals.a / vals.h, 
+            vals['eps_maxphys_' + ptype].to(U.cm) / U.cm / vals.code_to_cm
+        ) * vals.code_to_cm,
         units = U.cm,
         unit_convert = U.kpc
     )
 
-"""
-#eps_dm
-extractors['eps_dm'] = extractor(
-    keytype = 'header',
-    filetype = 'snapshot',
-    dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_dm'),
-    hpath = '/RuntimePars',
-    attr = 'Softening' + softstrings['dm'],
-    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_dm / vals.code_to_cm / U.cm) * vals.code_to_cm,
-    units = U.cm,
-    unit_convert = U.kpc
-)
-
-#eps_b2
-extractors['eps_b2'] = extractor(
-    keytype = 'header',
-    filetype = 'snapshot',
-    dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_b2'),
-    hpath = '/RuntimePars',
-    attr = 'Softening' + softstrings['b2'],
-    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_b2 / vals.code_to_cm / U.cm) * vals.code_to_cm,
-    units = U.cm,
-    unit_convert = U.kpc
-)
-
-#eps_b3
-extractors['eps_b3'] = extractor(
-    keytype = 'header',
-    filetype = 'snapshot',
-    dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_b3'),
-    hpath = '/RuntimePars',
-    attr = 'Softening' + softstrings['b3'],
-    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_b3 / vals.code_to_cm / U.cm) * vals.code_to_cm,
-    units = U.cm,
-    unit_convert = U.kpc
-)
-
-#eps_s
-extractors['eps_s'] = extractor(
-    keytype = 'header',
-    filetype = 'snapshot',
-    dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_s'),
-    hpath = '/RuntimePars',
-    attr = 'Softening' + softstrings['s'],
-    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_s / vals.code_to_cm / U.cm) * vals.code_to_cm,
-    units = U.cm,
-    unit_convert = U.kpc
-)
-
-#eps_bh
-extractors['eps_bh'] = extractor(
-    keytype = 'header',
-    filetype = 'snapshot',
-    dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_bh'),
-    hpath = '/RuntimePars',
-    attr = 'Softening' + softstrings['bh'],
-    convert = lambda vals, raw, path, fname, hpath: min(raw * vals.a / vals.h, vals.eps_maxphys_bh / vals.code_to_cm / U.cm) * vals.code_to_cm,
-    units = U.cm,
-    unit_convert = U.kpc
-)
-"""
-
-#eps_maxphys_*
+# eps_maxphys_*
 for ptype in T.keys():
     extractors['eps_maxphys_' + ptype] = extractor(
         keytype = 'header',
@@ -442,108 +414,117 @@ for ptype in T.keys():
         dependencies = ('code_to_cm', 'h', 'a'),
         hpath = '/RuntimePars',
         attr = 'Softening' + softstrings[ptype] + 'MaxPhys',
-        convert = lambda vals, raw, path, fname, hpath: raw / vals.h * vals.code_to_cm,
+        convert = lambda vals, raw, path, fname, hpath: \
+        raw / vals.h * vals.code_to_cm,
         units = U.cm,
         unit_convert = U.kpc
     )
 
-#contamination
+# contamination
 extractors['contamination'] = extractor(
     keytype = 'fofgroup',
     filetype = 'group',
     dependencies = tuple(),
     hpath = '/FOF/ContaminationCount',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#nsubhalos
+# nsubhalos
 extractors['nsubhalos'] = extractor(
     keytype = 'fofgroup',
     filetype = 'group',
     dependencies = tuple(),
     hpath = '/FOF/NumOfSubhalos',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#gns
+# gns
 extractors['gns'] = extractor(
     keytype = 'group',
     filetype = 'group',
     dependencies = tuple(),
     hpath = '/Subhalo/GroupNumber',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#sgns
+# sgns
 extractors['sgns'] = extractor(
     keytype = 'group',
     filetype = 'group',
     dependencies = tuple(),
     hpath = '/Subhalo/SubGroupNumber',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#cops
+# cops
 extractors['cops'] = extractor(
     keytype = 'group',
     filetype = 'group',
     dependencies = ('code_to_cm', 'h', 'a'),
     hpath = '/Subhalo/CentreOfPotential',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
     units = U.cm,
     unit_convert = U.kpc
 )
 
-#vcents
+# vcents
 extractors['vcents'] = extractor(
     keytype = 'group',
     filetype = 'group',
     dependencies = ('code_to_cm_s', 'h', 'a'),
     hpath = '/Subhalo/Velocity',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm_s,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm_s,
     units = U.cm * U.s ** -1,
     unit_convert = None
 )
 
-#nID
+# nID
 extractors['nID'] = extractor(
     keytype = 'group',
     filetype = 'group',
     dependencies = tuple(),
     hpath = '/Subhalo/SubLength',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#offID
+# offID
 extractors['offID'] = extractor(
     keytype = 'group',
     filetype = 'group',
     dependencies = tuple(),
     hpath = '/Subhalo/SubOffset',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#msubfind_*
+# msubfind_*
 for ptype in T.keys():
     extractors['msubfind_' + ptype] = extractor(
         keytype = 'group',
@@ -551,60 +532,65 @@ for ptype in T.keys():
         dependencies = ('code_to_g', 'h', 'a'),
         hpath = '/Subhalo/MassType',
         attr = None,
-        convert = lambda vals, raw, path, fname, hpath: raw[:, int(T[ptype])] * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
+        convert = lambda vals, raw, path, fname, hpath: \
+        raw[:, int(T[ptype])] * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
         units = U.g,
         unit_convert = U.solMass
     )
 
-#nfof
+# nfof
 extractors['nfof'] = extractor(
     keytype = 'header',
     filetype = 'group',
     dependencies = tuple(),
     hpath = '/FOF',
     attr = 'TotNgroups',
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#M200
+# M200
 extractors['M200'] = extractor(
     keytype = 'fofgroup',
     filetype = 'group',
     dependencies = ('code_to_g', 'h', 'a'),
     hpath = '/FOF/Group_M_Crit200',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
     units = U.g,
     unit_convert = U.solMass
 )
 
-#R200
+# R200
 extractors['R200'] = extractor(
     keytype = 'fofgroup',
     filetype = 'group',
     dependencies = ('code_to_cm', 'h', 'a'),
     hpath = '/FOF/Group_R_Crit200',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
     units = U.cm,
     unit_convert = U.kpc
 )
 
-#ids
+# ids
 extractors['ids'] = extractor(
     keytype = 'idgroup',
     filetype = 'group',
     dependencies = tuple(),
     hpath = '/IDs/ParticleID',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw,
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw,
     units = U.dimensionless_unscaled,
     unit_convert = None
 )
 
-#ids_*
+# ids_*
 for ptype in T.keys():
     extractors['ids_' + ptype] = extractor(
         keytype = 'particle_'+ptype,
@@ -612,12 +598,13 @@ for ptype in T.keys():
         dependencies = tuple(),
         hpath = '/PartType' + T[ptype] + '/ParticleIDs',
         attr = None,
-        convert = lambda vals, raw, path, fname, hpath: raw,
+        convert = lambda vals, raw, path, fname, hpath: \
+        raw,
         units = U.dimensionless_unscaled,
         unit_convert = None
     )
 
-#xyz_*
+# xyz_*
 for ptype in T.keys():
     extractors['xyz_' + ptype] = extractor(
         keytype = 'particle_'+ptype,
@@ -625,12 +612,13 @@ for ptype in T.keys():
         dependencies = ('code_to_cm', 'h', 'a'),
         hpath = '/PartType' + T[ptype] + '/Coordinates',
         attr = None,
-        convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
+        convert = lambda vals, raw, path, fname, hpath: \
+        raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
         units = U.cm,
         unit_convert = U.kpc
     )
 
-#vxyz_*
+# vxyz_*
 for ptype in T.keys():
     extractors['vxyz_' + ptype] = extractor(
         keytype = 'particle_'+ptype,
@@ -638,12 +626,13 @@ for ptype in T.keys():
         dependencies = ('code_to_cm_s', 'h', 'a'),
         hpath = '/PartType' + T[ptype] + '/Velocities',
         attr = None,
-        convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm_s,
+        convert = lambda vals, raw, path, fname, hpath: \
+        raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm_s,
         units = U.cm * U.s ** -1,
         unit_convert = U.km * U.s ** -1
     )
 
-#ng_*
+# ng_*
 for ptype in T.keys():
     extractors['ng_' + ptype] = extractor(
         keytype = 'particle_'+ptype,
@@ -651,12 +640,13 @@ for ptype in T.keys():
         dependencies = tuple(),
         hpath = '/PartType' + T[ptype] + '/GroupNumber',
         attr = None,
-        convert = lambda vals, raw, path, fname, hpath: raw,
+        convert = lambda vals, raw, path, fname, hpath: \
+        raw,
         units = U.dimensionless_unscaled,
         unit_convert = None
     )
 
-#nsg_*
+# nsg_*
 for ptype in T.keys():
     extractors['nsg_'+ptype] = extractor(
         keytype = 'particle_'+ptype,
@@ -664,12 +654,13 @@ for ptype in T.keys():
         dependencies = tuple(),
         hpath = '/PartType' + T[ptype] + '/SubGroupNumber',
         attr = None,
-        convert = lambda vals, raw, path, fname, hpath: raw,
+        convert = lambda vals, raw, path, fname, hpath: \
+        raw,
         units = U.dimensionless_unscaled,
         unit_convert = None
     )
 
-#m_g, m_b2, m_b3, m_s, m_bh
+# m_g, m_b2, m_b3, m_s, m_bh
 for ptype in ['g', 'b2', 'b3', 's', 'bh']:
     extractors['m_' + ptype] = extractor(
         keytype = 'particle_'+ptype,
@@ -677,48 +668,52 @@ for ptype in ['g', 'b2', 'b3', 's', 'bh']:
         dependencies = ('code_to_g', 'h', 'a'),
         hpath = '/PartType' + T[ptype] + '/Masses',
         attr = None,
-        convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
+        convert = lambda vals, raw, path, fname, hpath: \
+        raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
         units = U.g,
         unit_convert = U.solMass
     )
 
-#m_dm
+# m_dm
 extractors['m_dm'] = extractor(
     keytype = 'particle_dm',
     filetype = 'particle',
     dependencies = ('p_mass',),
     hpath = '/PartType1/ParticleIDs',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: np.ones(raw.shape, dtype=np.float) * vals.p_mass.to(U.g) / U.g,
+    convert = lambda vals, raw, path, fname, hpath: \
+    np.ones(raw.shape, dtype=np.float) * vals.p_mass.to(U.g) / U.g,
     units = U.g,
     unit_convert = U.solMass
 )
 
-#T_g
+# T_g
 extractors['T_g'] = extractor(
     keytype = 'particle_g',
     filetype = 'particle',
     dependencies = ('h', 'a'),
     hpath = '/PartType0/Temperature',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath),
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw * h_a_powers(vals, path, fname, hpath),
     units = U.K,
     unit_convert = None
 )
 
-#rho_g
+# rho_g
 extractors['rho_g'] = extractor(
     keytype = 'particle_g',
     filetype = 'particle',
     dependencies = ('code_to_g', 'code_to_cm', 'h', 'a'),
     hpath = '/PartType0/Density',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g * np.power(vals.code_to_cm, -3),
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g * np.power(vals.code_to_cm, -3),
     units = U.g * U.cm ** -3,
     unit_convert = None
 )
 
-#*abundance_g, *abundance_s, sm*abundance_g, sm*abundance_s
+# *abundance_g, *abundance_s, sm*abundance_g, sm*abundance_s
 for ptype in ['g', 's']:
     for element in elements.keys():
         for prefix, smooth in {'sm': 'Smoothed', '': ''}.items():
@@ -728,23 +723,25 @@ for ptype in ['g', 's']:
                 dependencies = ('h', 'a'),
                 hpath = '/PartType'+T[ptype]+'/'+smooth+elements[element],
                 attr = None,
-                convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath),
+                convert = lambda vals, raw, path, fname, hpath: \
+                raw * h_a_powers(vals, path, fname, hpath),
                 units = U.dimensionless_unscaled,
                 unit_convert = None
             )
-#SFR_g
+# SFR_g
 extractors['SFR_g'] = extractor(
     keytype = 'particle_g',
     filetype = 'particle',
     dependencies = ('h', 'a'),
     hpath = '/PartType0/StarFormationRate',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath),
+    convert = lambda vals, raw, path, fname, hpath: \
+    raw * h_a_powers(vals, path, fname, hpath),
     units = U.solMass / U.yr,
     unit_convert = None
 )
 
-#hsm_g, hsm_s
+# hsm_g, hsm_s
 for ptype in ['g', 's']:
     extractors['hsm_' + ptype] = extractor(
         keytype = 'particle_'+ptype,
@@ -752,28 +749,42 @@ for ptype in ['g', 's']:
         dependencies = ('code_to_cm', 'h', 'a'),
         hpath = '/PartType'+T[ptype]+'/SmoothingLength',
         attr = None,
-        convert = lambda vals, raw, path, fname, hpath: raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
+        convert = lambda vals, raw, path, fname, hpath: \
+        raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
         units = U.cm,
         unit_convert = U.kpc
     )
 
-#age_s
+# age_s
 extractors['age_s'] = extractor(
     keytype = 'particle_s',
     filetype = 'particle',
     dependencies = ('h', 'Omega0', 'Omegab', 'redshift'),
     hpath = '/PartType4/StellarFormationTime',
     attr = None,
-    convert = lambda vals, raw, path, fname, hpath: (cosmo(vals).age(vals.redshift) - cosmo(vals).age(1. / raw - 1.)).to(U.yr) / U.yr,
+    convert = lambda vals, raw, path, fname, hpath: \
+    (cosmo(vals).age(vals.redshift) - cosmo(vals).age(1. / raw - 1.)).to(U.yr) / U.yr,
     units = U.Gyr,
     unit_convert = None
 )
 
-#mHI_g
+# mHI_g
 extractors['mHI_g'] = extractor(
     keytype = 'particle_g',
     filetype = 'particle',
-    dependencies = ('redshift', 'rho_g', 'Habundance_g', 'proton_mass', 'SFR_g', 'fH', 'fHe', 'T_g', 'code_to_g', 'T0', 'gamma'),
+    dependencies = (
+        'redshift', 
+        'rho_g', 
+        'Habundance_g', 
+        'proton_mass', 
+        'SFR_g', 
+        'fH', 
+        'fHe', 
+        'T_g', 
+        'code_to_g', 
+        'T0', 
+        'gamma'
+    ),
     hpath = '/PartType0/Masses',
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: raw * \
