@@ -70,10 +70,10 @@ for res, vol, phys, snapnum in product(range(1, 4), range(1, 13), ['hydro', 'DMO
     snapshot_path = path_prefix + '/snapshot_' + suffix[snapnum]
     snapshot_file = 'snap_' + suffix[snapnum]
 
-    if (res == 1) 
+    if (res == 1) \
     and (
-        ((phys == 'hydro') and (vol not in [1, 4, 6, 10, 11])) 
-         or 
+        ((phys == 'hydro') and (vol not in [1, 4, 6, 10, 11])) \
+         or \
         ((phys == 'DMO') and (vol not in [1, 4, 11]))
     ):
         continue
@@ -180,14 +180,14 @@ softstrings = {
 }
 
 # many EAGLE/APOSTLE fields specify exponents for h and a; use this lambda to apply them concisely
-h_a_powers = lambda vals, path, fname, hpath: 
+h_a_powers = lambda vals, path, fname, hpath: \
         np.power(vals.h, hdf5_get(path, fname, hpath, attr='h-scale-exponent')) * \
             np.power(vals.a, hdf5_get(path, fname, hpath, attr='aexp-scale-exponent')) 
 
 # convenience function to get molecular weight once other parameters are defined
-mu = lambda vals: 
+mu = lambda vals: \
         1. / (vals.fH + .25 * vals.fHe)
-cosmo = lambda vals: 
+cosmo = lambda vals: \
         FlatLambdaCDM(
             H0 = vals.h * 100. * U.km * U.s ** -1 * U.Mpc ** -1,
             Om0 = vals.Omega0,
@@ -800,7 +800,6 @@ extractors['mHI_g'] = extractor(
         onlyA1=True, 
         EAGLE_corrections=True, 
         mu=mu(vals), 
-        proton_mass=vals.proton_mass, 
         gamma=vals.gamma, 
         fH=vals.fH, 
         T0=vals.T0, 
