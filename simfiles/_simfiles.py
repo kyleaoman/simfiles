@@ -3,6 +3,9 @@ import warnings
 from collections import namedtuple
 from utilities.hdf5_io import hdf5_get
 
+# SimFiles is a dict with added features, notably __getattr__ and __setattr__, and automatic loading
+# of data from simulation files as defined using a config file.
+
 class SimFiles(dict):
     def __init__(self, snap_id, configfile=None):
 
@@ -17,7 +20,7 @@ class SimFiles(dict):
 
         config = dict()
         try:
-            execfile(self.configfile, config)
+            execfile(self.configfile, config) #config file should be declarative only
         except IOError:
             raise IOError("SimFiles: configfile '" + self.configfile + "' not found.")
         try:
