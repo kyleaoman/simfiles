@@ -142,8 +142,8 @@ for res, vol, phys, snapnum in product(range(1, 4), range(1, 13), ['hydro', 'DMO
 # imports used in this example
 import numpy as np
 from astropy.cosmology import FlatLambdaCDM
-from utilities.hdf5_io import hdf5_get
-from utilities.neutral_fractions import neutral_frac, molecular_frac
+from kyleaoman_utilities.hdf5_io import hdf5_get
+from kyleaoman_utilities.neutral_fractions import atomic_frac
 
 # define a mnemonic suffix for each particle type in EAGLE/APOSTLE
 T = {
@@ -790,31 +790,20 @@ extractors['mHI_g'] = extractor(
     convert = lambda vals, raw, path, fname, hpath: raw * \
     vals.Habundance_g * \
     h_a_powers(vals, path, fname, hpath) * \
-    (1. - molecular_frac(
-        vals.SFR_g, 
-        vals.T_g, 
-        vals.rho_g, 
-        vals.Habundance_g, 
-        mu=mu(vals), 
-        proton_mass=vals.proton_mass, 
-        gamma=vals.gamma, 
-        fH=vals.fH, 
-        T0=vals.T0
-    )) * \
-    neutral_frac(
+    atomic_frac(
         vals.redshift, 
         vals.rho_g * vals.Habundance_g / (mu(vals) * vals.proton_mass), 
         vals.T_g, 
+        vals.SFR_g,
+        vals.rho_g,
+        vals.Habundance_g,
         onlyA1=True, 
-        APOSTLE_corrections=True, 
-        SFR=vals.SFR_g, 
+        EAGLE_corrections=True, 
         mu=mu(vals), 
         proton_mass=vals.proton_mass, 
         gamma=vals.gamma, 
         fH=vals.fH, 
-        Habundance=vals.Habundance_g, 
         T0=vals.T0, 
-        rho=vals.rho_g
     ) * \
     vals.code_to_g,
     units = U.g,

@@ -1,7 +1,7 @@
 import numpy as np
 import warnings
 from collections import namedtuple
-from utilities.hdf5_io import hdf5_get
+from kyleaoman_utilities.hdf5_io import hdf5_get
 
 # SimFiles is a dict with added features, notably __getattr__ and __setattr__, and automatic loading
 # of data from simulation files as defined using a config file.
