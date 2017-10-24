@@ -7,7 +7,7 @@ setup(
     url='',
     author='Kyle Oman',
     author_email='koman@astro.rug.nl',
-    license='',
+    license='GNU GPL v3',
     packages=['simfiles'],
     install_requires=['numpy', 'astropy', 'h5py'],
     include_package_data=True,
