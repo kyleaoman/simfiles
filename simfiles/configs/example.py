@@ -187,6 +187,8 @@ h_a_powers = lambda vals, path, fname, hpath: \
 # convenience function to get molecular weight once other parameters are defined
 mu = lambda vals: \
         1. / (vals.fH + .25 * vals.fHe)
+
+#convenience function to get an astropy cosmology utility
 cosmo = lambda vals: \
         FlatLambdaCDM(
             H0 = vals.h * 100. * U.km * U.s ** -1 * U.Mpc ** -1,
