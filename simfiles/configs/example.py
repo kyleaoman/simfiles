@@ -393,6 +393,14 @@ extractors['p_mass'] = extractor(
     unit_convert = None
 )
 
+#this helper function allows correct definition of lambda when looping over ptype in defining eps_*
+def subval(s):
+    return lambda vals, raw, path, fname, hpath:\
+        min(
+            raw * vals.a / vals.h,
+            vals[s].to(U.cm) / U.cm / vals.code_to_cm,
+        ) * vals.code_to_cm
+
 # eps_*
 for ptype in T.keys():
     extractors['eps_' + ptype] = extractor(
@@ -401,11 +409,7 @@ for ptype in T.keys():
         dependencies = ('code_to_cm', 'h', 'a', 'eps_maxphys_' + ptype),
         hpath = '/RuntimePars',
         attr = 'Softening' + softstrings[ptype],
-        convert = lambda vals, raw, path, fname, hpath: \
-        min(
-            raw * vals.a / vals.h, 
-            vals['eps_maxphys_' + ptype].to(U.cm) / U.cm / vals.code_to_cm
-        ) * vals.code_to_cm,
+        convert = subval('eps_maxphys_' + ptype),
         units = U.cm,
         unit_convert = U.kpc
     )
