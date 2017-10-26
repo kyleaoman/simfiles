@@ -534,7 +534,7 @@ extractors['offID'] = extractor(
 
 def subval(s):
     return lambda vals, raw, path, fname, hpath: \
-        raw[:, int(T[s])]* h_a_power(vals, path, fname, hpath) * vals.code_to_g
+        raw[:, int(T[s])]* h_a_powers(vals, path, fname, hpath) * vals.code_to_g
 
 # msubfind_*
 for ptype in T.keys():
@@ -544,7 +544,7 @@ for ptype in T.keys():
         dependencies = ('code_to_g', 'h', 'a'),
         hpath = '/Subhalo/MassType',
         attr = None,
-        convert = subval(ptype)
+        convert = subval(ptype),
         units = U.g,
         unit_convert = U.solMass
     )
