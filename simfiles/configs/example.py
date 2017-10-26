@@ -532,6 +532,10 @@ extractors['offID'] = extractor(
     unit_convert = None
 )
 
+def subval(s):
+    return lambda vals, raw, path, fname, hpath: \
+        raw[:, int(T[s])]* h_a_power(vals, path, fname, hpath) * vals.code_to_g
+
 # msubfind_*
 for ptype in T.keys():
     extractors['msubfind_' + ptype] = extractor(
@@ -540,8 +544,7 @@ for ptype in T.keys():
         dependencies = ('code_to_g', 'h', 'a'),
         hpath = '/Subhalo/MassType',
         attr = None,
-        convert = lambda vals, raw, path, fname, hpath: \
-        raw[:, int(T[ptype])] * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
+        convert = subval(ptype)
         units = U.g,
         unit_convert = U.solMass
     )
@@ -772,8 +775,8 @@ extractors['age_s'] = extractor(
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: \
     (cosmo(vals).age(vals.redshift) - cosmo(vals).age(1. / raw - 1.)).to(U.yr) / U.yr,
-    units = U.Gyr,
-    unit_convert = None
+    units = U.yr,
+    unit_convert = U.Gyr
 )
 
 # mHI_g
