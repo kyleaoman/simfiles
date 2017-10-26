@@ -2,6 +2,7 @@ import numpy as np
 import warnings
 from collections import namedtuple
 from kyleaoman_utilities.hdf5_io import hdf5_get
+from importlib.util import spec_from_file_location, module_from_spec
 
 # SimFiles is a dict with added features, notably __getattr__ and __setattr__, and automatic loading
 # of data from simulation files as defined using a config file.
@@ -18,14 +19,15 @@ class SimFiles(dict):
         
     def _read_config(self):
 
-        config = dict()
         try:
-            execfile(self.configfile, config) #config file should be declarative only
-        except IOError:
-            raise IOError("SimFiles: configfile '" + self.configfile + "' not found.")
+            spec = spec_from_file_location('config', self.configfile)
+            config = module_from_spec(spec)
+            spec.loader.exec_module(config)
+        except FileNotFoundError:
+            raise FileNotFoundError("SimFiles: configfile '" + self.configfile + "' not found.")
         try:
-            snapshots = config['snapshots']
-        except KeyError:
+            snapshots = config.snapshots
+        except AttributeError:
             raise ValueError("SimFiles: configfile missing 'snapshots' definition.")            
 
         try:
@@ -36,8 +38,8 @@ class SimFiles(dict):
         del snapshots
         
         try:
-            self._extractors = config['extractors']
-        except KeyError:
+            self._extractors = config.extractors
+        except AttributeError:
             raise ValueError("Simfiles: configfile missing 'extractors' definition.")
         
         return        
