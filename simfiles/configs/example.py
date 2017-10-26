@@ -129,7 +129,9 @@ for res, vol, phys, snapnum in product(range(1, 4), range(1, 13), ['hydro', 'DMO
 #                necessary, but prefer the use of dependencies when possible.
 # units:         (astropy.units) Specify the units of the quantity, which will be applied by 
 #                'multiplying' them with the values before they are stored. If using dependencies, be
-#                aware that they will have units when used in the 'convert' function.
+#                aware that they will have units when used in the 'convert' function. 'None' may be
+#                passed to apply no units, but this should only be done for e.g. tables intended for use
+#                as array indices, otherwise prefer astropy.units.dimensionless_unscaled.
 # unit_convert:  (astropy.units) Specify another unit to which the data can be converted if desired,
 #                otherwise use None.
 #
@@ -509,7 +511,7 @@ extractors['nID'] = extractor(
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: \
     raw,
-    units = U.dimensionless_unscaled,
+    units = None,
     unit_convert = None
 )
 
@@ -522,7 +524,7 @@ extractors['offID'] = extractor(
     attr = None,
     convert = lambda vals, raw, path, fname, hpath: \
     raw,
-    units = U.dimensionless_unscaled,
+    units = None,
     unit_convert = None
 )
 
