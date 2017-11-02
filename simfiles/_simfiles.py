@@ -3,6 +3,7 @@ import warnings
 from collections import namedtuple
 from kyleaoman_utilities.hdf5_io import hdf5_get
 from importlib.util import spec_from_file_location, module_from_spec
+from os.path import expanduser
 
 # SimFiles is a dict with added features, notably __getattr__ and __setattr__, and automatic loading
 # of data from simulation files as defined using a config file.
@@ -20,7 +21,7 @@ class SimFiles(dict):
     def _read_config(self):
 
         try:
-            spec = spec_from_file_location('config', self.configfile)
+            spec = spec_from_file_location('config', expanduser(self.configfile))
             config = module_from_spec(spec)
             spec.loader.exec_module(config)
         except FileNotFoundError:
