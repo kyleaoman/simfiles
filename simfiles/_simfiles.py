@@ -55,15 +55,17 @@ class SimFiles(dict):
         except KeyError:
             raise AttributeError("'SimFiles' object has no attribute '"+str(key)+"'.")
     
-    def load(self, keys=None, filetype=None):
+    def load(self, keys=None, filetype=None, intervals=None):
 
         loaded_keys = set()
         
         if type(keys) is not tuple:
             raise ValueError('SimFiles.load: keys must be tuple.')
-        
-        for key in keys:
-            loaded_keys.update(self._load_key(key, filetype=filetype))
+
+        if (keys != None) and (intervals == None):
+            intervals = (None, ) * len(keys)
+        for key, interval in zip(keys, intervals):
+            loaded_keys.update(self._load_key(key, filetype=filetype, interval=interval))
 
         return loaded_keys
 
@@ -73,24 +75,24 @@ class SimFiles(dict):
         else:
             return [k for k, E in self._extractors.items() if E.keytype == keytype]
     
-    def _dependencies(self, _dependencies_list, filetype=None):
+    def _dependencies(self, _dependencies_list, filetype=None, interval):
 
         loaded_keys = set()
         
         for k in _dependencies_list:
             if k not in self:
-                loaded_keys.update(self._load_key(k, filetype=filetype))
+                loaded_keys.update(self._load_key(k, filetype=filetype, interval=interval))
 
         return loaded_keys
 
-    def _load_key(self, key, filetype=None):
+    def _load_key(self, key, filetype=None, interval=None):
     
         loaded_keys = set()
     
         if key in self:
             warnings.warn("SimFiles._load_key: overwriting key '"+key+"', may be possible to suppress by changing load order.", RuntimeWarning)
 
-        loaded_keys.update(self._dependencies(self._extractors[key].dependencies, filetype=filetype))
+        loaded_keys.update(self._dependencies(self._extractors[key].dependencies, filetype=filetype, interval=interval))
 
         E = self._extractors[key]
         path, fname = None, None
@@ -98,7 +100,7 @@ class SimFiles(dict):
             path, fname = self._snapshot[E.filetype if filetype is None else filetype]
         except KeyError:
             raise ValueError("SimFiles: filetype '" + E.filetype if filetype is None else filetype + "' unknown.")
-        self[key] = E.convert(self, hdf5_get(path, fname, E.hpath, attr=E.attr, ncpu=self.ncpu), path, fname, E.hpath) 
+        self[key] = E.convert(self, hdf5_get(path, fname, E.hpath, attr=E.attr, ncpu=self.ncpu, interval=interval), path, fname, E.hpath) 
         if E.units is not None:
             self[key] = self[key] * E.units
         if E.unit_convert is not None:
