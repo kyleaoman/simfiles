@@ -75,7 +75,7 @@ class SimFiles(dict):
         else:
             return [k for k, E in self._extractors.items() if E.keytype == keytype]
     
-    def _dependencies(self, _dependencies_list, filetype=None, interval):
+    def _dependencies(self, _dependencies_list, filetype=None, interval=None):
 
         loaded_keys = set()
         
