@@ -480,6 +480,23 @@ extractors['sgns'] = extractor(
     unit_convert = None
 )
 
+def subval(s):
+    return lambda vals, raw, path, fname, hpath: \
+        raw[:, int(T[s])]
+
+# sl_*
+for ptype in T.keys():
+    extractors['sl_'+ptype] = extractor(
+        keytype = 'group',
+        filetype = 'group',
+        dependencies = tuple(),
+        hpath = '/Subhalo/SubLengthType',
+        attr = None,
+        convert = subval(ptype),
+        units = U.dimensionless_unscaled,
+        unit_convert = None
+    )
+
 # cops
 extractors['cops'] = extractor(
     keytype = 'group',
