@@ -57,7 +57,7 @@ class SimFiles(dict):
             raise AttributeError("'SimFiles' object has no attribute '"+str(key)+"'.")
 
     def __delitem__(self, key):
-        if share_mode == False:
+        if self.share_mode == False:
             return super(SimFiles, self).__delitem__(key)
         else:
             return
