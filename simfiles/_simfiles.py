@@ -9,11 +9,12 @@ from os.path import expanduser
 # of data from simulation files as defined using a config file.
 
 class SimFiles(dict):
-    def __init__(self, snap_id, configfile=None, ncpu=0):
+    def __init__(self, snap_id, configfile=None, ncpu=0, share_mode=False):
 
         self.snap_id = snap_id
         self.configfile = configfile
         self.ncpu = ncpu
+        self.share_mode = share_mode
 
         self._read_config()
 
@@ -54,6 +55,12 @@ class SimFiles(dict):
             return self.__getitem__(key)
         except KeyError:
             raise AttributeError("'SimFiles' object has no attribute '"+str(key)+"'.")
+
+    def __delitem__(self, key):
+        if share_mode == False:
+            return super(SimFiles, self).__delitem__(key)
+        else:
+            return
     
     def load(self, keys=None, filetype=None, intervals=None):
 
@@ -90,7 +97,10 @@ class SimFiles(dict):
         loaded_keys = set()
     
         if key in self:
-            warnings.warn("SimFiles._load_key: overwriting key '"+key+"', may be possible to suppress by changing load order.", RuntimeWarning)
+            if self.share_mode:
+                return tuple()
+            else:
+                warnings.warn("SimFiles._load_key: overwriting key '"+key+"', may be possible to suppress by changing load order.", RuntimeWarning)
 
         loaded_keys.update(self._dependencies(self._extractors[key].dependencies, filetype=filetype, interval=interval))
 
@@ -109,5 +119,3 @@ class SimFiles(dict):
         loaded_keys.update((key, ))
         
         return loaded_keys
-
-        
