@@ -37,8 +37,6 @@ class SimFiles(dict):
             self._snapshot = snapshots[self.snap_id]
         except KeyError:
             raise ValueError("SimFiles: unknown snapshot (not defined in configfile).")
-
-        del snapshots
         
         try:
             self._extractors = config.extractors
