@@ -58,7 +58,7 @@ class SimFiles(dict):
 
     def __delitem__(self, key):
         if self.share_mode == False:
-            return super(SimFiles, self).__delitem__(key)
+            return super().__delitem__(key)
         else:
             return
     
