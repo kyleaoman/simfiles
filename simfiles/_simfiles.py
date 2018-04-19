@@ -102,7 +102,6 @@ class SimFiles(dict):
 
         loaded_keys.update(self._dependencies(self._extractors[key].dependencies, filetype=filetype, interval=interval))
         
-        print(key)
         E = self._extractors[key]
         path, fname = None, None
         try:
