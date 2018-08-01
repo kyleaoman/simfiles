@@ -9,12 +9,13 @@ from os.path import expanduser
 # of data from simulation files as defined using a config file.
 
 class SimFiles(dict):
-    def __init__(self, snap_id, configfile=None, ncpu=0, share_mode=False):
+    def __init__(self, snap_id, configfile=None, ncpu=0, share_mode=False, single_file=None):
 
         self.snap_id = snap_id
         self.configfile = configfile
         self.ncpu = ncpu
         self.share_mode = share_mode
+        self.single_file = single_file
 
         self._read_config()
 
@@ -108,6 +109,8 @@ class SimFiles(dict):
             path, fname = self._snapshot[E.filetype if filetype is None else filetype]
         except KeyError:
             raise ValueError("SimFiles: filetype '" + E.filetype if filetype is None else filetype + "' unknown.")
+        if self.single_file is not None:
+            fname = fname + '.{0:.0f}'.format(self.single_file) #will force loading only one file
         self[key] = E.convert(self, hdf5_get(path, fname, E.hpath, attr=E.attr, ncpu=self.ncpu, interval=interval), path, fname, E.hpath) 
         if E.units is not None:
             self[key] = self[key] * E.units
