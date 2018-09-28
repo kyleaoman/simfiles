@@ -9,7 +9,7 @@ from os.path import expanduser
 # of data from simulation files as defined using a config file.
 
 class SimFiles(dict):
-    def __init__(self, snap_id, configfile=None, ncpu=0, share_mode=False):
+    def __init__(self, snap_id, configfile=None, ncpu=2, share_mode=False):
 
         self.snap_id = snap_id
         self.configfile = configfile
