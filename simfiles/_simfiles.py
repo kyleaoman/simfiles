@@ -9,12 +9,14 @@ from os.path import expanduser
 # of data from simulation files as defined using a config file.
 
 class SimFiles(dict):
+
     def __init__(self, snap_id, configfile=None, ncpu=2, share_mode=False):
 
         self.snap_id = snap_id
         self.configfile = configfile
         self.ncpu = ncpu
         self.share_mode = share_mode
+        self.single_file = single_file
 
         self._read_config()
 
@@ -37,8 +39,6 @@ class SimFiles(dict):
             self._snapshot = snapshots[self.snap_id]
         except KeyError:
             raise ValueError("SimFiles: unknown snapshot (not defined in configfile).")
-
-        del snapshots
         
         try:
             self._extractors = config.extractors
@@ -58,7 +58,7 @@ class SimFiles(dict):
 
     def __delitem__(self, key):
         if self.share_mode == False:
-            return super(SimFiles, self).__delitem__(key)
+            return super().__delitem__(key)
         else:
             return
     
@@ -103,13 +103,15 @@ class SimFiles(dict):
                 warnings.warn("SimFiles._load_key: overwriting key '"+key+"', may be possible to suppress by changing load order.", RuntimeWarning)
 
         loaded_keys.update(self._dependencies(self._extractors[key].dependencies, filetype=filetype, interval=interval))
-
+        
         E = self._extractors[key]
         path, fname = None, None
         try:
             path, fname = self._snapshot[E.filetype if filetype is None else filetype]
         except KeyError:
             raise ValueError("SimFiles: filetype '" + E.filetype if filetype is None else filetype + "' unknown.")
+        if self.single_file is not None:
+            fname = fname + '.{0:.0f}'.format(self.single_file) #will force loading only one file
         self[key] = E.convert(self, hdf5_get(path, fname, E.hpath, attr=E.attr, ncpu=self.ncpu, interval=interval), path, fname, E.hpath) 
         if E.units is not None:
             self[key] = self[key] * E.units
