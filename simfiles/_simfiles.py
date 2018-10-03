@@ -10,7 +10,7 @@ from os.path import expanduser
 
 class SimFiles(dict):
 
-    def __init__(self, snap_id, configfile=None, ncpu=2, share_mode=False):
+    def __init__(self, snap_id, configfile=None, ncpu=2, share_mode=False, single_file=False):
 
         self.snap_id = snap_id
         self.configfile = configfile
