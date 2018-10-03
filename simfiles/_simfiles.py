@@ -111,7 +111,7 @@ class SimFiles(dict):
             path, fname = self._snapshot[use_filetype]
         except KeyError:
             raise ValueError("SimFiles: filetype '" + use_filetype + "' unknown.")
-        if (self.single_file is not None) and ((use_filetype == 'particle') or (use_filetype == 'snapshot')):
+        if (self.single_file is not False) and ((use_filetype == 'particle') or (use_filetype == 'snapshot')):
             fname = fname + '.{0:.0f}'.format(self.single_file) #will force loading only one file for particles only
         self[key] = E.convert(self, hdf5_get(path, fname, E.hpath, attr=E.attr, ncpu=self.ncpu, interval=interval), path, fname, E.hpath) 
         if E.units is not None:
