@@ -8,6 +8,7 @@ from os.path import expanduser
 # SimFiles is a dict with added features, notably __getattr__ and __setattr__, and automatic loading
 # of data from simulation files as defined using a config file.
 
+
 class SimFiles(dict):
 
     def __init__(self, snap_id, configfile=None, ncpu=2, share_mode=False, single_file=False):
