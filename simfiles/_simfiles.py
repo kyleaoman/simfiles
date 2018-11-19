@@ -10,7 +10,7 @@ from os.path import expanduser
 
 class SimFiles(dict):
 
-    def __init__(self, snap_id, configfile=None, ncpu=2, share_mode=False):
+    def __init__(self, snap_id, configfile=None, ncpu=2, share_mode=False, single_file=None):
 
         self.snap_id = snap_id
         self.configfile = configfile
@@ -113,7 +113,7 @@ class SimFiles(dict):
             raise ValueError("SimFiles: filetype '" + use_filetype + "' unknown.")
         if (self.single_file is not None) and ((use_filetype == 'particle') or (use_filetype == 'snapshot')):
             fname = fname + '.{0:.0f}'.format(self.single_file) #will force loading only one file for particles only
-        self[key] = E.convert(self, hdf5_get(path, fname, E.hpath, attr=E.attr, ncpu=self.ncpu, interval=interval), path, fname, E.hpath) 
+        self[key] = E.convert(self, hdf5_get(path, fname, E.hpath, attr=E.attr, ncpu=self.ncpu, interval=interval), path, fname, E.hpath)
         if E.units is not None:
             self[key] = self[key] * E.units
         if E.unit_convert is not None:
