@@ -8,6 +8,7 @@ from os.path import expanduser
 # SimFiles is a dict with added features, notably __getattr__ and __setattr__, and automatic loading
 # of data from simulation files as defined using a config file.
 
+
 class SimFiles(dict):
 
     def __init__(self, snap_id, configfile=None, ncpu=2, share_mode=False, single_file=None):
@@ -62,7 +63,7 @@ class SimFiles(dict):
         else:
             return
     
-    def load(self, keys=None, filetype=None, intervals=None):
+    def load(self, keys=None, filetype=None, intervals=None, verbose=False):
 
         loaded_keys = set()
         
@@ -72,7 +73,7 @@ class SimFiles(dict):
         if (keys != None) and (intervals == None):
             intervals = (None, ) * len(keys)
         for key, interval in zip(keys, intervals):
-            loaded_keys.update(self._load_key(key, filetype=filetype, interval=interval))
+            loaded_keys.update(self._load_key(key, filetype=filetype, interval=interval, verbose=verbose))
 
         return loaded_keys
 
@@ -82,17 +83,17 @@ class SimFiles(dict):
         else:
             return [k for k, E in self._extractors.items() if E.keytype == keytype]
     
-    def _dependencies(self, _dependencies_list, filetype=None, interval=None):
+    def _dependencies(self, _dependencies_list, filetype=None, interval=None, verbose=False):
 
         loaded_keys = set()
         
         for k in _dependencies_list:
             if k not in self:
-                loaded_keys.update(self._load_key(k, filetype=filetype, interval=interval))
+                loaded_keys.update(self._load_key(k, filetype=filetype, interval=interval, verbose=verbose))
 
         return loaded_keys
 
-    def _load_key(self, key, filetype=None, interval=None):
+    def _load_key(self, key, filetype=None, interval=None, verbose=False):
     
         loaded_keys = set()
     
@@ -102,7 +103,7 @@ class SimFiles(dict):
             else:
                 warnings.warn("SimFiles._load_key: overwriting key '"+key+"', may be possible to suppress by changing load order.", RuntimeWarning)
 
-        loaded_keys.update(self._dependencies(self._extractors[key].dependencies, filetype=filetype, interval=interval))
+        loaded_keys.update(self._dependencies(self._extractors[key].dependencies, filetype=filetype, interval=interval, verbose=verbose))
         
         E = self._extractors[key]
         path, fname = None, None
@@ -118,7 +119,7 @@ class SimFiles(dict):
             self[key] = self[key] * E.units
         if E.unit_convert is not None:
             self[key] = self[key].to(E.unit_convert)
-            
+
         loaded_keys.update((key, ))
         
         return loaded_keys

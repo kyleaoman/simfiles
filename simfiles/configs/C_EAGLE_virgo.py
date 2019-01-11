@@ -5,52 +5,46 @@ from itertools import product
 import numpy as np
 from astropy.cosmology import FlatLambdaCDM
 from kyleaoman_utilities.hdf5_io import hdf5_get
-from kyleaoman_utilities.neutral_fractions import atomic_frac
+from kyleaoman_utilities.neutral_fractions import atomic_frac, neutral_frac
 
-# annoying redshift text suffixes for EAGLE hdf5 files
+# annoying redshift text suffixes for C-EAGLE hdf5 files
 suffix = [
-    '000_z020p000', '001_z015p132', '002_z009p993', '003_z008p988',
-    '004_z008p075', '005_z007p050', '006_z005p971', '007_z005p487',
-    '008_z005p037', '009_z004p485', '010_z003p984', '011_z003p528',
-    '012_z003p017', '013_z002p478', '014_z002p237', '015_z002p012',
-    '016_z001p737', '017_z001p487', '018_z001p259', '019_z001p004',
-    '020_z000p865', '021_z000p736', '022_z000p615', '023_z000p503',
-    '024_z000p366', '025_z000p271', '026_z000p183', '027_z000p101',
-    '028_z000p000'
+    '000_z014p003', '001_z006p772', '002_z004p614',
+    '003_z003p512', '004_z002p825', '005_z002p348',
+    '006_z001p993', '007_z001p716', '008_z001p493',
+    '009_z001p308', '010_z001p151', '011_z001p017',
+    '012_z000p899', '013_z000p795', '014_z000p703',
+    '015_z000p619', '016_z000p543', '017_z000p474',
+    '018_z000p411', '019_z000p366', '020_z000p352',
+    '021_z000p297', '022_z000p247', '023_z000p199',
+    '024_z000p155', '025_z000p113', '026_z000p101',
+    '027_z000p073', '028_z000p036', '029_z000p000',
 ]
 
 # define snapshot unique id tuple format
-snap_id = namedtuple('snap_id', ['box', 'res', 'model', 'snap'])
+snap_id = namedtuple('snap_id', ['sample', 'ce', 'model', 'snap'])
 
-path_base = '/cosma5/data/Eagle/ScienceRuns/Planck1/'
+path_base = '/virgo/simulations/Hydrangea/10r200'
 
-boxes = \
+volumes = \
     {
-        'L0012': {
-            'N0188': ['DMONLY', 'REFERENCE'],
-            'N0376': ['DMONLY', 'REFERENCE', 'RECALIBRATED']
-        },
-        'L0025': {
-            'N0188': ['DMONLY', 'REFERENCE'],
-            'N0376': ['DMONLY', 'REFERENCE'],
-            'N0752': ['DMONLY', 'REFERENCE', 'RECALIBRATED']
-        },
-        'L0050': {
-            'N0376': ['DMONLY', 'REFERENCE'],
-            'N0752': ['DMONLY', 'REFERENCE']
-        },
-        'L0100': {
-            'N0752': ['DMONLY', 'REFERENCE'],
-            'N1504': ['DMONLY', 'REFERENCE']
+        'Hydrangea': {
+            'CE-{0:.0f}'.format(k): ['DM', 'HYDRO'] for k in [
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18,
+                21, 22, 24, 25, 28, 29
+            ]
         }
     }
 
-box_list = [(box, res, model) for box, v in boxes.items()
-            for res, vv in v.items() for model in vv]
+box_list = [(sample, ce, model)
+            for sample, v in volumes.items()
+            for ce, vv in v.items()
+            for model in vv]
 
-for (box, res, model), snap in product(box_list, range(29)):
+for (sample, ce, model), snap in product(box_list, range(30)):
 
-    path_prefix = path_base + box + res + '/PE/' + model + '/data'
+    if sample == 'Hydrangea':
+        path_prefix = '/'.join((path_base, ce, model, 'data'))
 
     group_path = path_prefix + '/groups_' + suffix[snap]
     group_file = 'eagle_subfind_tab_' + suffix[snap]
@@ -59,9 +53,8 @@ for (box, res, model), snap in product(box_list, range(29)):
     snapshot_path = path_prefix + '/snapshot_' + suffix[snap]
     snapshot_file = 'snap_' + suffix[snap]
 
-    # next line defines a snapshot by its id and specifies where to find its
-    # files
-    snapshots[snap_id(box=box, res=res, model=model, snap=snap)] = {
+    # next line defines a snapshot by its id and specifies where to find files
+    snapshots[snap_id(sample=sample, ce=ce, model=model, snap=snap)] = {
         'group': (group_path, group_file),  # omit .X.hdf5
         'particle': (particle_path, particle_file),  # omit .X.hdf5
         'snapshot': (snapshot_path, snapshot_file),  # omit .X.hdf5
@@ -71,6 +64,8 @@ for (box, res, model), snap in product(box_list, range(29)):
 T = {
     'g': '0',
     'dm': '1',
+    'b2': '2',
+    'b3': '3',
     's': '4',
     'bh': '5'
 }
@@ -93,24 +88,21 @@ elements = {
 softstrings = {
     'g': 'Gas',
     'dm': 'Halo',
+    'b2': 'Disk',
+    'b3': 'Bulge',
     's': 'Stars',
     'bh': 'Bndry'
 }
 
 
-# many EAGLE fields specify exponents for h and a; use this function to apply
-# them concisely
+# many fields specify exponents for h and a; use this to apply them concisely
 def h_a_powers(vals, path, fname, hpath):
-    return np.power(
-        vals.h, hdf5_get(path, fname, hpath, attr='h-scale-exponent')
-    ) * \
-        np.power(
-            vals.a, hdf5_get(path, fname, hpath, attr='aexp-scale-exponent')
-        )
+    args = (path, fname, hpath)
+    return np.power(vals.h, hdf5_get(*args, attr='h-scale-exponent')) * \
+        np.power(vals.a, hdf5_get(*args, attr='aexp-scale-exponent'))
 
 
-# convenience function to get molecular weight once other parameters are
-# defined
+# function to get molecular weight once other parameters are defined
 def mu(vals):
     return 1. / (vals.fH + .25 * vals.fHe)
 
@@ -127,12 +119,12 @@ def cosmo(vals):
 # a
 extractors['a'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/Header',
     attr='Time',
     convert=lambda vals, raw, path, fname, hpath:
-        raw,
+    raw,
     units=U.dimensionless_unscaled,
     unit_convert=None
 )
@@ -140,12 +132,12 @@ extractors['a'] = extractor(
 # h
 extractors['h'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/Header',
     attr='HubbleParam',
     convert=lambda vals, raw, path, fname, hpath:
-        raw,
+    raw,
     units=U.dimensionless_unscaled,
     unit_convert=None
 )
@@ -153,7 +145,7 @@ extractors['h'] = extractor(
 # code_to_g
 extractors['code_to_g'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/Units',
     attr='UnitMass_in_g',
@@ -166,7 +158,7 @@ extractors['code_to_g'] = extractor(
 # code_to_cm
 extractors['code_to_cm'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/Units',
     attr='UnitLength_in_cm',
@@ -179,7 +171,7 @@ extractors['code_to_cm'] = extractor(
 # code_to_cm_s
 extractors['code_to_cm_s'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/Units',
     attr='UnitVelocity_in_cm_per_s',
@@ -192,7 +184,7 @@ extractors['code_to_cm_s'] = extractor(
 # Lbox
 extractors['Lbox'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=('code_to_cm', 'h'),
     hpath='/Header',
     attr='BoxSize',
@@ -205,7 +197,7 @@ extractors['Lbox'] = extractor(
 # proton_mass
 extractors['proton_mass'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/Constants',
     attr='PROTONMASS',
@@ -218,7 +210,7 @@ extractors['proton_mass'] = extractor(
 # redshift
 extractors['redshift'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/Header',
     attr='Redshift',
@@ -231,7 +223,7 @@ extractors['redshift'] = extractor(
 # fH
 extractors['fH'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/RuntimePars',
     attr='InitAbundance_Hydrogen',
@@ -244,7 +236,7 @@ extractors['fH'] = extractor(
 # fHe
 extractors['fHe'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/RuntimePars',
     attr='InitAbundance_Helium',
@@ -257,7 +249,7 @@ extractors['fHe'] = extractor(
 # Omega0
 extractors['Omega0'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/Header',
     attr='Omega0',
@@ -270,7 +262,7 @@ extractors['Omega0'] = extractor(
 # Omegab
 extractors['Omegab'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/Header',
     attr='OmegaBaryon',
@@ -283,7 +275,7 @@ extractors['Omegab'] = extractor(
 # gamma
 extractors['gamma'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/RuntimePars',
     attr='EOS_Jeans_GammaEffective',
@@ -296,7 +288,7 @@ extractors['gamma'] = extractor(
 # T0
 extractors['T0'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=tuple(),
     hpath='/RuntimePars',
     attr='EOS_Jeans_TempNorm_K',
@@ -309,7 +301,7 @@ extractors['T0'] = extractor(
 # p_mass
 extractors['p_mass'] = extractor(
     keytype='header',
-    filetype='snapshot',
+    filetype='particle',
     dependencies=('code_to_g', 'h'),
     hpath='/Header',
     attr='MassTable',
@@ -332,7 +324,7 @@ def subval(s):
 for ptype in T.keys():
     extractors['eps_' + ptype] = extractor(
         keytype='header',
-        filetype='snapshot',
+        filetype='particle',
         dependencies=('code_to_cm', 'h', 'a', 'eps_maxphys_' + ptype),
         hpath='/RuntimePars',
         attr='Softening' + softstrings[ptype],
@@ -345,7 +337,7 @@ for ptype in T.keys():
 for ptype in T.keys():
     extractors['eps_maxphys_' + ptype] = extractor(
         keytype='header',
-        filetype='snapshot',
+        filetype='particle',
         dependencies=('code_to_cm', 'h', 'a'),
         hpath='/RuntimePars',
         attr='Softening' + softstrings[ptype] + 'MaxPhys',
@@ -649,8 +641,8 @@ extractors['rho_g'] = extractor(
     hpath='/PartType0/Density',
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
-    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g
-    * np.power(vals.code_to_cm, -3),
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g *
+    np.power(vals.code_to_cm, -3),
     units=U.g * U.cm ** -3,
     unit_convert=None
 )
@@ -705,8 +697,8 @@ extractors['age_s'] = extractor(
     hpath='/PartType4/StellarFormationTime',
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
-    (cosmo(vals).age(vals.redshift)
-     - cosmo(vals).age(1. / raw - 1.)).to(U.yr) / U.yr,
+    (cosmo(vals).age(vals.redshift) -
+     cosmo(vals).age(1. / raw - 1.)).to(U.yr) / U.yr,
     units=U.yr,
     unit_convert=U.Gyr
 )
@@ -752,4 +744,45 @@ extractors['mHI_g'] = extractor(
     unit_convert=U.solMass
 )
 
-# -----------------------------------------------------------------------------
+# mHneutral_g
+extractors['mHneutral_g'] = extractor(
+    keytype='particle_g',
+    filetype='particle',
+    dependencies=(
+        'redshift',
+        'rho_g',
+        'Habundance_g',
+        'proton_mass',
+        'SFR_g',
+        'fH',
+        'fHe',
+        'T_g',
+        'code_to_g',
+        'T0',
+        'gamma'
+    ),
+    hpath='/PartType0/Mass',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath: raw *
+    vals.Habundance_g *
+    h_a_powers(vals, path, fname, hpath) *
+    neutral_frac(
+        vals.redshift,
+        vals.rho_g * vals.Habundance_g / (mu(vals) * vals.proton_mass),
+        vals.T_g,
+        onlyA1=True,
+        EAGLE_corrections=True,
+        SFR=vals.SFR_g,
+        mu=mu(vals),
+        gamma=vals.gamma,
+        fH=vals.fH,
+        Habundance=vals.Habundance_g,
+        T0=vals.T0,
+        rho=vals.rho_g,
+    ) *
+    vals.code_to_g,
+    units=U.g,
+    unit_convert=U.solMass
+)
+
+# ------------------------------------------------------------------------------
