@@ -5,7 +5,8 @@ from itertools import product
 import numpy as np
 from astropy.cosmology import FlatLambdaCDM
 from kyleaoman_utilities.hdf5_io import hdf5_get
-from kyleaoman_utilities.neutral_fractions import atomic_frac, neutral_frac
+from Hdecompose.atomic_frac import atomic_frac
+from Hdecompose.RahmatiEtal2013 import neutral_frac
 
 # annoying redshift text suffixes for C-EAGLE hdf5 files
 suffix = [

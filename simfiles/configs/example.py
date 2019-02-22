@@ -30,7 +30,7 @@ from itertools import product
 import numpy as np
 from astropy.cosmology import FlatLambdaCDM
 from kyleaoman_utilities.hdf5_io import hdf5_get
-from kyleaoman_utilities.neutral_fractions import atomic_frac
+from Hdecompose.atomic_frac import atomic_frac
 
 # annoying redshift text suffixes for EAGLE/APOSTLE hdf5 files
 suffix = [
