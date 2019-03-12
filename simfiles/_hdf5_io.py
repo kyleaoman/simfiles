@@ -25,8 +25,8 @@ class _hdf5_io():
         items = []
         all_interval_parts = self._split_interval(name)
         all_parts = [p for p, i in zip(self._parts, all_interval_parts)
-                     if not i]
-        all_interval_parts = [i for i in all_interval_parts if not i]
+                     if not i is False]
+        all_interval_parts = [i for i in all_interval_parts if not i is False]
         if self._nb_cpu > 1:
             parts_split = np.array_split(all_parts, self._nb_cpu)
             interval_parts_split = np.array_split(
