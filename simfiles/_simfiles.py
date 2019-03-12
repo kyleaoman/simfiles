@@ -1,7 +1,7 @@
 import warnings
-from kyleaoman_utilities.hdf5_io import hdf5_get
 from importlib.util import spec_from_file_location, module_from_spec
 from os.path import expanduser
+from ._hdf5_io import hdf5_get
 
 # SimFiles is a dict with added features, notably __getattr__ and __setattr__,
 # and automatic loading of data from simulation files as defined using a config
