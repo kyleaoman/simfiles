@@ -135,8 +135,8 @@ def hdf5_get(path, fbase, hpath, attr=None, ncpu=0, interval=None):
     """
     Retrieve and assemble data from an hdf5 fileset.
 
-    Paramters
-    ---------
+    Parameters
+    ----------
     path: str
         Directory containing hdf5 file(s).
 
@@ -154,6 +154,11 @@ def hdf5_get(path, fbase, hpath, attr=None, ncpu=0, interval=None):
 
     interval: tuple
         Read a subset of a dataset in the given interval (2-tuple) of indices.
+
+    Returns
+    -------
+    out : DataSet or contents of attribute
+        Contents of requested dataset or attribute.
     """
 
     if not attr:
