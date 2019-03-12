@@ -4,3 +4,4 @@
 /*.egg-info
 *~
 \#*
+/docs/build/doctrees
