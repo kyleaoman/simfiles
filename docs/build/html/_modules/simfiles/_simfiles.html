@@ -1,0 +1,440 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>simfiles._simfiles &mdash; simfiles  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> simfiles
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../simfiles.html">SimFiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5_io.html">HDF5 IO</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">simfiles</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>simfiles._simfiles</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for simfiles._simfiles</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">importlib.util</span> <span class="k">import</span> <span class="n">spec_from_file_location</span><span class="p">,</span> <span class="n">module_from_spec</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">expanduser</span>
+<span class="kn">from</span> <span class="nn">._hdf5_io</span> <span class="k">import</span> <span class="n">hdf5_get</span>
+
+<span class="c1"># SimFiles is a dict with added features, notably __getattr__ and __setattr__,</span>
+<span class="c1"># and automatic loading of data from simulation files as defined using a config</span>
+<span class="c1"># file.</span>
+
+
+<div class="viewcode-block" id="SimFiles"><a class="viewcode-back" href="../../simfiles.html#simfiles._simfiles.SimFiles">[docs]</a><span class="k">class</span> <span class="nc">SimFiles</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provides a generic interface to simulation hdf5 files.</span>
+
+<span class="sd">    SimFiles is a dict with added features, notably __getattr__ and</span>
+<span class="sd">    __setattr__, and automatic loading of data from simulation files based on a</span>
+<span class="sd">    configuration file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    snap_id : index</span>
+<span class="sd">        An identifier for a specific simulation snapshot. The exact format is</span>
+<span class="sd">        defined in the configuration for the simulation in question.</span>
+
+<span class="sd">    configfile : str</span>
+<span class="sd">        Path to the configuration file to use (default: None).</span>
+
+<span class="sd">    ncpu : int</span>
+<span class="sd">        Number of processors on which to run (default: 2).</span>
+
+<span class="sd">    share_mode : bool</span>
+<span class="sd">        Setting &#39;True&#39; disables the __delitem__ method (default: False) and</span>
+<span class="sd">        suppresses warnings for repeated loading of the same keys.</span>
+
+<span class="sd">    single_file : int</span>
+<span class="sd">        Specify to load from only a specific hdf5 file &#39;piece&#39; of the snapshot.</span>
+<span class="sd">        Assumes &#39;pieces&#39; end in &#39;.X.hdf5&#39; where X is an integer.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out : SimFiles</span>
+<span class="sd">        A SimFiles object configured using the file provided.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    The following example sets up a SimFiles instance, loads a few keys, and</span>
+<span class="sd">    accesses the loaded data, for APOSTLE simulation data on the cavi system::</span>
+
+<span class="sd">        from simfiles import SimFiles</span>
+<span class="sd">        from simfiles.configs.APOSTLE_cavi import __file__ as configfile</span>
+<span class="sd">        import namedtuple</span>
+<span class="sd">        snap_id = namedtuple(&#39;snap_id&#39;, [&#39;res&#39;, &#39;phys&#39;, &#39;vol&#39;, &#39;snap&#39;])</span>
+<span class="sd">        mysnap = snap_id(res=3, phys=&#39;hydro&#39;, vol=1, snap=127)</span>
+<span class="sd">        SF = SimFiles(mysnap, configfile=configfile)</span>
+<span class="sd">        SF.load(keys=(&#39;m_s&#39;, &#39;xyz_s&#39;, &#39;vxyz_s&#39;))</span>
+<span class="sd">        # print mass and coordinates of one particle</span>
+<span class="sd">        # both dict-like and attribute-like access are supported</span>
+<span class="sd">        # this config file supports units via astropy.units</span>
+<span class="sd">        print(SF.m_s[0], SF[&#39;xyz_s&#39;][0])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap_id</span><span class="p">,</span> <span class="n">configfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ncpu</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">share_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">single_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">snap_id</span> <span class="o">=</span> <span class="n">snap_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configfile</span> <span class="o">=</span> <span class="n">expanduser</span><span class="p">(</span><span class="n">configfile</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ncpu</span> <span class="o">=</span> <span class="n">ncpu</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">share_mode</span> <span class="o">=</span> <span class="n">share_mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">single_file</span> <span class="o">=</span> <span class="n">single_file</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_read_config</span><span class="p">()</span>
+
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">_read_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="n">spec_from_file_location</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">configfile</span><span class="p">)</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+            <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;SimFiles: configfile &#39;</span><span class="si">{:s}</span><span class="s2">&#39; not found.&quot;</span>
+                                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configfile</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">snapshots</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">snapshots</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;SimFiles: configfile missing &#39;snapshots&#39; &quot;</span>
+                             <span class="s2">&quot;definition.&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot</span> <span class="o">=</span> <span class="n">snapshots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">snap_id</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;SimFiles: unknown snapshot (not defined in &quot;</span>
+                             <span class="s2">&quot;configfile).&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_extractors</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">extractors</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Simfiles: configfile missing &#39;extractors&#39; &quot;</span>
+                             <span class="s2">&quot;definition.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;&#39;SimFiles&#39; object has no attribute &#39;</span><span class="si">{:s}</span><span class="s2">&#39;.&quot;</span>
+                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_mode</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__delitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span>
+
+<div class="viewcode-block" id="SimFiles.load"><a class="viewcode-back" href="../../simfiles.html#simfiles._simfiles.SimFiles.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(),</span> <span class="n">filetype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intervals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load data for a set of keys.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        keys : iterable</span>
+<span class="sd">            List of keys to load (default: tuple()).</span>
+
+<span class="sd">        filetype : str</span>
+<span class="sd">            Advanced use only, override filetype defined in config file</span>
+<span class="sd">            (default: None).</span>
+
+<span class="sd">        intervals : iterable</span>
+<span class="sd">            List containing lists of 2-tuples, one for each key. Each 2-tuple</span>
+<span class="sd">            represents an interval of indices from the underlying data table</span>
+<span class="sd">            to load (default: None).</span>
+
+<span class="sd">        verbose : bool</span>
+<span class="sd">            Setting &#39;True&#39; prints messages upon loading each key (default:</span>
+<span class="sd">            False).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">loaded_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;SimFiles.load: keys must interpretable as tuple.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">keys</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">())</span> <span class="ow">and</span> <span class="p">(</span><span class="n">intervals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">intervals</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">interval</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">intervals</span><span class="p">):</span>
+            <span class="n">loaded_keys</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_key</span><span class="p">(</span>
+                <span class="n">key</span><span class="p">,</span>
+                <span class="n">filetype</span><span class="o">=</span><span class="n">filetype</span><span class="p">,</span>
+                <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+            <span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">loaded_keys</span></div>
+
+<div class="viewcode-block" id="SimFiles.fields"><a class="viewcode-back" href="../../simfiles.html#simfiles._simfiles.SimFiles.fields">[docs]</a>    <span class="k">def</span> <span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keytype</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of available keys, optionally for a specific keytype.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        keytype : str</span>
+<span class="sd">            Specify which type of keys to include (default: &#39;all&#39;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">keytype</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractors</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">E</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractors</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">E</span><span class="o">.</span><span class="n">keytype</span> <span class="o">==</span> <span class="n">keytype</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_dependencies_list</span><span class="p">,</span> <span class="n">filetype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="n">loaded_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_dependencies_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="n">loaded_keys</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_key</span><span class="p">(</span>
+                    <span class="n">k</span><span class="p">,</span>
+                    <span class="n">filetype</span><span class="o">=</span><span class="n">filetype</span><span class="p">,</span>
+                    <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+                <span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">loaded_keys</span>
+
+    <span class="k">def</span> <span class="nf">_load_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">filetype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="n">loaded_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_mode</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">tuple</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;SimFiles._load_key: overwriting key &#39;</span><span class="si">{:s}</span><span class="s2">&#39;, may&quot;</span>
+                              <span class="s2">&quot; be possible to suppress by changing load &quot;</span>
+                              <span class="s2">&quot;order.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+
+        <span class="n">loaded_keys</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dependencies</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_extractors</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dependencies</span><span class="p">,</span>
+            <span class="n">filetype</span><span class="o">=</span><span class="n">filetype</span><span class="p">,</span>
+            <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+        <span class="p">))</span>
+
+        <span class="n">E</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractors</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">fname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">use_filetype</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">filetype</span> <span class="k">if</span> <span class="n">filetype</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">filetype</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">path</span><span class="p">,</span> <span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot</span><span class="p">[</span><span class="n">use_filetype</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;SimFiles: filetype &#39;</span><span class="si">{:s}</span><span class="s2">&#39; unknown.&quot;</span>
+                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">use_filetype</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">single_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> \
+           <span class="p">((</span><span class="n">use_filetype</span> <span class="o">==</span> <span class="s1">&#39;particle&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">use_filetype</span> <span class="o">==</span> <span class="s1">&#39;snapshot&#39;</span><span class="p">)):</span>
+            <span class="c1"># will force loading only one file for particles</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span> <span class="o">+</span> <span class="s1">&#39;.</span><span class="si">{0:.0f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">single_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">hdf5_get</span><span class="p">(</span>
+                <span class="n">path</span><span class="p">,</span>
+                <span class="n">fname</span><span class="p">,</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">hpath</span><span class="p">,</span>
+                <span class="n">attr</span><span class="o">=</span><span class="n">E</span><span class="o">.</span><span class="n">attr</span><span class="p">,</span>
+                <span class="n">ncpu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ncpu</span><span class="p">,</span>
+                <span class="n">interval</span><span class="o">=</span><span class="n">interval</span>
+            <span class="p">),</span>
+            <span class="n">path</span><span class="p">,</span>
+            <span class="n">fname</span><span class="p">,</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">hpath</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">E</span><span class="o">.</span><span class="n">units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">*</span> <span class="n">E</span><span class="o">.</span><span class="n">units</span>
+        <span class="k">if</span> <span class="n">E</span><span class="o">.</span><span class="n">unit_convert</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">unit_convert</span><span class="p">)</span>
+
+        <span class="n">loaded_keys</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">loaded_keys</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Kyle Oman
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
