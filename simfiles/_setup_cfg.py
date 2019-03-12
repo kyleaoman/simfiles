@@ -1,7 +1,11 @@
 from collections import namedtuple
 
-snapshots = {} #intialize snapshot dict
+snapshots = {}  # intialize snapshot dict
 
-extractor = namedtuple('extractor', ['keytype', 'filetype', 'dependencies', 'hpath', 'attr', 'convert', 'units', 'unit_convert']) #define extractor fields
+# define extractor fields
+extractor = namedtuple(
+    'extractor',
+    ['keytype', 'filetype', 'dependencies', 'hpath', 'attr', 'convert',
+     'units', 'unit_convert'])
 
-extractors = {} #initialize extractor dict
+extractors = {}  # initialize extractor dict

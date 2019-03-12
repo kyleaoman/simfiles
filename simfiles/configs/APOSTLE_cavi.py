@@ -316,15 +316,15 @@ extractors['Lbox'] = extractor(
 
 # G
 extractors['G'] = extractor(
-    keytype = 'header',
-    filetype = 'snapshot',
-    dependencies = tuple(),
-    hpath = '/Constants',
-    attr = 'GRAVITY',
-    convert = lambda vals, raw, path, fname, hpath: \
+    keytype='header',
+    filetype='snapshot',
+    dependencies=tuple(),
+    hpath='/Constants',
+    attr='GRAVITY',
+    convert=lambda vals, raw, path, fname, hpath:
     raw,
-    units = U.cm ** 3 * U.s ** -2 * U.g ** -1,
-    unit_convert = U.km **2 * U.s ** -2 * U.Msun ** -1 * U.kpc
+    units=U.cm ** 3 * U.s ** -2 * U.g ** -1,
+    unit_convert=U.km ** 2 * U.s ** -2 * U.Msun ** -1 * U.kpc
 )
 
 # proton_mass
