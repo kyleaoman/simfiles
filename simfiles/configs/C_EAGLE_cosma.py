@@ -378,6 +378,19 @@ extractors['nsubhalos'] = extractor(
     unit_convert=None
 )
 
+# fshid
+extractors['fshid'] = extractor(
+        keytype='fofgroup',
+        filetype='group',
+        dependencies=tuple(),
+        hpath='/FOF/FirstSubhaloID',
+        attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+            raw,
+        units=U.dimensionless_unscaled,
+        unit_convert=None
+    )
+
 # gns
 extractors['gns'] = extractor(
     keytype='group',
