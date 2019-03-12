@@ -146,7 +146,7 @@ class SimFiles(dict):
         except TypeError:
             raise TypeError("SimFiles.load: keys must interpretable as tuple.")
 
-        if (keys != tuple()) and (intervals is None):
+        if intervals is None:
             intervals = (None, ) * len(keys)
         for key, interval in zip(keys, intervals):
             loaded_keys.update(self._load_key(
