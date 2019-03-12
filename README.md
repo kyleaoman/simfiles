@@ -3,7 +3,7 @@ Framework to simplify loading data from a set of files corresponding to a simula
 
 ## Installation:
  - Download via web UI, or `git clone https://github.com/kyleaoman/simfiles.git`
- - Install dependencies if necessary (see [`setup.py`](https://github.com/kyleaoman/simfiles/blob/master/setup.py)), some may be found in [other repositories by kyleaoman](https://github.com/kyleaoman?tab=repositories).
+ - Install dependencies if necessary (see [`setup.py`](https://github.com/kyleaoman/simfiles/blob/master/setup.py)).
  - Global install (Linux): 
    - cd to directory with [`setup.py`](https://github.com/kyleaoman/simfiles/blob/master/setup.py)
    - run `sudo pip install -e .` (`-e` installs via symlink, so pulling repository will do a 'live' update of the installation)
@@ -14,6 +14,8 @@ Framework to simplify loading data from a set of files corresponding to a simula
  - cd to a directory outside the module and launch `python`; you should be able to do `from simfiles import SimFiles`
 
 ## Usage:
+
+Below are some notes for a quick start, see also the [documentation](https://kyleaoman.github.io/simfiles/build/html/index.html).
 
 ```python
 from simfiles import SimFiles
