@@ -29,7 +29,7 @@ from astropy import units as U
 from itertools import product
 import numpy as np
 from astropy.cosmology import FlatLambdaCDM
-from ._hdf5_io import hdf5_get
+from .._hdf5_io import hdf5_get
 from Hdecompose.atomic_frac import atomic_frac
 
 # annoying redshift text suffixes for EAGLE/APOSTLE hdf5 files
