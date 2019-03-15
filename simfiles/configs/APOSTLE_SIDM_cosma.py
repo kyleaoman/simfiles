@@ -1,5 +1,5 @@
 from simfiles._setup_cfg import snapshots, extractor, extractors
-1;5202;0cfrom collections import namedtuple
+from collections import namedtuple
 from astropy import units as U
 from itertools import product
 import numpy as np
