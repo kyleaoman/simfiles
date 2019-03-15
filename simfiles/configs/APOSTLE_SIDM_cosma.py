@@ -1,10 +1,10 @@
 from simfiles._setup_cfg import snapshots, extractor, extractors
-from collections import namedtuple
+1;5202;0cfrom collections import namedtuple
 from astropy import units as U
 from itertools import product
 import numpy as np
 from astropy.cosmology import FlatLambdaCDM
-from simfiles.hdf5_io import hdf5_get
+from simfiles._hdf5_io import hdf5_get
 from Hdecompose.atomic_frac import atomic_frac
 
 # annoying redshift text suffixes for EAGLE/APOSTLE hdf5 files
