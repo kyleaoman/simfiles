@@ -44,7 +44,7 @@ suffix = [
 ]
 
 # define snapshot unique id tuple format
-snap_id = namedtuple('snap_id', ['res', 'phys', 'vol', 'snap'])
+snap_id = namedtuple('snap_id', ['res', 'phys', 'vol', 'snap', 'crosssec'])
 
 path_base = '/cosma5/data/Eagle/Apostle_SIDM/'
 res_str = {1: 'HR', 2: 'MR', 3: 'LR'}
@@ -73,7 +73,9 @@ for res, vol, phys, snapnum, crosssec in product(
 
     # next line defines a snapshot by its id and specifies where to find its
     # files
-    snapshots[snap_id(res=res, phys=phys, vol=vol, snap=snapnum)] = {
+    snapshots[
+        snap_id(res=res, phys=phys, vol=vol, snap=snapnum, crosssec=crosssec)
+    ] = {
         'group': (group_path, group_file),  # omit .X.hdf5
         'particle': (particle_path, particle_file),  # omit .X.hdf5
         'snapshot': (snapshot_path, snapshot_file),  # omit .X.hdf5
