@@ -50,7 +50,7 @@ path_base = '/cosma5/data/Eagle/Apostle_SIDM/'
 res_str = {1: 'HR', 2: 'MR', 3: 'LR'}
 vol_str = {1: 'V1', 2: 'V2', 3: 'V3', 4: 'V4', 5: 'V5', 6: 'V6',
            7: 'S1', 8: 'S2', 9: 'S3', 10: 'S4', 11: 'S5', 12: 'S6'}
-phys_str = {'hydro': 'REF'}
+phys_str = {'hydro': 'REF', 'DMO': 'DMO'}
 
 for res, vol, phys, snapnum, crosssec in product(
         range(1, 4), range(1, 13), ('hydro', 'DMO'), range(128), ('10gcm2', )):
