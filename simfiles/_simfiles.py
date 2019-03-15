@@ -117,7 +117,7 @@ class SimFiles(dict):
         else:
             return
 
-    def load(self, keys=tuple(), filetype=None, intervals=None, verbose=False):
+    def load(self, keys=tuple(), filetype=None, intervals=None, verbose=True):
         """
         Load data for a set of keys.
 
@@ -137,7 +137,7 @@ class SimFiles(dict):
 
         verbose : bool
             Setting 'True' prints messages upon loading each key (default:
-            False).
+            True).
         """
         loaded_keys = set()
 
@@ -174,7 +174,7 @@ class SimFiles(dict):
                     if E.keytype == keytype]
 
     def _dependencies(self, _dependencies_list, filetype=None, interval=None,
-                      verbose=False):
+                      verbose=True):
 
         loaded_keys = set()
 
@@ -189,7 +189,7 @@ class SimFiles(dict):
 
         return loaded_keys
 
-    def _load_key(self, key, filetype=None, interval=None, verbose=False):
+    def _load_key(self, key, filetype=None, interval=None, verbose=True):
 
         loaded_keys = set()
 
@@ -238,6 +238,8 @@ class SimFiles(dict):
             self[key] = self[key] * E.units
         if E.unit_convert is not None:
             self[key] = self[key].to(E.unit_convert)
+        if verbose:
+            print('SimFiles: loaded {:s}.'.format(key))
 
         loaded_keys.update((key, ))
 
