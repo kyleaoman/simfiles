@@ -1,31 +1,6 @@
 from simfiles._setup_cfg import snapshots, extractor, extractors
 from collections import namedtuple
 from astropy import units as U
-
-# ----------------------- DEFINE SIMULATION SNAPSHOTS -------------------------
-#
-# In this portion a dict of snapshots must be defined. A dict called
-# 'snapshots', and its keys must be a set of unique snapshot ids (suggest using
-# a namedtuple called 'snap_id' for this). The values should be dicts whose
-# keys are strings identifying each hdf5 file associated with the snapshot; the
-# corresponding values should be a 2-tuple with the path to the file as the
-# first entry and the filename (omit .X.hdf5) as the second. Schematically, a
-# minimal example:
-#
-# snap_id = namedtuple('snap_id',
-#                      ['resolution', 'boxnumber', 'snapshotnumber'])
-# snapshots[snap_id(resolution=1024, boxnumber=0, snapshotnumber=0)] =
-# {
-#     'particle': ('/path/to/particle/data/files', 'particle_file_name'),
-#     'group': ('/path/to/group/data/files', 'group_file_name')
-# }
-#
-# Below is a more complex example for the APOSTLE data stored on the UVic
-# systems.
-#
-# -----------------------------------------------------------------------------
-
-# imports used in this example
 from itertools import product
 import numpy as np
 from astropy.cosmology import FlatLambdaCDM
@@ -69,19 +44,19 @@ suffix = [
 ]
 
 # define snapshot unique id tuple format
-snap_id = namedtuple('snap_id', ['res', 'phys', 'vol', 'snap'])
+snap_id = namedtuple('snap_id', ['res', 'phys', 'vol', 'snap', 'crosssec'])
 
-path_base = '/sraid14/azadehf/LG/data_fix/'
+path_base = '/cosma5/data/Eagle/Apostle_SIDM/'
 res_str = {1: 'HR', 2: 'MR', 3: 'LR'}
-vol_str = {1: 'V1', 2: 'V2', 3: 'V3',  4: 'V4',  5: 'V5',  6: 'V6',
+vol_str = {1: 'V1', 2: 'V2', 3: 'V3', 4: 'V4', 5: 'V5', 6: 'V6',
            7: 'S1', 8: 'S2', 9: 'S3', 10: 'S4', 11: 'S5', 12: 'S6'}
-phys_str = {'hydro': 'fix', 'DMO': 'DMO'}
+phys_str = {'hydro': 'REF', 'DMO': 'DMO'}
 
-for res, vol, phys, snapnum in product(
-        range(1, 4), range(1, 13), ['hydro', 'DMO'], range(128)):
+for res, vol, phys, snapnum, crosssec in product(
+        range(1, 4), range(1, 13), ('hydro', 'DMO'), range(128), ('10gcm2', )):
 
     path_prefix = path_base + vol_str[vol] + '_' + res_str[res] + '_' + \
-        phys_str[phys]
+        phys_str[phys] + '_XS_' + crosssec + '/Apos/data/'
 
     group_path = path_prefix + '/groups_' + suffix[snapnum]
     group_file = 'eagle_subfind_tab_' + suffix[snapnum]
@@ -90,90 +65,21 @@ for res, vol, phys, snapnum in product(
     snapshot_path = path_prefix + '/snapshot_' + suffix[snapnum]
     snapshot_file = 'snap_' + suffix[snapnum]
 
-    if (res == 1) \
-       and (
-           ((phys == 'hydro') and (vol not in [1, 4, 6, 10, 11]))
-           or
-           ((phys == 'DMO') and (vol not in [1, 4, 11]))
-       ):
+    if (res == 1) and (vol == 1) and (phys == 'hydro') and \
+       (crosssec == '10gcm2'):
+        pass
+    else:
         continue
 
     # next line defines a snapshot by its id and specifies where to find its
     # files
-    snapshots[snap_id(res=res, phys=phys, vol=vol, snap=snapnum)] = {
+    snapshots[
+        snap_id(res=res, phys=phys, vol=vol, snap=snapnum, crosssec=crosssec)
+    ] = {
         'group': (group_path, group_file),  # omit .X.hdf5
         'particle': (particle_path, particle_file),  # omit .X.hdf5
         'snapshot': (snapshot_path, snapshot_file),  # omit .X.hdf5
     }
-
-# -----------------------------------------------------------------------------
-
-# ---------------------------- DEFINE EXTRACTORS ------------------------------
-#
-# In this portion a collection of 'extractors' which specify the propeties of
-# various fields available in the data files, and information on how to extract
-# the information from the files, must be defined. A dict called 'extractors'
-# already exists; it should be filled using the following syntax:
-#
-# extractors[key] = extractor(
-#     keytype = keytype,
-#     filetype = filetype,
-#     dependencies = dependencies,
-#     hpath = hpath,
-#     attr = attr,
-#     convert = convert,
-#     units = U.unit
-# )
-#
-# The arguments:
-#
-# key:           (string) The name that will be used to refer to the loaded
-#                data.
-# keytype:       (string) Descriptor that can be used to create groups of keys.
-# filetype:      (string) Which file type (by default), as defined in the
-#                snapshots, the information should be loaded from.
-# dependencies:  (tuple) A tuple of keys (strings) which are required to loaded
-#                before the data for this key can be loaded. Create dependency
-#                loops at your own risk.
-# hpath:         (string) Path within the hdf5 file where the information
-#                should be read. This can point to a group (see attr below) or
-#                an object (see also attr).
-# attr:          (string or None) If the data to be loaded is in an hdf5
-#                attribute, specify the name of the attribute; if the data is
-#                in an hdf5 object (table), set attr to None.
-# convert:       (function) The loaded data can be manipulated before being
-#                stored. Examples include slicing (extract part of the data) or
-#                modifying by using the values in the dependencies defined
-#                above. The function will be passed 5 arguments. The simplest
-#                example (which does nothing) is:
-#                    'lambda vals, raw, path, fname, hpath: raw,'
-#                Its arguments:
-#                    vals:  Other, already loaded, keys are available as
-#                           vals.key.
-#                    raw:   Data as loaded from the specified hpath (and attr,
-#                           if applicable).
-#                    path:  Location of the hdf5 file.
-#                    fname: Filename of the hdf5 file.
-#                    hpath: Path within the hdf5 file.
-#                The last 3 arguments may be useful to obtain other information
-#                from the file if necessary, but prefer the use of dependencies
-#                when possible.
-# units:         (astropy.units) Specify the units of the quantity, which will
-#                be applied by 'multiplying' them with the values before they
-#                are stored. If using dependencies, be aware that they will
-#                have units when used in the 'convert' function. 'None' may be
-#                passed to apply no units, but this should only be done for
-#                e.g. tables intended for use as array indices, otherwise
-#                prefer astropy.units.dimensionless_unscaled.
-# unit_convert:  (astropy.units) Specify another unit to which the data can be
-#                converted if desired, otherwise use None.
-#
-# Below is a more complex example for the APOSTLE data. Note that not all hdf5
-# tables have been made available via extractors, and some extractor keys do
-# not correspond directly to an hdf5 table (e.g. 'mHI_g').
-#
-# -----------------------------------------------------------------------------
-
 
 # define a mnemonic suffix for each particle type in EAGLE/APOSTLE
 T = {
@@ -312,6 +218,19 @@ extractors['Lbox'] = extractor(
     raw / vals.h * vals.code_to_cm,
     units=U.cm,
     unit_convert=U.kpc
+)
+
+# G
+extractors['G'] = extractor(
+    keytype='header',
+    filetype='snapshot',
+    dependencies=tuple(),
+    hpath='/Constants',
+    attr='GRAVITY',
+    convert=lambda vals, raw, path, fname, hpath:
+    raw,
+    units=U.cm ** 3 * U.s ** -2 * U.g ** -1,
+    unit_convert=U.km ** 2 * U.s ** -2 * U.Msun ** -1 * U.kpc
 )
 
 # proton_mass
