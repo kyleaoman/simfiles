@@ -175,13 +175,26 @@ def subval(s):
         raw[:, int(T[s])]
 
 
+# l_*
+for ptype in T.keys():
+    extractors['l_'+ptype] = extractor(
+        keytype='fofgroup',
+        filetype='group',
+        dependencies=tuple(),
+        hpath='/Group/GroupLenType',
+        attr=None,
+        convert=subval(ptype),
+        units=U.dimensionless_unscaled,
+        unit_convert=None
+    )
+
 # sl_*
 for ptype in T.keys():
     extractors['sl_'+ptype] = extractor(
         keytype='group',
         filetype='group',
         dependencies=tuple(),
-        hpath='/Subhalo/SubLengthType',
+        hpath='/Subhalo/SubhaloLenType',
         attr=None,
         convert=subval(ptype),
         units=U.dimensionless_unscaled,
