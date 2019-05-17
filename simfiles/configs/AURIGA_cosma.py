@@ -12,7 +12,7 @@ path_base = '/cosma5/data/Gigagalaxy/pakmorr/'
 
 for level, halo, phys, snapnum in product(
         range(3, 5),
-        ['{:d}'.format(i) for i in range(1, 30)]
+        ['{:d}'.format(i) for i in range(1, 31)]
         + ['L{:d}'.format(i) for i in range(1, 11)],
         ('DM', 'MHD'),
         range(128)
@@ -51,6 +51,9 @@ T = {
     's': '4',
     'bh': '5'
 }
+
+# column order for abundance tables
+elements = ['H', 'He', 'C', 'N', 'O', 'Ne', 'Mg', 'Si', 'Fe']
 
 # a
 extractors['a'] = extractor(
@@ -161,10 +164,23 @@ extractors['gns'] = extractor(
     keytype='group',
     filetype='group',
     dependencies=tuple(),
-    hpath='/Subhalo/GrNr',
+    hpath='/Subhalo/SubhaloGrNr',
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
     raw,
+    units=U.dimensionless_unscaled,
+    unit_convert=None
+)
+
+# sgns
+extractors['sgns'] = extractor(
+    keytype='group',
+    filetype='group',
+    dependencies=('firstsub', ),
+    hpath='/Subhalo/SubhaloGrNr',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    np.arange(raw.size) - vals.firstsub[raw],
     units=U.dimensionless_unscaled,
     unit_convert=None
 )
@@ -206,7 +222,7 @@ extractors['cops'] = extractor(
     keytype='group',
     filetype='group',
     dependencies=('h', 'a'),
-    hpath='/Subhalo/CentreOfPotential',
+    hpath='/Subhalo/SubhaloPos',
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
     raw * vals.a / vals.h,
@@ -240,6 +256,19 @@ extractors['nID'] = extractor(
     unit_convert=None
 )
 
+# msubfind
+extractors['msubfind'] = extractor(
+    keytype='group',
+    filetype='group',
+    dependencies=('h'),
+    hpath='/Subhalo/SubhaloMass',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw * 1E10 / vals.h,
+    units=U.solMass,
+    unit_convert=None
+)
+
 
 def subval(s):
     return lambda vals, raw, path, fname, hpath: \
@@ -251,13 +280,26 @@ for ptype in T.keys():
     extractors['msubfind_' + ptype] = extractor(
         keytype='group',
         filetype='group',
-        dependencies=('h', 'a'),
+        dependencies=('h', ),
         hpath='/Subhalo/SubhaloMassType',
         attr=None,
         convert=subval(ptype),
         units=U.solMass,
         unit_convert=None
     )
+
+# vmax
+extractors['vmax'] = extractor(
+    keytype='group',
+    filetype='group',
+    dependencies=('a', ),
+    hpath='/Subhalo/SubhaloVmax',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw * np.sqrt(vals.a),
+    units=U.km * U.s ** -1,
+    unit_convert=None
+)
 
 # nfof
 extractors['nfof'] = extractor(
@@ -380,17 +422,62 @@ extractors['m_dm'] = extractor(
     unit_convert=None
 )
 
+# sft_s
+extractors['sft_s'] = extractor(
+    keytype='particle_s',
+    filetype='snapshot',
+    dependencies=tuple(),
+    hpath='/PartType4/GFM_StellarFormationTime',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw,
+    units=U.dimensionless_unscaled,
+    unit_convert=None
+)
+
 # rho_g
 extractors['rho_g'] = extractor(
     keytype='particle_g',
     filetype='snapshot',
-    dependencies=('code_to_g', 'code_to_cm', 'h', 'a'),
+    dependencies=('h', 'a'),
     hpath='/PartType0/Density',
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
     raw * 1E10 * np.power(vals.h, 2) / vals.a,
     units=U.solMass / U.Mpc ** 3,
     unit_convert=U.solMass / U.kpc ** 3
+)
+
+
+def subval(ie):
+    return lambda vals, raw, path, fname, hpath: \
+        raw[:, ie]
+
+
+# f*_g
+for ie, e in enumerate(elements):
+    extractors['f{:s}_g'.format(e)] = extractor(
+        keytype='particle_g',
+        filetype='snapshot',
+        dependencies=tuple(),
+        hpath='/PartType0/GFM_Metals',
+        attr=None,
+        convert=subval(ie),
+        units=U.dimensionless_unscaled,
+        unit_convert=None
+    )
+
+# mHneutral_g
+extractors['mHneutral_g'] = extractor(
+    keytype='particle_g',
+    filetype='snapshot',
+    dependencies=('m_g', 'fH_g'),
+    hpath='/PartType0/NeutralHydrogenAbundance',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    vals.m_g * vals.fH_g * raw,
+    units=U.dimensionless_unscaled,
+    unit_convert=None
 )
 
 # -----------------------------------------------------------------------------------------------------
