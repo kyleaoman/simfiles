@@ -4,7 +4,7 @@ from astropy import units as U
 from itertools import product
 import numpy as np
 from astropy.cosmology import FlatLambdaCDM
-from simfles._hdf5_io import hdf5_get
+from simfiles._hdf5_io import hdf5_get
 from Hdecompose.atomic_frac import atomic_frac
 from Hdecompose.RahmatiEtal2013 import neutral_frac
 
