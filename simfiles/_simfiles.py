@@ -197,9 +197,10 @@ class SimFiles(dict):
             if self.share_mode:
                 return tuple()
             else:
-                warnings.warn("SimFiles._load_key: overwriting key '{:s}', may"
-                              " be possible to suppress by changing load "
-                              "order.".format(key), RuntimeWarning)
+                if verbose:
+                    warnings.warn("SimFiles._load_key: overwriting key '{:s}', may"
+                                  " be possible to suppress by changing load "
+                                  "order.".format(key), RuntimeWarning)
 
         loaded_keys.update(self._dependencies(
             self._extractors[key].dependencies,
