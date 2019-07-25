@@ -1,8 +1,9 @@
 from os.path import join
 from simfiles._setup_cfg import snapshots, extractor, extractors
 from collections import namedtuple
-from astropy import units as U
+from astropy import units as U, constants as C
 from itertools import product
+from Hdecompose.atomic_frac import atomic_frac
 import numpy as np
 
 # define snapshot unique id tuple format
@@ -448,6 +449,47 @@ extractors['rho_g'] = extractor(
     unit_convert=U.solMass / U.kpc ** 3
 )
 
+# xe_g
+extractors['xe_g'] = extractor(
+    keytype='particle_g',
+    filetype='snapshot',
+    dependencies=tuple(),
+    hpath='/PartType0/ElectronAbundance',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw,
+    units=U.dimensionless_unscaled,
+    unit_convert=None
+)
+
+# u_g
+extractors['u_g'] = extractor(
+    keytype='particle_g',
+    filetype='snapshot',
+    dependencies=tuple(),
+    hpath='/PartType0/InternalEnergy',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw,
+    units=U.km ** 2 / U.s ** 2,
+    unit_convert=None
+)
+
+# T_g
+extractors['T_g'] = extractor(
+    keytype='particle_g',
+    filetype='snapshot',
+    dependencies=('xe_g', 'fH_g'),
+    hpath='/PartType0/InternalEnergy',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    (5 / 3 - 1) * raw  * 1E10 * 4 * C.m_p.to(U.g).value
+    / C.k_B.to(U.erg / U.K).value
+    / (1 + 3 * vals.fH_g + 4 * vals.fH_g * vals.xe_g),
+    units=U.K,
+    unit_convert=None
+)
+
 
 def subval(ie):
     return lambda vals, raw, path, fname, hpath: \
@@ -475,9 +517,33 @@ extractors['mHneutral_g'] = extractor(
     hpath='/PartType0/NeutralHydrogenAbundance',
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
-    vals.m_g * vals.fH_g * raw,
-    units=U.dimensionless_unscaled,
+    vals.m_g.to(U.solMass).value * vals.fH_g * raw,
+    units=U.solMass,
     unit_convert=None
 )
+
+# mHI_g
+# *** currently gives values > mHneutral_g, which is unphysical ***
+# extractors['mHI_g'] = extractor(
+#     keytype='particle_g',
+#     filetype='snapshot',
+#     dependencies=('fH_g', 'h', 'redshift', 'xe_g', 'rho_g', 'T_g'),
+#     hpath='/PartType0/Masses',
+#     attr=None,
+#     convert=lambda vals, raw, path, fname, hpath:
+#     raw * 1E10 / vals.h * vals.fH_g * atomic_frac(
+#         vals.redshift,
+#         (vals.rho_g * vals.fH_g
+#          * (1 + 3 * vals.fH_g + 4 * vals.fH_g * vals.xe_g)
+#          / (4 * C.m_p.to(U.solMass))).to(U.kpc ** -3),
+#         vals.T_g,
+#         vals.rho_g,
+#         vals.fH_g,
+#         onlyA1=True,
+#         TNG_corrections=True
+#     ),
+#     units=U.solMass,
+#     unit_convert=None
+# )
 
 # -----------------------------------------------------------------------------------------------------
