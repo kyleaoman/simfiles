@@ -436,6 +436,19 @@ extractors['sft_s'] = extractor(
     unit_convert=None
 )
 
+# sfr_g
+extractors['sfr_g'] = extractor(
+    keytype='particle_g',
+    filetype='snapshot',
+    dependencies=tuple(),
+    hpath='/PartType0/StarFormationRate',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw,
+    units=U.solMass * U.yr ** -1,
+    unit_convert=None
+)
+
 # rho_g
 extractors['rho_g'] = extractor(
     keytype='particle_g',

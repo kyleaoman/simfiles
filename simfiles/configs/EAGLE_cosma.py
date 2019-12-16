@@ -22,7 +22,7 @@ suffix = [
 # define snapshot unique id tuple format
 snap_id = namedtuple('snap_id', ['box', 'res', 'model', 'snap'])
 
-path_base = '/cosma7/data/Eagle/ScienceRuns/Planck1/'
+path_base = '/cosma5/data/Eagle/ScienceRuns/Planck1/'
 
 boxes = \
     {
