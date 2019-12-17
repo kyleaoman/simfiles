@@ -3,7 +3,9 @@ from simfiles._setup_cfg import snapshots, extractor, extractors
 from collections import namedtuple
 from astropy import units as U, constants as C
 from itertools import product
-from Hdecompose.atomic_frac import atomic_frac
+from Hdecompose.BlitzRosolowsky2006 import molecular_frac
+from Hdecompose.SpringelHernquist2003 import auriga_correct_neutral_frac \
+    as correct_neutral_frac
 import numpy as np
 
 # define snapshot unique id tuple format
@@ -513,37 +515,46 @@ for ie, e in enumerate(elements):
 extractors['mHneutral_g'] = extractor(
     keytype='particle_g',
     filetype='snapshot',
-    dependencies=('m_g', 'fH_g'),
+    dependencies=('m_g', 'fH_g', 'sfr_g', 'u_g'),
     hpath='/PartType0/NeutralHydrogenAbundance',
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
-    vals.m_g.to(U.solMass).value * vals.fH_g * raw,
+    vals.m_g.to(U.solMass).value * vals.fH_g * correct_neutral_frac(
+        raw,
+        vals.sfr_g,
+        vals.u_g
+    ),
     units=U.solMass,
     unit_convert=None
 )
 
 # mHI_g
-# *** currently gives values > mHneutral_g, which is unphysical ***
-# extractors['mHI_g'] = extractor(
-#     keytype='particle_g',
-#     filetype='snapshot',
-#     dependencies=('fH_g', 'h', 'redshift', 'xe_g', 'rho_g', 'T_g'),
-#     hpath='/PartType0/Masses',
-#     attr=None,
-#     convert=lambda vals, raw, path, fname, hpath:
-#     raw * 1E10 / vals.h * vals.fH_g * atomic_frac(
-#         vals.redshift,
-#         (vals.rho_g * vals.fH_g
-#          * (1 + 3 * vals.fH_g + 4 * vals.fH_g * vals.xe_g)
-#          / (4 * C.m_p.to(U.solMass))).to(U.kpc ** -3),
-#         vals.T_g,
-#         vals.rho_g,
-#         vals.fH_g,
-#         onlyA1=True,
-#         TNG_corrections=True
-#     ),
-#     units=U.solMass,
-#     unit_convert=None
-# )
+extractors['mHI_g'] = extractor(
+    keytype='particle_g',
+    filetype='snapshot',
+    dependencies=('m_g', 'fH_g', 'sfr_g', 'u_g', 'T_g', 'rho_g'),
+    hpath='/PartType0/NeutralHydrogenAbundance',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    vals.m_g.to(U.solMass).value * vals.fH_g *
+    correct_neutral_frac(
+        raw,
+        vals.sfr_g,
+        vals.u_g
+    ) * (1 - molecular_frac(
+        vals.T_g,
+        vals.rho_g,
+        mu=1.22,
+        Auriga_corrections=True,
+        SFR=vals.sfr_g,
+        fNeutral=correct_neutral_frac(
+            raw,
+            vals.sfr_g,
+            vals.u_g
+        )
+    )),
+    units=U.solMass,
+    unit_convert=None
+)
 
 # -----------------------------------------------------------------------------------------------------
