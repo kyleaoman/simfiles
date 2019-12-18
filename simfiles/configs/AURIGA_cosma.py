@@ -577,7 +577,14 @@ extractors['mHI_g'] = extractor(
         fNeutral=correct_neutral_frac(
             raw,
             vals.sfr_g,
-            vals.u_g
+            vals.u_g,
+            vals.rho_g,
+            fH=.76,
+            gamma=5 / 3,
+            Tc=1.E3 * U.K,
+            Th=5.73E7 * U.K,
+            factorEVP=573,
+            rho_thresh=1.37E-1 * U.cm ** -3
         )
     )),
     units=U.solMass,
