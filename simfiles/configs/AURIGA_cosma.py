@@ -4,7 +4,7 @@ from collections import namedtuple
 from astropy import units as U, constants as C
 from itertools import product
 from Hdecompose.BlitzRosolowsky2006 import molecular_frac
-from Hdecompose.SpringelHernquist2003 import auriga_correct_neutral_frac \
+from Hdecompose.SpringelHernquist2003 import sf_neutral_frac \
     as correct_neutral_frac
 import numpy as np
 
@@ -498,7 +498,7 @@ extractors['T_g'] = extractor(
     hpath='/PartType0/InternalEnergy',
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
-    (5 / 3 - 1) * raw  * 1E10 * 4 * C.m_p.to(U.g).value
+    (5 / 3 - 1) * raw * 1E10 * 4 * C.m_p.to(U.g).value
     / C.k_B.to(U.erg / U.K).value
     / (1 + 3 * vals.fH_g + 4 * vals.fH_g * vals.xe_g),
     units=U.K,
@@ -528,14 +528,21 @@ for ie, e in enumerate(elements):
 extractors['mHneutral_g'] = extractor(
     keytype='particle_g',
     filetype='snapshot',
-    dependencies=('m_g', 'fH_g', 'sfr_g', 'u_g'),
+    dependencies=('m_g', 'fH_g', 'sfr_g', 'u_g', 'rho_g'),
     hpath='/PartType0/NeutralHydrogenAbundance',
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
     vals.m_g.to(U.solMass).value * vals.fH_g * correct_neutral_frac(
         raw,
         vals.sfr_g,
-        vals.u_g
+        vals.u_g,
+        vals.rho_g,
+        fH=.76,
+        gamma=5 / 3,
+        Tc=1.E3 * U.K,
+        Th=5.73E7 * U.K,
+        factorEVP=573,
+        rho_thresh=1.37E-1 * U.cm ** -3
     ),
     units=U.solMass,
     unit_convert=None
@@ -553,7 +560,14 @@ extractors['mHI_g'] = extractor(
     correct_neutral_frac(
         raw,
         vals.sfr_g,
-        vals.u_g
+        vals.u_g,
+        vals.rho_g,
+        fH=.76,
+        gamma=5 / 3,
+        Tc=1.E3 * U.K,
+        Th=5.73E7 * U.K,
+        factorEVP=573,
+        rho_thresh=1.37E-1 * U.cm ** -3
     ) * (1 - molecular_frac(
         vals.T_g,
         vals.rho_g,
