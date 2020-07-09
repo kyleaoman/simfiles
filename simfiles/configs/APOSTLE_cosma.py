@@ -576,7 +576,7 @@ extractors['vcents'] = extractor(
     convert=lambda vals, raw, path, fname, hpath:
     raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm_s,
     units=U.cm * U.s ** -1,
-    unit_convert=None
+    unit_convert=U.km * U.s ** -1
 )
 
 # nID
@@ -662,6 +662,19 @@ extractors['R200'] = extractor(
     raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
     units=U.cm,
     unit_convert=U.kpc
+)
+
+# Vmax
+extractors['Vmax'] = extractor(
+    keytype='group',
+    filetype='group',
+    dependencies=('code_to_cm_s', 'h', 'a'),
+    hpath='/Subhalo/Vmax',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm_s,
+    units=U.cm * U.s ** -1,
+    unit_convert=U.km * U.s ** -1
 )
 
 # ids
