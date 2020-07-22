@@ -48,7 +48,7 @@ snap_id = namedtuple('snap_id', ['res', 'phys', 'vol', 'snap'])
 
 path_base = '/astro/isantos/SIDM_runs/'
 res_str = {1: 'HR', 2: 'MR', 3: 'LR'}
-vol_str = {1: 'V1', 2: 'V2', 3: 'V3',  4: 'V4',  5: 'V5',  6: 'V6',
+vol_str = {1: 'V1', 2: 'V2', 3: 'V3', 4: 'V4', 5: 'V5', 6: 'V6',
            7: 'S1', 8: 'S2', 9: 'S3', 10: 'S4', 11: 'S5', 12: 'S6'}
 phys_str = {'hydro': 'fix', 'DMO': 'DMO'}
 
@@ -72,8 +72,6 @@ for res, vol, phys, snapnum in product(
         'particle': (particle_path, particle_file),  # omit .X.hdf5
         'snapshot': (snapshot_path, snapshot_file),  # omit .X.hdf5
     }
-
-# -----------------------------------------------------------------------------
 
 # define a mnemonic suffix for each particle type in EAGLE/APOSTLE
 T = {
@@ -128,7 +126,7 @@ def mu(vals):
 
 
 # convenience function to get an astropy cosmology utility
-def cosmo(vals): \
+def cosmo(vals):
     return FlatLambdaCDM(
         H0=vals.h * 100. * U.km * U.s ** -1 * U.Mpc ** -1,
         Om0=vals.Omega0,
@@ -348,10 +346,10 @@ extractors['p_mass'] = extractor(
 # this helper function allows correct definition of lambda when looping over
 # ptype in defining eps_*
 def subval(s):
-    return lambda vals, raw, path, fname, hpath:\
+    return lambda vals, raw, path, fname, hpath: \
         min(
             raw * vals.a / vals.h,
-            vals[s].to(U.cm) / U.cm / vals.code_to_cm,
+            vals[s].to(U.cm) / U.cm / vals.code_to_cm
         ) * vals.code_to_cm
 
 
@@ -476,7 +474,7 @@ extractors['vcents'] = extractor(
     convert=lambda vals, raw, path, fname, hpath:
     raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm_s,
     units=U.cm * U.s ** -1,
-    unit_convert=None
+    unit_convert=U.km * U.s ** -1
 )
 
 # nID
@@ -488,7 +486,7 @@ extractors['nID'] = extractor(
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
     raw,
-    units=U.dimensionless_unscaled,
+    units=None,
     unit_convert=None
 )
 
@@ -501,15 +499,28 @@ extractors['offID'] = extractor(
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
     raw,
-    units=U.dimensionless_unscaled,
+    units=None,
     unit_convert=None
+)
+
+# msubfind
+extractors['msubfind'] = extractor(
+    keytype='group',
+    filetype='group',
+    dependencies=('code_to_g', 'h', 'a'),
+    hpath='/Subhalo/MassType',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
+    units=U.g,
+    unit_convert=U.solMass
 )
 
 
 def subval(s):
     return lambda vals, raw, path, fname, hpath: \
-        raw[:, int(T[s])] * h_a_powers(vals, path, fname, hpath) * \
-        vals.code_to_g
+        raw[:, int(T[s])] * h_a_powers(vals, path, fname, hpath) \
+        * vals.code_to_g
 
 
 # msubfind_*
@@ -562,6 +573,19 @@ extractors['R200'] = extractor(
     raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
     units=U.cm,
     unit_convert=U.kpc
+)
+
+# Vmax
+extractors['Vmax'] = extractor(
+    keytype='group',
+    filetype='group',
+    dependencies=('code_to_cm_s', 'h', 'a'),
+    hpath='/Subhalo/Vmax',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm_s,
+    units=U.cm * U.s ** -1,
+    unit_convert=U.km * U.s ** -1
 )
 
 # ids
@@ -695,8 +719,8 @@ extractors['rho_g'] = extractor(
     hpath='/PartType0/Density',
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
-    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g *
-    np.power(vals.code_to_cm, -3),
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g
+    * np.power(vals.code_to_cm, -3),
     units=U.g * U.cm ** -3,
     unit_convert=None
 )

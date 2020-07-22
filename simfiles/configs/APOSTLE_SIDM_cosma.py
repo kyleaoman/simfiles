@@ -134,7 +134,7 @@ def mu(vals):
 
 
 # convenience function to get an astropy cosmology utility
-def cosmo(vals): \
+def cosmo(vals):
     return FlatLambdaCDM(
         H0=vals.h * 100. * U.km * U.s ** -1 * U.Mpc ** -1,
         Om0=vals.Omega0,
@@ -354,10 +354,10 @@ extractors['p_mass'] = extractor(
 # this helper function allows correct definition of lambda when looping over
 # ptype in defining eps_*
 def subval(s):
-    return lambda vals, raw, path, fname, hpath:\
+    return lambda vals, raw, path, fname, hpath: \
         min(
             raw * vals.a / vals.h,
-            vals[s].to(U.cm) / U.cm / vals.code_to_cm,
+            vals[s].to(U.cm) / U.cm / vals.code_to_cm
         ) * vals.code_to_cm
 
 
@@ -482,7 +482,7 @@ extractors['vcents'] = extractor(
     convert=lambda vals, raw, path, fname, hpath:
     raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm_s,
     units=U.cm * U.s ** -1,
-    unit_convert=None
+    unit_convert=U.km * U.s ** -1
 )
 
 # nID
@@ -494,7 +494,7 @@ extractors['nID'] = extractor(
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
     raw,
-    units=U.dimensionless_unscaled,
+    units=None,
     unit_convert=None
 )
 
@@ -507,15 +507,28 @@ extractors['offID'] = extractor(
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
     raw,
-    units=U.dimensionless_unscaled,
+    units=None,
     unit_convert=None
+)
+
+# msubfind
+extractors['msubfind'] = extractor(
+    keytype='group',
+    filetype='group',
+    dependencies=('code_to_g', 'h', 'a'),
+    hpath='/Subhalo/MassType',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
+    units=U.g,
+    unit_convert=U.solMass
 )
 
 
 def subval(s):
     return lambda vals, raw, path, fname, hpath: \
-        raw[:, int(T[s])] * h_a_powers(vals, path, fname, hpath) * \
-        vals.code_to_g
+        raw[:, int(T[s])] * h_a_powers(vals, path, fname, hpath) \
+        * vals.code_to_g
 
 
 # msubfind_*
@@ -568,6 +581,18 @@ extractors['R200'] = extractor(
     raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm,
     units=U.cm,
     unit_convert=U.kpc
+)
+
+extractors['Vmax'] = extractor(
+    keytype='group',
+    filetype='group',
+    dependencies=('code_to_cm_s', 'h', 'a'),
+    hpath='/Subhalo/Vmax',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm_s,
+    units=U.cm * U.s ** -1,
+    unit_convert=U.km * U.s ** -1
 )
 
 # ids
@@ -701,8 +726,8 @@ extractors['rho_g'] = extractor(
     hpath='/PartType0/Density',
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
-    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g *
-    np.power(vals.code_to_cm, -3),
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g
+    * np.power(vals.code_to_cm, -3),
     units=U.g * U.cm ** -3,
     unit_convert=None
 )

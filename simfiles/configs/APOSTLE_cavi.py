@@ -1,31 +1,6 @@
 from simfiles._setup_cfg import snapshots, extractor, extractors
 from collections import namedtuple
 from astropy import units as U
-
-# ----------------------- DEFINE SIMULATION SNAPSHOTS -------------------------
-#
-# In this portion a dict of snapshots must be defined. A dict called
-# 'snapshots', and its keys must be a set of unique snapshot ids (suggest using
-# a namedtuple called 'snap_id' for this). The values should be dicts whose
-# keys are strings identifying each hdf5 file associated with the snapshot; the
-# corresponding values should be a 2-tuple with the path to the file as the
-# first entry and the filename (omit .X.hdf5) as the second. Schematically, a
-# minimal example:
-#
-# snap_id = namedtuple('snap_id',
-#                      ['resolution', 'boxnumber', 'snapshotnumber'])
-# snapshots[snap_id(resolution=1024, boxnumber=0, snapshotnumber=0)] =
-# {
-#     'particle': ('/path/to/particle/data/files', 'particle_file_name'),
-#     'group': ('/path/to/group/data/files', 'group_file_name')
-# }
-#
-# Below is a more complex example for the APOSTLE data stored on the UVic
-# systems.
-#
-# -----------------------------------------------------------------------------
-
-# imports used in this example
 from itertools import product
 import numpy as np
 from astropy.cosmology import FlatLambdaCDM
@@ -73,7 +48,7 @@ snap_id = namedtuple('snap_id', ['res', 'phys', 'vol', 'snap'])
 
 path_base = '/sraid14/azadehf/LG/data_fix/'
 res_str = {1: 'HR', 2: 'MR', 3: 'LR'}
-vol_str = {1: 'V1', 2: 'V2', 3: 'V3',  4: 'V4',  5: 'V5',  6: 'V6',
+vol_str = {1: 'V1', 2: 'V2', 3: 'V3', 4: 'V4', 5: 'V5', 6: 'V6',
            7: 'S1', 8: 'S2', 9: 'S3', 10: 'S4', 11: 'S5', 12: 'S6'}
 phys_str = {'hydro': 'fix', 'DMO': 'DMO'}
 
@@ -105,75 +80,6 @@ for res, vol, phys, snapnum in product(
         'particle': (particle_path, particle_file),  # omit .X.hdf5
         'snapshot': (snapshot_path, snapshot_file),  # omit .X.hdf5
     }
-
-# -----------------------------------------------------------------------------
-
-# ---------------------------- DEFINE EXTRACTORS ------------------------------
-#
-# In this portion a collection of 'extractors' which specify the propeties of
-# various fields available in the data files, and information on how to extract
-# the information from the files, must be defined. A dict called 'extractors'
-# already exists; it should be filled using the following syntax:
-#
-# extractors[key] = extractor(
-#     keytype = keytype,
-#     filetype = filetype,
-#     dependencies = dependencies,
-#     hpath = hpath,
-#     attr = attr,
-#     convert = convert,
-#     units = U.unit
-# )
-#
-# The arguments:
-#
-# key:           (string) The name that will be used to refer to the loaded
-#                data.
-# keytype:       (string) Descriptor that can be used to create groups of keys.
-# filetype:      (string) Which file type (by default), as defined in the
-#                snapshots, the information should be loaded from.
-# dependencies:  (tuple) A tuple of keys (strings) which are required to loaded
-#                before the data for this key can be loaded. Create dependency
-#                loops at your own risk.
-# hpath:         (string) Path within the hdf5 file where the information
-#                should be read. This can point to a group (see attr below) or
-#                an object (see also attr).
-# attr:          (string or None) If the data to be loaded is in an hdf5
-#                attribute, specify the name of the attribute; if the data is
-#                in an hdf5 object (table), set attr to None.
-# convert:       (function) The loaded data can be manipulated before being
-#                stored. Examples include slicing (extract part of the data) or
-#                modifying by using the values in the dependencies defined
-#                above. The function will be passed 5 arguments. The simplest
-#                example (which does nothing) is:
-#                    'lambda vals, raw, path, fname, hpath: raw,'
-#                Its arguments:
-#                    vals:  Other, already loaded, keys are available as
-#                           vals.key.
-#                    raw:   Data as loaded from the specified hpath (and attr,
-#                           if applicable).
-#                    path:  Location of the hdf5 file.
-#                    fname: Filename of the hdf5 file.
-#                    hpath: Path within the hdf5 file.
-#                The last 3 arguments may be useful to obtain other information
-#                from the file if necessary, but prefer the use of dependencies
-#                when possible.
-# units:         (astropy.units) Specify the units of the quantity, which will
-#                be applied by 'multiplying' them with the values before they
-#                are stored. If using dependencies, be aware that they will
-#                have units when used in the 'convert' function. 'None' may be
-#                passed to apply no units, but this should only be done for
-#                e.g. tables intended for use as array indices, otherwise
-#                prefer astropy.units.dimensionless_unscaled.
-# unit_convert:  (astropy.units) Specify another unit to which the data can be
-#                converted if desired, otherwise use None.
-#
-# Below is a more complex example for the APOSTLE data. Note that not all hdf5
-# tables have been made available via extractors, and some extractor keys do
-# not correspond directly to an hdf5 table (e.g. 'mHI_g').
-#
-# -----------------------------------------------------------------------------
-
 
 # define a mnemonic suffix for each particle type in EAGLE/APOSTLE
 T = {
@@ -228,7 +134,7 @@ def mu(vals):
 
 
 # convenience function to get an astropy cosmology utility
-def cosmo(vals): \
+def cosmo(vals):
     return FlatLambdaCDM(
         H0=vals.h * 100. * U.km * U.s ** -1 * U.Mpc ** -1,
         Om0=vals.Omega0,
@@ -448,10 +354,10 @@ extractors['p_mass'] = extractor(
 # this helper function allows correct definition of lambda when looping over
 # ptype in defining eps_*
 def subval(s):
-    return lambda vals, raw, path, fname, hpath:\
+    return lambda vals, raw, path, fname, hpath: \
         min(
             raw * vals.a / vals.h,
-            vals[s].to(U.cm) / U.cm / vals.code_to_cm,
+            vals[s].to(U.cm) / U.cm / vals.code_to_cm
         ) * vals.code_to_cm
 
 
@@ -576,7 +482,7 @@ extractors['vcents'] = extractor(
     convert=lambda vals, raw, path, fname, hpath:
     raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_cm_s,
     units=U.cm * U.s ** -1,
-    unit_convert=U.km / U.s ** -1
+    unit_convert=U.km * U.s ** -1
 )
 
 # nID
@@ -588,7 +494,7 @@ extractors['nID'] = extractor(
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
     raw,
-    units=U.dimensionless_unscaled,
+    units=None,
     unit_convert=None
 )
 
@@ -601,15 +507,28 @@ extractors['offID'] = extractor(
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
     raw,
-    units=U.dimensionless_unscaled,
+    units=None,
     unit_convert=None
+)
+
+# msubfind
+extractors['msubfind'] = extractor(
+    keytype='group',
+    filetype='group',
+    dependencies=('code_to_g', 'h', 'a'),
+    hpath='/Subhalo/MassType',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g,
+    units=U.g,
+    unit_convert=U.solMass
 )
 
 
 def subval(s):
     return lambda vals, raw, path, fname, hpath: \
-        raw[:, int(T[s])] * h_a_powers(vals, path, fname, hpath) * \
-        vals.code_to_g
+        raw[:, int(T[s])] * h_a_powers(vals, path, fname, hpath) \
+        * vals.code_to_g
 
 
 # msubfind_*
@@ -676,7 +595,6 @@ extractors['Vmax'] = extractor(
     units=U.cm * U.s ** -1,
     unit_convert=U.km * U.s ** -1
 )
-
 
 # ids
 extractors['ids'] = extractor(
@@ -809,8 +727,8 @@ extractors['rho_g'] = extractor(
     hpath='/PartType0/Density',
     attr=None,
     convert=lambda vals, raw, path, fname, hpath:
-    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g *
-    np.power(vals.code_to_cm, -3),
+    raw * h_a_powers(vals, path, fname, hpath) * vals.code_to_g
+    * np.power(vals.code_to_cm, -3),
     units=U.g * U.cm ** -3,
     unit_convert=None
 )
