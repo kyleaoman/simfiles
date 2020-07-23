@@ -44,19 +44,19 @@ suffix = [
 ]
 
 # define snapshot unique id tuple format
-snap_id = namedtuple('snap_id', ['res', 'phys', 'vol', 'snap'])
+snap_id = namedtuple('snap_id', ['res', 'phys', 'vol', 'snap', 'crosssec'])
 
-path_base = '/sraid14/azadehf/LG/data_fix/'
+path_base = '/cosma5/data/Eagle/Apostle_SIDM/'
 res_str = {1: 'HR', 2: 'MR', 3: 'LR'}
 vol_str = {1: 'V1', 2: 'V2', 3: 'V3', 4: 'V4', 5: 'V5', 6: 'V6',
            7: 'S1', 8: 'S2', 9: 'S3', 10: 'S4', 11: 'S5', 12: 'S6'}
-phys_str = {'hydro': 'fix', 'DMO': 'DMO'}
+phys_str = {'hydro': 'REF', 'DMO': 'DMO'}
 
-for res, vol, phys, snapnum in product(
-        range(1, 4), range(1, 13), ['hydro', 'DMO'], range(128)):
+for res, vol, phys, snapnum, crosssec in product(
+        range(1, 4), range(1, 13), ('hydro', 'DMO'), range(128), ('10gcm2', )):
 
     path_prefix = path_base + vol_str[vol] + '_' + res_str[res] + '_' + \
-        phys_str[phys]
+        phys_str[phys] + '_XS_' + crosssec + '/Apos/data/'
 
     group_path = path_prefix + '/groups_' + suffix[snapnum]
     group_file = 'eagle_subfind_tab_' + suffix[snapnum]
@@ -65,17 +65,17 @@ for res, vol, phys, snapnum in product(
     snapshot_path = path_prefix + '/snapshot_' + suffix[snapnum]
     snapshot_file = 'snap_' + suffix[snapnum]
 
-    if (res == 1) \
-       and (
-           ((phys == 'hydro') and (vol not in [1, 4, 6, 10, 11]))
-           or
-           ((phys == 'DMO') and (vol not in [1, 4, 11]))
-       ):
+    if (res == 1) and (vol == 1) and (phys == 'hydro') and \
+       (crosssec == '10gcm2'):
+        pass
+    else:
         continue
 
     # next line defines a snapshot by its id and specifies where to find its
     # files
-    snapshots[snap_id(res=res, phys=phys, vol=vol, snap=snapnum)] = {
+    snapshots[
+        snap_id(res=res, phys=phys, vol=vol, snap=snapnum, crosssec=crosssec)
+    ] = {
         'group': (group_path, group_file),  # omit .X.hdf5
         'particle': (particle_path, particle_file),  # omit .X.hdf5
         'snapshot': (snapshot_path, snapshot_file),  # omit .X.hdf5
@@ -401,6 +401,19 @@ extractors['contamination'] = extractor(
     unit_convert=None
 )
 
+# fshid
+extractors['fshid'] = extractor(
+    keytype='fofgroup',
+    filetype='group',
+    dependencies=tuple(),
+    hpath='/FOF/FirstSubhaloID',
+    attr=None,
+    convert=lambda vals, raw, path, fname, hpath:
+    raw,
+    units=U.dimensionless_unscaled,
+    unit_convert=None
+)
+
 # nsubhalos
 extractors['nsubhalos'] = extractor(
     keytype='fofgroup',
@@ -583,7 +596,6 @@ extractors['R200'] = extractor(
     unit_convert=U.kpc
 )
 
-# Vmax
 extractors['Vmax'] = extractor(
     keytype='group',
     filetype='group',
