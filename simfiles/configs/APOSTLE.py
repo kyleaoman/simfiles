@@ -83,5 +83,6 @@ for res, vol, phys, snap in product(
 extractors.update(generate_eagle_extractors(
     T=range(6),
     Mstring='Masses',
-    Vstring='Velocities'
+    Vstring='Velocities',
+    EOSstring='SfFlag'
 ))
