@@ -1027,21 +1027,6 @@ def generate_eagle_extractors(
                 unit_convert=None
             )
 
-        extractors['PartType{:d}_HostHalo_TVir_Mass'.format(Ti)] = extractor(
-            keytype='particle{:d}'.format(Ti),
-            filetype='particle',
-            dependencies=(
-                'Header_attr_HubbleParam',
-                'Header_attr_Time',
-            ),
-            hpath='/PartType{:d}/HostHalo_TVir_Mass'.format(Ti),
-            attr=None,
-            convert=lambda vals, raw, path, fname, hpath:
-            raw * h_a_powers(vals, path, fname, hpath),
-            units=U.K,
-            unit_convert=None
-        )
-
         extractors['PartType{:d}_IronMassFracFromSNIa'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
             filetype='particle',
@@ -1137,6 +1122,22 @@ def generate_eagle_extractors(
                 units=U.dimensionless_unscaled,
                 unit_convert=None
             )
+
+    for Ti in set((0, 4, 5)).intersection(T):
+        extractors['PartType{:d}_HostHalo_TVir_Mass'.format(Ti)] = extractor(
+            keytype='particle{:d}'.format(Ti),
+            filetype='particle',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+            ),
+            hpath='/PartType{:d}/HostHalo_TVir_Mass'.format(Ti),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath),
+            units=U.K,
+            unit_convert=None
+        )
 
         extractors['PartType{:d}_SmoothingLength'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
@@ -1497,93 +1498,105 @@ def generate_eagle_extractors(
         unit_convert=U.Msun / U.yr
     )
 
-    extractors['PartType5_'] = extractor(
+    extractors['PartType5_BH_MostMassiveProgenitorID'] = extractor(
         keytype='particle5',
         filetype='particle',
-        dependencies=(
-            'Header_attr_HubbleParam',
-            'Header_attr_Time'
-        ),
-        hpath='/PartType5/',
+        dependencies=tuple(),
+        hpath='/PartType5/BH_MostMassiveProgenitorID',
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
-        raw * h_a_powers(vals, path, fname, hpath),
-        units=,
+        raw,
+        units=U.dimensionless_unscaled,
         unit_convert=None
     )
 
-    extractors['PartType5_'] = extractor(
+    extractors['PartType5_BH_Pressure'] = extractor(
         keytype='particle5',
         filetype='particle',
         dependencies=(
             'Header_attr_HubbleParam',
-            'Header_attr_Time'
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g',
+            'Units_attr_UnitVelocity_in_cm_per_s',
+            'Units_attr_UnitLength_in_cm'
         ),
-        hpath='/PartType5/',
+        hpath='/PartType5/BH_Pressure',
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
-        raw * h_a_powers(vals, path, fname, hpath),
-        units=,
+        raw * np.power(vals.Header_attr_HubbleParam, 2)
+        * np.power(vals.Header_attr_Time, -3 * vals.Constants_attr_GAMMA)
+        * vals.Units_attr_UnitMass_in_g
+        * vals.Units_attr_UnitVelocity_in_cm_per_s ** 2
+        * vals.Units_attr_UnitLength_in_cm ** -3,
+        units=U.g * U.cm ** -1 * U.s ** -2,
         unit_convert=None
     )
 
-    extractors['PartType5_'] = extractor(
+    extractors['PartType5_BH_SoundSpeed'] = extractor(
+        keytype='particle5',
+        filetype='particle',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitVelocity_in_cm_per_s'
+        ),
+        hpath='/PartType5/BH_SoundSpeed',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitVelocity_in_cm_per_s,
+        units=U.cm * U.s ** -1,
+        unit_convert=U.km * U.s ** -1
+    )
+
+    extractors['PartType5_BH_SurroundingGasVel'] = extractor(
+        keytype='particle5',
+        filetype='particle',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitVelocity_in_cm_per_s'
+        ),
+        hpath='/PartType5/BH_SurroundingGasVel',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitVelocity_in_cm_per_s,
+        units=U.cm * U.s ** -1,
+        unit_convert=U.km * U.s ** -1
+    )
+
+    extractors['PartType5_BH_TimeLastMerger'] = extractor(
         keytype='particle5',
         filetype='particle',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
         ),
-        hpath='/PartType5/',
+        hpath='/PartType5/BH_TimeLastMerger',
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
         raw * h_a_powers(vals, path, fname, hpath),
-        units=,
+        units=U.dimensionless_unscaled,
         unit_convert=None
     )
 
-    extractors['PartType5_'] = extractor(
+    extractors['PartType5_BH_WeightedDensity'] = extractor(
         keytype='particle5',
         filetype='particle',
         dependencies=(
             'Header_attr_HubbleParam',
-            'Header_attr_Time'
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g',
+            'Units_attr_UnitLength_in_cm'
         ),
-        hpath='/PartType5/',
+        hpath='/PartType5/BH_WeightedDensity',
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
-        raw * h_a_powers(vals, path, fname, hpath),
-        units=,
-        unit_convert=None
-    )
-
-    extractors['PartType5_'] = extractor(
-        keytype='particle5',
-        filetype='particle',
-        dependencies=(
-            'Header_attr_HubbleParam',
-            'Header_attr_Time'
-        ),
-        hpath='/PartType5/',
-        attr=None,
-        convert=lambda vals, raw, path, fname, hpath:
-        raw * h_a_powers(vals, path, fname, hpath),
-        units=,
-        unit_convert=None
-    )
-
-    extractors['PartType5_'] = extractor(
-        keytype='particle5',
-        filetype='particle',
-        dependencies=(
-            'Header_attr_HubbleParam',
-            'Header_attr_Time'
-        ),
-        hpath='/PartType5/',
-        attr=None,
-        convert=lambda vals, raw, path, fname, hpath:
-        raw * h_a_powers(vals, path, fname, hpath),
-        units=,
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g
+        * vals.Units_attr_UnitLength_in_cm ** -3,
+        units=U.g * U.cm ** -3,
         unit_convert=None
     )
 
