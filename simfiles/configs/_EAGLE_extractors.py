@@ -1440,13 +1440,19 @@ def generate_eagle_extractors(
         filetype='particle',
         dependencies=(
             'Header_attr_HubbleParam',
-            'Header_attr_Time'
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g',
+            'Units_attr_UnitLength_in_cm',
+            'Units_attr_UnitTime_in_s'
         ),
         hpath='/PartType5/BH_EnergyReservoir',
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
-        raw * h_a_powers(vals, path, fname, hpath),
-        units=U.UnitError,
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g
+        * vals.Units_attr_UnitLength_in_cm ** 2
+        * vals.Units_attr_UnitTime_in_s ** -2,
+        units=U.erg,
         unit_convert=None
     )
 
