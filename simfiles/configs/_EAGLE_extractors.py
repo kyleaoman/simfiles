@@ -19,28 +19,28 @@ overdensities = ('Crit200', 'Crit2500', 'Crit500', 'Mean200', 'Mean2500',
                  'Mean500', 'TopHat200')
 
 
-def h_a_powers(vals, path, fname, hpath):
+def h_a_powers(vals, path, fname, hpath, force_a=None, force_h=None):
     args = (path, fname, hpath)
-    return np.power(
-        vals.Header_attr_HubbleParam,
-        hdf5_get(*args, attr='h-scale-exponent')
-    ) * np.power(
-        vals.Header_attr_Time,
-        hdf5_get(*args, attr='aexp-scale-exponent')
-    )
+    aexp_scale_exponent = hdf5_get(*args, attr='aexp-scale-exponent') \
+        if force_a is None else force_a
+    h_scale_exponent = hdf5_get(*args, attr='h-scale-exponent') \
+        if force_h is None else force_h
+    return np.power(vals.Header_attr_HubbleParam, h_scale_exponent) \
+        * np.power(vals.Header_attr_Time, aexp_scale_exponent)
 
 
 def generate_eagle_extractors(
         T=(0, 1, 4, 5),
         Mstring='Mass',
         Vstring='Velocity',
-        EOSstring='OnEquationOfState'
+        EOSstring='OnEquationOfState',
+        omit=tuple()
 ):
 
     extractors = dict()
 
     extractors['Constants_attr_AVOGADRO'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -52,7 +52,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_BOLTZMANN'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -64,7 +64,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_C'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -76,7 +76,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_CM_PER_MPC'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -88,7 +88,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_ELECTRONCHARGE'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -100,7 +100,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_ELECTRONMASS'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -112,7 +112,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_EV_TO_ERG'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -124,7 +124,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_GAMMA'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -136,7 +136,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_GAS_CONST'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -148,7 +148,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_GRAVITY'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -160,7 +160,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_HUBBLE'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -172,7 +172,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_PI'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -184,7 +184,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_PLANCK'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -196,7 +196,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_PROTONMASS'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -208,7 +208,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_RAD_CONST'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -220,7 +220,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_SEC_PER_MEGAYEAR'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -232,7 +232,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_SEC_PER_YEAR'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -244,7 +244,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_SOLAR_LUM'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -256,7 +256,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_SOLAR_MASS'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -268,7 +268,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_STEFAN'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -280,7 +280,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_THOMPSON'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -292,7 +292,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_T_CMB0'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -304,7 +304,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Constants_attr_Z_Solar'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Constants',
@@ -316,7 +316,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_BoxSize'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=(
             'Units_attr_UnitLength_in_cm',
@@ -331,7 +331,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_E(z)'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -343,7 +343,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_ExpansionFactor'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -355,7 +355,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_Flag_Cooling'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -367,7 +367,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_Flag_DoublePrecision'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -379,7 +379,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_Flag_Feedback'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -391,7 +391,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_Flag_IC_Info'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -403,7 +403,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_Flag_Metals'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -415,7 +415,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_Flag_Sfr'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -427,7 +427,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_Flag_StellarAge'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -439,7 +439,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_H(z)'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -451,7 +451,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_HubbleParam'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -463,7 +463,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_MassTable'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=(
             'Units_attr_UnitMass_in_g',
@@ -478,7 +478,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_NumPart_Total'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -490,7 +490,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_NumPart_Total_HighWord'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -502,7 +502,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_Omega0'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -514,7 +514,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_OmegaBaryon'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -526,7 +526,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_OmegaLambda'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -538,7 +538,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_Redshift'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -550,7 +550,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_Time'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Header',
@@ -562,7 +562,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_TotNgroups'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='group',
         dependencies=tuple(),
         hpath='/Header',
@@ -574,7 +574,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Header_attr_TotNsubgroups'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='group',
         dependencies=tuple(),
         hpath='/Header',
@@ -586,10 +586,22 @@ def generate_eagle_extractors(
     )
 
     extractors['FOF_attr_TotNgroups'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='group',
         dependencies=tuple(),
         hpath='/FOF',
+        attr='TotNgroups',
+        convert=lambda vals, raw, path, fname, hpath:
+        raw,
+        units=U.dimensionless_unscaled,
+        unit_convert=None
+    )
+
+    extractors['Subhalo_attr_TotNgroups'] = extractor(
+        keytype='meta',
+        filetype='group',
+        dependencies=tuple(),
+        hpath='/Subhalo',
         attr='TotNgroups',
         convert=lambda vals, raw, path, fname, hpath:
         raw,
@@ -663,7 +675,7 @@ def generate_eagle_extractors(
         attr=None,
         convert=lambda vals, raw, path, fname, hapth:
         raw,
-        units=U.dimensionless_unscaled,
+        units=None,
         unit_convert=None
     )
 
@@ -743,23 +755,11 @@ def generate_eagle_extractors(
         unit_convert=None
     )
 
-    extractors['Subhalo_attr_TotNgroups'] = extractor(
-        keytype='header',
+    extractors['IDs_ParticleID'] = extractor(
+        keytype='idgroup',
         filetype='group',
         dependencies=tuple(),
-        hpath='/Subhalo',
-        attr='TotNgroups',
-        convert=lambda vals, raw, path, fname, hpath:
-        raw,
-        units=U.dimensionless_unscaled,
-        unit_convert=None
-    )
-
-    extractors['Subhalo_GroupNumber'] = extractor(
-        keytype='group',
-        filetype='group',
-        dependencies=tuple(),
-        hpath='/Subhalo/GroupNumber',
+        hpath='/IDs/ParticleID',
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
         raw,
@@ -767,16 +767,136 @@ def generate_eagle_extractors(
         unit_convert=None
     )
 
-    extractors['Subhalo_SubGroupNumber'] = extractor(
-        keytype='group',
+    extractors['IDs_Particle_Binding_Energy'] = extractor(
+        keytype='idgroup',
         filetype='group',
-        dependencies=tuple(),
-        hpath='/Subhalo/SubGroupNumber',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g',
+            'Units_attr_UnitVelocity_in_cm_per_s'
+        ),
+        hpath='/IDs/Particle_Binding_Energy',
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
-        raw,
-        units=U.dimensionless_unscaled,
-        unit_convert=None
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g
+        * vals.Units_attr_UnitVelocity_in_cm_per_s ** 2,
+        units=U.Msun * U.cm ** 2 * U.s ** -2,
+        unit_convert=U.Msun * U.km ** 2 * U.s ** -2
+    )
+
+    for ap in (1, 3, 5, 10, 20, 30, 40, 50, 70, 100):
+
+        extractors[
+            'Subhalo_ApertureMeasurements_Mass_{:03d}kpc'.format(ap)
+        ] = extractor(
+            keytype='group',
+            filetype='group',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+                'Units_attr_UnitMass_in_g'
+            ),
+            hpath='/Subhalo/ApertureMeasurements/Mass/'
+            '{:03d}kpc'.format(ap),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath)
+            * vals.Units_attr_UnitMass_in_g,
+            units=U.g,
+            unit_convert=U.Msun
+        )
+
+        extractors[
+            'Subhalo_ApertureMeasurements_SFR_{:03d}kpc'.format(ap)
+        ] = extractor(
+            keytype='group',
+            filetype='group',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time'
+            ),
+            hpath='/Subhalo/ApertureMeasurements/SFR/{:03d}kpc'.format(ap),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath),
+            units=U.Msun / U.yr,
+            unit_convert=None
+            )
+
+        extractors[
+            'Subhalo_ApertureMeasurements_VelDisp_{:03d}kpc'.format(ap)
+        ] = extractor(
+            keytype='group',
+            filetype='group',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+                'Units_attr_UnitVelocity_in_cm_per_s'
+            ),
+            hpath='/Subhalo/ApertureMeasurements/VelDisp/'
+            '{:03d}kpc'.format(ap),
+            attr=None,
+            # error in aexp-scale-exponent, should be 0
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath, force_a=0)
+            * vals.Units_attr_UnitVelocity_in_cm_per_s,
+            units=U.cm * U.s ** -1,
+            unit_convert=U.km * U.s ** -1
+        )
+
+    extractors['Subhalo_BlackHoleMass'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g'
+        ),
+        hpath='/Subhalo/BlackHoleMass',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g,
+        units=U.g,
+        unit_convert=U.Msun
+    )
+
+    extractors['Subhalo_BlackHoleMassAccretionRate'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g',
+            'Units_attr_UnitTime_in_s'
+        ),
+        hpath='/Subhalo/BlackHoleMassAccretionRate',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g
+        * vals.Units_attr_UnitTime_in_s,
+        units=U.g * U.s ** -1,
+        unit_convert=U.Msun * U.yr ** -1
+    )
+
+    extractors['Subhalo_CentreOfMass'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitLength_in_cm'
+        ),
+        hpath='/Subhalo/CentreOfMass',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitLength_in_cm,
+        units=U.cm,
+        unit_convert=U.kpc
     )
 
     extractors['Subhalo_CentreOfPotential'] = extractor(
@@ -796,21 +916,532 @@ def generate_eagle_extractors(
         unit_convert=U.kpc
     )
 
-    extractors['Subhalo_Velocity'] = extractor(
+    extractors['Subhalo_GasSpin'] = extractor(
         keytype='group',
         filetype='group',
         dependencies=(
-            'Units_attr_UnitVelocity_in_cm_per_s',
             'Header_attr_HubbleParam',
-            'Header_attr_Time'
+            'Header_attr_Time',
+            'Units_attr_UnitLength_in_cm',
+            'Units_attr_UnitVelocity_in_cm_per_s'
         ),
-        hpath='/Subhalo/Velocity',
+        hpath='/Subhalo/GasSpin',
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
         raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitLength_in_cm
+        * vals.Units_attr_UnitVelocity_in_cm_per_s,
+        units=U.cm ** 2 * U.s ** -1,
+        unit_convert=U.kpc * U.km * U.s ** -1
+    )
+
+    extractors['Subhalo_GroupNumber'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=tuple(),
+        hpath='/Subhalo/GroupNumber',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw,
+        units=U.dimensionless_unscaled,
+        unit_convert=None
+    )
+
+    extractors['Subhalo_HalfMassProjRad'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitLength_in_cm'
+        ),
+        hpath='/Subhalo/HalfMassProjRad',
+        attr=None,
+        # error in aexp-scale-exponent, should be 0
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath, force_a=0)
+        * vals.Units_attr_UnitLength_in_cm,
+        units=U.cm,
+        unit_convert=U.kpc
+    )
+
+    extractors['Subhalo_HalfMassRad'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitLength_in_cm'
+        ),
+        hpath='/Subhalo/HalfMassRad',
+        attr=None,
+        # error in aexp-scale-exponent, should be 0
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath, force_a=0)
+        * vals.Units_attr_UnitLength_in_cm,
+        units=U.cm,
+        unit_convert=U.kpc
+    )
+
+    extractors['Subhalo_IDMostBound'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time'
+        ),
+        hpath='/Subhalo/IDMostBound',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath),
+        units=U.dimensionless_unscaled,
+        unit_convert=None
+    )
+
+    extractors['Subhalo_InertiaTensor'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g',
+            'Units_attr_UnitLength_in_cm'
+        ),
+        hpath='/Subhalo/InertiaTensor',
+        attr=None,
+        # error in aexp-scale-exponent, should be 0
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath, force_a=0)
+        * vals.Units_attr_UnitMass_in_g
+        * vals.Units_attr_UnitLength_in_cm ** 2,
+        units=U.g * U.cm ** 2,
+        unit_convert=U.Msun * U.kpc ** 2
+    )
+
+    extractors['Subhalo_InitialMassWeightedBirthZ'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time'
+        ),
+        hpath='/Subhalo/InitialMassWeightedBirthZ',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath),
+        units=U.dimensionless_unscaled,
+        unit_convert=None
+    )
+
+    extractors['Subhalo_InitialMassWeightedStellarAge'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time'
+        ),
+        hpath='/Subhalo/InitialMassWeightedStellarAge',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath),
+        units=U.Gyr,
+        unit_convert=None
+    )
+
+    extractors['Subhalo_KineticEnergy'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g',
+            'Units_attr_UnitVelocity_in_cm_per_s'
+        ),
+        hpath='/Subhalo/KineticEnergy',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g
+        * vals.Units_attr_UnitVelocity_in_cm_per_s ** 2,
+        units=U.erg,
+        unit_convert=U.Msun * U.km ** 2 * U.s ** -2
+    )
+
+    extractors['Subhalo_Mass'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g'
+        ),
+        hpath='/Subhalo/Mass',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g,
+        units=U.g,
+        unit_convert=U.Msun
+    )
+
+    extractors['Subhalo_MassTwiceHalfMassRad'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g'
+        ),
+        hpath='/Subhalo/MassTwiceHalfMassRad',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g,
+        units=U.g,
+        unit_convert=U.Msun
+    )
+
+    extractors['Subhalo_MassType'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g'
+        ),
+        hpath='/Subhalo/MassType',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g,
+        units=U.g,
+        unit_convert=U.solMass
+    )
+
+    for ts in ('NSF', 'SF', 'Stars'):
+        for smooth in ('', 'Smoothed'):
+            for element in elements:
+
+                extractors[
+                    'Subhalo_{:s}_{:s}ElementAbundance_{:s}'.format(
+                        ts, smooth, element)
+                ] = extractor(
+                    keytype='group',
+                    filetype='group',
+                    dependencies=(
+                        'Header_attr_HubbleParam',
+                        'Header_attr_Time'
+                    ),
+                    hpath='/Subhalo/{:s}/{:s}ElementAbundance/{:s}'.format(
+                        ts, smooth, element),
+                    attr=None,
+                    convert=lambda vals, raw, path, fname, hpath:
+                    raw * h_a_powers(vals, path, fname, hpath),
+                    units=U.dimensionless_unscaled,
+                    unit_convert=None
+                )
+
+            extractors['Subhalo_{:s}_IronFromSNIa{:s}'.format(ts, smooth)] = \
+                extractor(
+                    keytype='group',
+                    filetype='group',
+                    dependencies=(
+                        'Header_attr_HubbleParam',
+                        'Header_attr_Time'
+                    ),
+                    hpath='/Subhalo/{:s}/IronFromSNIa{:s}'.format(ts, smooth),
+                    attr=None,
+                    convert=lambda vals, raw, path, fname, hpath:
+                    raw * h_a_powers(vals, path, fname, hpath),
+                    units=U.dimensionless_unscaled,
+                    unit_convert=None
+                )
+
+        extractors['Subhalo_{:s}_KineticEnergy'.format(ts)] = extractor(
+            keytype='group',
+            filetype='group',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+                'Units_attr_UnitMass_in_g',
+                'Units_attr_UnitVelocity_in_cm_per_s'
+            ),
+            hpath='/Subhalo/{:s}/KineticEnergy'.format(ts),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath)
+            * vals.Units_attr_UnitMass_in_g
+            * vals.Units_attr_UnitVelocity_in_cm_per_s ** 2,
+            units=U.erg,
+            unit_convert=U.Msun * U.km ** 2 * U.s ** -2
+        )
+
+        extractors['Subhalo_{:s}_Mass'.format(ts)] = extractor(
+            keytype='group',
+            filetype='group',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+                'Units_attr_UnitMass_in_g'
+            ),
+            hpath='/Subhalo/{:s}/Mass'.format(ts),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath)
+            * vals.Units_attr_UnitMass_in_g,
+            units=U.g,
+            unit_convert=U.Msun
+        )
+
+        for src in ('AGB', 'SNII', 'SNIa'):
+            extractors['Subhalo_{:s}_MassFrom{:s}'.format(ts, src)] = \
+                extractor(
+                    keytype='group',
+                    filetype='group',
+                    dependencies=(
+                        'Header_attr_HubbleParam',
+                        'Header_attr_Time',
+                        'Units_attr_UnitMass_in_g'
+                    ),
+                    hpath='/Subhalo/{:s}/MassFrom{:s}'.format(ts, src),
+                    attr=None,
+                    convert=lambda vals, raw, path, fname, hpath:
+                    raw * h_a_powers(vals, path, fname, hpath)
+                    * vals.Units_attr_UnitMass_in_g,
+                    units=U.g,
+                    unit_convert=U.Msun
+                )
+
+            extractors['Subhalo_{:s}_MetalsFrom{:s}'.format(ts, src)] = \
+                extractor(
+                    keytype='group',
+                    filetype='group',
+                    dependencies=(
+                        'Header_attr_HubbleParam',
+                        'Header_attr_Time',
+                        'Units_attr_UnitMass_in_g'
+                    ),
+                    hpath='/Subhalo/{:s}/MetalsFrom{:s}'.format(ts, src),
+                    attr=None,
+                    convert=lambda vals, raw, path, fname, hpath:
+                    raw * h_a_powers(vals, path, fname, hpath)
+                    * vals.Units_attr_UnitMass_in_g,
+                    units=U.g,
+                    unit_convert=U.Msun
+                )
+
+        extractors['Subhalo_{:s}_MassWeightedPotential'.format(ts)] = \
+            extractor(
+                keytype='group',
+                filetype='group',
+                dependencies=(
+                    'Header_attr_HubbleParam',
+                    'Header_attr_Time',
+                    'Units_attr_UnitVelocity_in_cm_per_s'
+                ),
+                hpath='/Subhalo/{:s}/MassWeightedPotential'.format(ts),
+                attr=None,
+                convert=lambda vals, raw, path, fname, hpath:
+                raw * h_a_powers(vals, path, fname, hpath)
+                * vals.Units_attr_UnitVelocity_in_cm_per_s,
+                units=U.cm ** 2 * U.s ** -2,
+                unit_convert=U.km ** 2 * U.s ** -2
+            )
+
+        for smooth in ('', 'Smoothed'):
+            extractors['Subhalo_{:s}_{:s}Metallicity'.format(ts, smooth)] = \
+                extractor(
+                    keytype='group',
+                    filetype='group',
+                    dependencies=(
+                        'Header_attr_HubbleParam',
+                        'Header_attr_Time'
+                    ),
+                    hpath='/Subhalo/{:s}/{:s}Metallicity'.format(ts, smooth),
+                    attr=None,
+                    convert=lambda vals, raw, path, fname, hpath:
+                    raw * h_a_powers(vals, path, fname, hpath),
+                    units=U.dimensionless_unscaled,
+                    unit_convert=None
+                )
+
+        extractors['Subhalo_{:s}_Spin'.format(ts)] = extractor(
+            keytype='group',
+            filetype='group',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+                'Units_attr_UnitVelocity_in_cm_per_s'
+            ),
+            hpath='/Subhalo/{:s}/Spin'.format(ts),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath)
+            * vals.Units_attr_UnitVelocity_in_cm_per_s,
+            units=U.cm * U.s ** -1,
+            unit_convert=U.km * U.s ** -1
+        )
+
+        extractors['Subhalo_{:s}_TotalEnergy'.format(ts)] = extractor(
+            keytype='group',
+            filetype='group',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+                'Units_attr_UnitMass_in_g',
+                'Units_attr_UnitVelocity_in_cm_per_s'
+            ),
+            hpath='/Subhalo/{:s}/TotalEnergy'.format(ts),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath)
+            * vals.Units_attr_UnitMass_in_g
+            * vals.Units_attr_UnitVelocity_in_cm_per_s ** 2,
+            units=U.erg,
+            unit_convert=U.Msun * U.km ** 2 * U.s ** -2
+        )
+
+    for ts in ('NSF', 'SF'):
+        extractors['Subhalo_{:s}_MassWeightedEntropy'.format(ts)] = extractor(
+            keytype='group',
+            filetype='group',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+                'Constants_attr_GAMMA',
+                'Units_attr_UnitPressure_in_cgs',
+                'Units_attr_UnitDensity_in_cgs'
+            ),
+            hpath='/Subhalo/{:s}/MassWeightedEntropy'.format(ts),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw
+            * np.power(
+                vals.Header_attr_HubbleParam,
+                2 - 2 * vals.Constants_attr_GAMMA
+            )
+            * vals.Units_attr_UnitPressure_in_cgs
+            * np.power(
+                vals.Units_attr_UnitDensity_in_cgs,
+                -vals.Constants_attr_GAMMA
+            ),
+            units=U.erg * U.K ** -1,
+            unit_convert=None
+        )
+
+        extractors['Subhalo_{:s}_MassWeightedTemperature'.format(ts)] = \
+            extractor(
+                keytype='group',
+                filetype='group',
+                dependencies=(
+                    'Header_attr_HubbleParam',
+                    'Header_attr_Time'
+                ),
+                hpath='/Subhalo/{:s}/MassWeightedTemperature'.format(ts),
+                attr=None,
+                convert=lambda vals, raw, path, fname, hpath:
+                raw * h_a_powers(vals, path, fname, hpath),
+                units=U.K,
+                unit_convert=None
+            )
+
+        extractors['Subhalo_{:s}_ThermalEnergy'.format(ts)] = extractor(
+            keytype='group',
+            filetype='group',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+                'Units_attr_UnitMass_in_g',
+                'Units_attr_UnitVelocity_in_cm_per_s'
+            ),
+            hpath='/Subhalo/{:s}/ThermalEnergy'.format(ts),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath)
+            * vals.Units_attr_UnitMass_in_g
+            * vals.Units_attr_UnitVelocity_in_cm_per_s ** 2,
+            units=U.erg,
+            unit_convert=U.Msun * U.km ** 2 * U.s ** -2
+        )
+
+    extractors['Subhalo_StarFormationRate'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time'
+        ),
+        hpath='/Subhalo/StarFormationRate',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw,
+        units=U.Msun * U.yr ** -1,
+        unit_convert=None
+    )
+
+    extractors['Subhalo_StellarInitialMass'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g'
+        ),
+        hpath='/Subhalo/StellarInitialMass',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g,
+        units=U.g,
+        unit_convert=U.Msun
+    )
+
+    extractors['Subhalo_StellarVelDisp'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitVelocity_in_cm_per_s'
+        ),
+        hpath='/Subhalo/StellarVelDisp',
+        attr=None,
+        # error in aexp-scale-exponent, should be 0
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath, force_a=0)
         * vals.Units_attr_UnitVelocity_in_cm_per_s,
         units=U.cm * U.s ** -1,
         unit_convert=U.km * U.s ** -1
+    )
+
+    extractors['Subhalo_StellarVelDisp_HalfMassProjRad'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitVelocity_in_cm_per_s'
+        ),
+        hpath='/Subhalo/StellarVelDisp_HalfMassProjRad',
+        attr=None,
+        # error in aexp-scale-exponent, should be 0
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath, force_a=0)
+        * vals.Units_attr_UnitVelocity_in_cm_per_s,
+        units=U.cm * U.s ** -1,
+        unit_convert=U.km * U.s ** -1
+    )
+
+    extractors['Subhalo_SubGroupNumber'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=tuple(),
+        hpath='/Subhalo/SubGroupNumber',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw,
+        units=U.dimensionless_unscaled,
+        unit_convert=None
     )
 
     extractors['Subhalo_SubLength'] = extractor(
@@ -818,6 +1449,18 @@ def generate_eagle_extractors(
         filetype='group',
         dependencies=tuple(),
         hpath='/Subhalo/SubLength',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw,
+        units=None,
+        unit_convert=None
+    )
+
+    extractors['Subhalo_SubLengthType'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=tuple(),
+        hpath='/Subhalo/SubLengthType',
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
         raw,
@@ -837,21 +1480,59 @@ def generate_eagle_extractors(
         unit_convert=None
     )
 
-    extractors['Subhalo_MassType'] = extractor(
+    extractors['Subhalo_ThermalEnergy'] = extractor(
         keytype='group',
         filetype='group',
         dependencies=(
-            'Units_attr_UnitMass_in_g',
             'Header_attr_HubbleParam',
-            'Header_attr_Time'
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g',
+            'Units_attr_UnitVelocity_in_cm_per_s'
         ),
-        hpath='/Subhalo/MassType',
+        hpath='/Subhalo/ThermalEnergy',
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
         raw * h_a_powers(vals, path, fname, hpath)
-        * vals.Units_attr_UnitMass_in_g,
-        units=U.g,
-        unit_convert=U.solMass
+        * vals.Units_attr_UnitMass_in_g
+        * vals.Units_attr_UnitVelocity_in_cm_per_s ** 2,
+        units=U.erg,
+        unit_convert=U.Msun * U.km ** 2 * U.s ** -2
+    )
+
+    extractors['Subhalo_TotalEnergy'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g',
+            'Units_attr_UnitVelocity_in_cm_per_s'
+        ),
+        hpath='/Subhalo/TotalEnergy',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g
+        * vals.Units_attr_UnitVelocity_in_cm_per_s ** 2,
+        units=U.erg,
+        unit_convert=U.Msun * U.km ** 2 * U.s ** -2
+    )
+
+    extractors['Subhalo_Velocity'] = extractor(
+        keytype='group',
+        filetype='group',
+        dependencies=(
+            'Units_attr_UnitVelocity_in_cm_per_s',
+            'Header_attr_HubbleParam',
+            'Header_attr_Time'
+        ),
+        hpath='/Subhalo/Velocity',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitVelocity_in_cm_per_s,
+        units=U.cm * U.s ** -1,
+        unit_convert=U.km * U.s ** -1
     )
 
     extractors['Subhalo_Vmax'] = extractor(
@@ -871,22 +1552,27 @@ def generate_eagle_extractors(
         unit_convert=U.km * U.s ** -1
     )
 
-    extractors['IDs_ParticleID'] = extractor(
-        keytype='idgroup',
+    extractors['Subhalo_VmaxRadius'] = extractor(
+        keytype='group',
         filetype='group',
-        dependencies=tuple(),
-        hpath='/IDs/ParticleID',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitLength_in_cm'
+        ),
+        hpath='/Subhalo/VmaxRadius',
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
-        raw,
-        units=U.dimensionless_unscaled,
-        unit_convert=None
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitLength_in_cm,
+        units=U.cm,
+        unit_convert=U.kpc
     )
 
     for Ti in T:
         extractors['PartType{:d}_Coordinates'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='particle',
+            filetype='snapshot',
             dependencies=(
                 'Units_attr_UnitLength_in_cm',
                 'Header_attr_HubbleParam',
@@ -903,7 +1589,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_GroupNumber'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='particle',
+            filetype='snapshot',
             dependencies=tuple(),
             hpath='/PartType{:d}/GroupNumber'.format(Ti),
             attr=None,
@@ -915,7 +1601,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_ParticleIDs'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='particle',
+            filetype='snapshot',
             dependencies=tuple(),
             hpath='/PartType{:d}/ParticleIDs'.format(Ti),
             attr=None,
@@ -927,7 +1613,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_SubGroupNumber'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='particle',
+            filetype='snapshot',
             dependencies=tuple(),
             hpath='/PartType{:d}/SubGroupNumber'.format(Ti),
             attr=None,
@@ -939,7 +1625,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_{:s}'.format(Ti, Vstring)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='particle',
+            filetype='snapshot',
             dependencies=(
                 'Units_attr_UnitVelocity_in_cm_per_s',
                 'Header_attr_HubbleParam',
@@ -957,7 +1643,7 @@ def generate_eagle_extractors(
     for Ti in set((0, 2, 3, 4, 5)).intersection(T):
         extractors['PartType{:d}_{:s}'.format(Ti, Mstring)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='particle',
+            filetype='snapshot',
             dependencies=(
                 'Units_attr_UnitMass_in_g',
                 'Header_attr_HubbleParam',
@@ -976,7 +1662,7 @@ def generate_eagle_extractors(
         extractors['PartType{:d}_AExpMaximumTemperature'.format(Ti)] = \
             extractor(
                 keytype='particle{:d}'.format(Ti),
-                filetype='particle',
+                filetype='snapshot',
                 dependencies=(
                     'Header_attr_HubbleParam',
                     'Header_attr_Time'
@@ -996,7 +1682,7 @@ def generate_eagle_extractors(
                         Ti, smooth, element)
                 ] = extractor(
                     keytype='particle{:d}'.format(Ti),
-                    filetype='particle',
+                    filetype='snapshot',
                     dependencies=(
                         'Header_attr_HubbleParam',
                         'Header_attr_Time'
@@ -1013,7 +1699,7 @@ def generate_eagle_extractors(
                 'PartType{:d}_{:s}Metallicity'.format(Ti, smooth)
             ] = extractor(
                 keytype='particle{:d}'.format(Ti),
-                filetype='particle',
+                filetype='snapshot',
                 dependencies=(
                     'Header_attr_HubbleParam',
                     'Header_attr_Time'
@@ -1029,7 +1715,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_IronMassFracFromSNIa'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='particle',
+            filetype='snapshot',
             dependencies=(
                 'Header_attr_HubbleParam',
                 'Header_attr_Time'
@@ -1044,7 +1730,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_MaximumTemperature'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='particle',
+            filetype='snapshot',
             dependencies=(
                 'Header_attr_HubbleParam',
                 'Header_attr_Time'
@@ -1061,7 +1747,7 @@ def generate_eagle_extractors(
             extractors['PartType{:d}_MetalMassFracFrom{:s}'.format(
                 Ti, src)] = extractor(
                     keytype='particle{:d}'.format(Ti),
-                    filetype='particle',
+                    filetype='snapshot',
                     dependencies=(
                         'Header_attr_HubbleParam',
                         'Header_attr_Time'
@@ -1078,7 +1764,7 @@ def generate_eagle_extractors(
             extractors['PartType{:d}_TotalMassFrom{:s}'.format(Ti, src)] = \
                 extractor(
                     keytype='particle{:d}'.format(Ti),
-                    filetype='particle',
+                    filetype='snapshot',
                     dependencies=(
                         'Header_attr_HubbleParam',
                         'Header_attr_Time'
@@ -1094,7 +1780,7 @@ def generate_eagle_extractors(
         extractors['PartType{:d}_MetalMassWeightedRedshift'.format(Ti)] = \
             extractor(
                 keytype='particle{:d}'.format(Ti),
-                filetype='particle',
+                filetype='snapshot',
                 dependencies=(
                     'Header_attr_HubbleParam',
                     'Header_attr_Time'
@@ -1110,7 +1796,7 @@ def generate_eagle_extractors(
         extractors['PartType{:d}_SmoothedIronMassFracFromSNIa'.format(Ti)] = \
             extractor(
                 keytype='particle{:d}'.format(Ti),
-                filetype='particle',
+                filetype='snapshot',
                 dependencies=(
                     'Header_attr_HubbleParam',
                     'Header_attr_Time'
@@ -1126,7 +1812,7 @@ def generate_eagle_extractors(
     for Ti in set((0, 4, 5)).intersection(T):
         extractors['PartType{:d}_HostHalo_TVir_Mass'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='particle',
+            filetype='snapshot',
             dependencies=(
                 'Header_attr_HubbleParam',
                 'Header_attr_Time',
@@ -1141,7 +1827,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_SmoothingLength'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='particle',
+            filetype='snapshot',
             dependencies=(
                 'Units_attr_UnitLength_in_cm',
                 'Header_attr_HubbleParam',
@@ -1158,7 +1844,7 @@ def generate_eagle_extractors(
 
     extractors['PartType0_Density'] = extractor(
         keytype='particle0',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Units_attr_UnitMass_in_g',
             'Units_attr_UnitLength_in_cm',
@@ -1177,7 +1863,7 @@ def generate_eagle_extractors(
 
     extractors['PartType0_Entropy'] = extractor(
         keytype='particle0',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -1204,7 +1890,7 @@ def generate_eagle_extractors(
 
     extractors['PartType0_InternalEnergy'] = extractor(
         keytype='particle0',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1220,7 +1906,7 @@ def generate_eagle_extractors(
 
     extractors['PartType0_{:s}'.format(EOSstring)] = extractor(
         keytype='particle0',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=tuple(),
         hpath='/PartType0/{:s}'.format(EOSstring),
         attr=None,
@@ -1232,7 +1918,7 @@ def generate_eagle_extractors(
 
     extractors['PartType0_StarFormationRate'] = extractor(
         keytype='particle0',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1247,7 +1933,7 @@ def generate_eagle_extractors(
 
     extractors['PartType0_Temperature'] = extractor(
         keytype='particle0',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1262,7 +1948,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_BirthDensity'] = extractor(
         keytype='particle4',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -1279,7 +1965,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_Feedback_EnergyFraction'] = extractor(
         keytype='particle4',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1294,7 +1980,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_HostHalo_TVir'] = extractor(
         keytype='particle4',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1309,7 +1995,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_InitialMass'] = extractor(
         keytype='particle4',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -1326,7 +2012,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_PreviousStellarEnrichment'] = extractor(
         keytype='particle4',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1341,7 +2027,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_StellarEnrichmentCounter'] = extractor(
         keytype='particle4',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1356,7 +2042,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_StellarFormationTime'] = extractor(
         keytype='particle4',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1371,7 +2057,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_AccretionLength'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -1388,7 +2074,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_CumlAccrMass'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -1405,7 +2091,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_CumlNumSeeds'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1420,7 +2106,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_Density'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1437,7 +2123,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_EnergyReservoir'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -1458,7 +2144,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_FormationTime'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1473,7 +2159,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_Mass'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1489,7 +2175,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_Mdot'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1506,7 +2192,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_MostMassiveProgenitorID'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=tuple(),
         hpath='/PartType5/BH_MostMassiveProgenitorID',
         attr=None,
@@ -1518,7 +2204,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_Pressure'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -1540,7 +2226,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_SoundSpeed'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -1557,7 +2243,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_SurroundingGasVel'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -1574,7 +2260,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_TimeLastMerger'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1589,7 +2275,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_WeightedDensity'] = extractor(
         keytype='particle5',
-        filetype='particle',
+        filetype='snapshot',
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -1607,7 +2293,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_AGB_EnergyTransferOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1619,7 +2305,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_AGB_MassTransferOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1631,7 +2317,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_ArtBulkViscConst'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1643,7 +2329,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_ArtBulkViscConstMin'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1655,7 +2341,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_ArtDiffConst'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1667,7 +2353,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_ArtDiffConstMin'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1679,7 +2365,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BH_ConstantHeatTemp'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1691,7 +2377,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BH_MaxHeatLimit'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1703,7 +2389,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BH_MaxHeatTemp'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1715,7 +2401,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BH_MaxMergingDistanceFactor'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1727,7 +2413,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BH_MaxRepositionDistanceFactor'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1739,7 +2425,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BH_MinHeatLimit'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1751,7 +2437,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BH_MinHeatTemp'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1763,7 +2449,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BH_feedback_mode'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1775,7 +2461,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BH_maxHeatingProbability'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1787,7 +2473,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BlackHoleAccretionFactor'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1799,7 +2485,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BlackHoleAccretionSlope'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1811,7 +2497,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BlackHoleEddingtonFactor'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1823,7 +2509,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BlackHoleFeedbackFactor'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1835,7 +2521,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BlackHoleMaxAccretionRadius'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1847,7 +2533,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BlackHoleNgbFactor'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1860,7 +2546,7 @@ def generate_eagle_extractors(
 
     extractors['RuntimePars_attr_BlackHoleNumberOfNeighboursToHeat'] = \
         extractor(
-            keytype='header',
+            keytype='meta',
             filetype='snapshot',
             dependencies=tuple(),
             hpath='/RuntimePars',
@@ -1872,7 +2558,7 @@ def generate_eagle_extractors(
         )
 
     extractors['RuntimePars_attr_BlackHoleRadiativeEfficiency'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1884,7 +2570,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BlackHoleViscousAlpha'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1896,7 +2582,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_BoxSize'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=(
             'Units_attr_UnitLength_in_cm',
@@ -1911,7 +2597,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_CalciumOverSilicon'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1923,7 +2609,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_CoolingOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1935,7 +2621,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_CourantFac'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1947,7 +2633,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_DesLinkNgb'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1959,7 +2645,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_DesNumNgb'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1971,7 +2657,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_DesNumNgbStar'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1983,7 +2669,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_DesNumNgbYoungStar'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -1995,7 +2681,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_EOS_Cool_GammaEffective'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2007,7 +2693,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_EOS_Cool_MinOverDens'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2019,7 +2705,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_EOS_Cool_MinPhysDens_HpCM3'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=(
             'Constants_attr_PROTONMASS',
@@ -2033,7 +2719,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_EOS_Jeans_TempNorm_K'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2045,7 +2731,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_EOS_Jeans_GammaEffective'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2057,7 +2743,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_EOS_Jeans_MinOverDens'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2069,7 +2755,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_EOS_Jeans_MinPhysDens_HpCM3'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=(
             'Constants_attr_PROTONMASS',
@@ -2083,7 +2769,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_EOS_Jeans_TempNorm_K'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2095,7 +2781,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_EOS_NormPhysDens_HpCM3'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=(
             'Constants_attr_PROTONMASS',
@@ -2109,7 +2795,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_ErrTolForceAcc'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2121,7 +2807,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_ErrTolIntAccuracy'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2133,7 +2819,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_ErrTolTheta'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2145,7 +2831,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_ErrTolThetaSubfind'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2157,7 +2843,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_Generations'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2169,7 +2855,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_HubbleParam'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2181,7 +2867,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_IMF_Exponent'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2193,7 +2879,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_IMF_LifetimeModel'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2205,7 +2891,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_IMF_MaxMass_MSUN'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2217,7 +2903,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_IMF_MinMass_MSUN'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2229,7 +2915,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_IMF_Model'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2243,7 +2929,7 @@ def generate_eagle_extractors(
     for element in elements:
         extractors['RuntimePars_attr_InitAbundance_{:s}'.format(element)] = \
             extractor(
-                keytype='header',
+                keytype='meta',
                 filetype='snapshot',
                 dependencies=tuple(),
                 hpath='/RuntimePars',
@@ -2255,7 +2941,7 @@ def generate_eagle_extractors(
             )
 
     extractors['RuntimePars_attr_InitGasTemp'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2267,7 +2953,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_InitMetallicity'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2279,7 +2965,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_MaxNumNgbDeviation'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2291,7 +2977,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_MaxRMSDisplacementFac'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2303,7 +2989,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_MaxSizeTimestep'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2315,7 +3001,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_MaxSmoothingLengthChange'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2327,7 +3013,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_MetDepCoolingOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2339,7 +3025,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_MinFoFMassForNewSeed_Msun'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2351,7 +3037,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_MinGasHsmlFractional'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2363,7 +3049,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_MinGasTemp'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2375,7 +3061,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_MinSizeTimestep'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2387,7 +3073,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_Omega0'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2399,7 +3085,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_OmegaBaryon'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2411,7 +3097,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_OmegaLambda'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2423,7 +3109,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_REION_H_Heating_EVpH'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=(
             'Constants_attr_PROTONMASS',
@@ -2437,7 +3123,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_REION_H_ZCenter'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2449,7 +3135,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_REION_He_Heating_EVpH'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=(
             'Constants_attr_PROTONMASS',
@@ -2463,7 +3149,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_REION_He_ZCenter'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2475,7 +3161,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_REION_He_ZSigma'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2487,7 +3173,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SF_SchmidtLawCoeff_MSUNpYRpKPC2'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2499,7 +3185,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SF_SchmidtLawExponent'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2511,7 +3197,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SF_SchmidtLawHighDensExponent'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2524,7 +3210,7 @@ def generate_eagle_extractors(
 
     extractors['RuntimePars_attr_SF_SchmidtLawHighDensThresh_HpCM3'] = \
         extractor(
-            keytype='header',
+            keytype='meta',
             filetype='snapshot',
             dependencies=tuple(),
             hpath='/RuntimePars',
@@ -2536,7 +3222,7 @@ def generate_eagle_extractors(
         )
 
     extractors['RuntimePars_attr_SF_THRESH_MaxPhysDensOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2548,7 +3234,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SF_THRESH_MaxPhysDens_HpCM3'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2561,7 +3247,7 @@ def generate_eagle_extractors(
 
     extractors['RuntimePars_attr_SF_THRESH_MetDepSFThreshMaxThresh_HpCM3'] = \
         extractor(
-            keytype='header',
+            keytype='meta',
             filetype='snapshot',
             dependencies=tuple(),
             hpath='/RuntimePars',
@@ -2574,7 +3260,7 @@ def generate_eagle_extractors(
 
     extractors['RuntimePars_attr_SF_THRESH_MetDepSFThreshNorm_HpCM3'] = \
         extractor(
-            keytype='header',
+            keytype='meta',
             filetype='snapshot',
             dependencies=tuple(),
             hpath='/RuntimePars',
@@ -2586,7 +3272,7 @@ def generate_eagle_extractors(
         )
 
     extractors['RuntimePars_attr_SF_THRESH_MetDepSFThreshSlope'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2598,7 +3284,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SF_THRESH_MinOverDens'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2610,7 +3296,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SF_THRESH_MinPhysDens_HpCM3'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2622,7 +3308,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SF_THRESH_TempMargin_DEX'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2634,7 +3320,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_Delta_T_Divided_By_T_Vir'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2646,7 +3332,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_Delta_T_K'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2658,7 +3344,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_EnergyTransferOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2670,7 +3356,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_Energy_ERG'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2684,7 +3370,7 @@ def generate_eagle_extractors(
     for element in elements:
         extractors['RuntimePars_attr_SNII_Factor_{:s}'.format(element)] = \
             extractor(
-                keytype='header',
+                keytype='meta',
                 filetype='snapshot',
                 dependencies=tuple(),
                 hpath='/RuntimePars',
@@ -2696,7 +3382,7 @@ def generate_eagle_extractors(
             )
 
     extractors['RuntimePars_attr_SNII_MassTransferOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2708,7 +3394,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_MaxEnergyFraction'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2720,7 +3406,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_MaxMass_MSUN'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2732,7 +3418,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_Max_Delta_T_K'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2744,7 +3430,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_MinEnergyFraction'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2756,7 +3442,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_MinMass_MSUN'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2768,7 +3454,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_Min_Delta_T_K'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2780,7 +3466,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_Tvir0_K'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2792,7 +3478,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_Width_logTvir_dex'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2804,7 +3490,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_WindDelay_YR'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2816,7 +3502,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_WindIsotropicOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2828,7 +3514,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_exponent_Delta_T'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2840,7 +3526,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_normalisation_Delta_T_K'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2852,7 +3538,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_rhogas_physdensnormfac'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2864,7 +3550,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_rhogas_power'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2876,7 +3562,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNII_zdep_power'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2888,7 +3574,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNIa_Efficiency'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2900,7 +3586,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNIa_EjectaVelocity_KMpS'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2912,7 +3598,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNIa_EnergyFraction'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2924,7 +3610,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNIa_EnergyTransferOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2936,7 +3622,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNIa_EnergyTransferStochastic'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2948,7 +3634,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNIa_Energy_ERG'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2960,7 +3646,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNIa_MassTransferOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2972,7 +3658,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNIa_Model'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2984,7 +3670,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SNIa_TimeScale'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -2996,7 +3682,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SeedBlackHoleMass_Msun'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3011,7 +3697,7 @@ def generate_eagle_extractors(
         extractors[
             'RuntimePars_attr_Softening{:s}'.format(softstrings[Ti])
         ] = extractor(
-            keytype='header',
+            keytype='meta',
             filetype='snapshot',
             dependencies=(
                 'Units_attr_UnitLength_in_cm',
@@ -3032,7 +3718,7 @@ def generate_eagle_extractors(
         extractors[
             'RuntimePars_attrs_softening{:s}MaxPhys'.format(softstrings[Ti])
         ] = extractor(
-            keytype='header',
+            keytype='meta',
             filetype='snapshot',
             dependencies=(
                 'Units_attr_UnitLength_in_cm',
@@ -3050,7 +3736,7 @@ def generate_eagle_extractors(
         )
 
     extractors['RuntimePars_attr_StarformationOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3062,7 +3748,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_StellarEnergyFeedbackOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3074,7 +3760,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_StellarEvol_FeedbackOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3086,7 +3772,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_StellarEvolutionCut_Gyr'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3099,7 +3785,7 @@ def generate_eagle_extractors(
 
     extractors['RuntimePars_attr_StellarEvolutionTimestepInterval'] = \
         extractor(
-            keytype='header',
+            keytype='meta',
             filetype='snapshot',
             dependencies=tuple(),
             hpath='/RuntimePars',
@@ -3111,7 +3797,7 @@ def generate_eagle_extractors(
         )
 
     extractors['RuntimePars_attr_StellarMetalFeedbackOn'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3123,7 +3809,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_SulphurOverSilicon'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3135,7 +3821,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_TreeDomainUpdateFrequency'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3147,7 +3833,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_TypeOfOpeningCriterion'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3159,7 +3845,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_TypeOfTimestepCriterion'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3171,7 +3857,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_stellar_feedback_DeltaT'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3183,7 +3869,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_stellar_feedback_mode'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3195,7 +3881,7 @@ def generate_eagle_extractors(
     )
 
     extractors['RuntimePars_attr_stellar_feedback_tvir'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/RuntimePars',
@@ -3207,7 +3893,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Units_attr_UnitDensity_in_cgs'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Units',
@@ -3219,7 +3905,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Units_attr_UnitEnergy_in_cgs'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Units',
@@ -3231,7 +3917,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Units_attr_UnitLength_in_cm'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Units',
@@ -3243,7 +3929,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Units_attr_UnitMass_in_g'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Units',
@@ -3255,7 +3941,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Units_attr_UnitPressure_in_cgs'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Units',
@@ -3267,7 +3953,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Units_attr_UnitTime_in_s'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Units',
@@ -3279,7 +3965,7 @@ def generate_eagle_extractors(
     )
 
     extractors['Units_attr_UnitVelocity_in_cm_per_s'] = extractor(
-        keytype='header',
+        keytype='meta',
         filetype='snapshot',
         dependencies=tuple(),
         hpath='/Units',
@@ -3290,4 +3976,357 @@ def generate_eagle_extractors(
         unit_convert=None
     )
 
+    extractors['FOF_BH_Mdot'] = extractor(
+        keytype='fofgroup',
+        filetype='fof',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g',
+            'Units_attr_UnitTime_in_s'
+        ),
+        hpath='/FOF/BH_Mdot',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g
+        * vals.Units_attr_UnitTime_in_s,
+        units=U.g * U.s ** -1,
+        unit_convert=U.Msun * U.yr ** -1
+    )
+
+    extractors['FOF_BlackHoleMass'] = extractor(
+        keytype='fofgroup',
+        filetype='fof',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g'
+        ),
+        hpath='/FOF/BlackHoleMass',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g,
+        units=U.g,
+        unit_convert=U.Msun
+    )
+
+    extractors['FOF_CentreOfMass'] = extractor(
+        keytype='fofgroup',
+        filetype='fof',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitLength_in_cm'
+        ),
+        hpath='/FOF/CentreOfMass',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitLength_in_cm,
+        units=U.cm,
+        unit_convert=U.kpc
+    )
+
+    extractors['FOF_GroupLengthType'] = extractor(
+        keytype='fofgroup',
+        filetype='fof',
+        dependencies=tuple(),
+        hpath='/FOF/GroupLengthType',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hapth:
+        raw,
+        units=None,
+        unit_convert=None
+    )
+
+    extractors['FOF_GroupMassType'] = extractor(
+        keytype='fofgroup',
+        filetype='fof',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g'
+        ),
+        hpath='/FOF/GroupMassType',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g,
+        units=U.g,
+        unit_convert=U.solMass
+    )
+
+    extractors['FOF_GroupOffsetType'] = extractor(
+        keytype='fofgroup',
+        filetype='fof',
+        dependencies=tuple(),
+        hpath='/FOF/GroupOffsetType',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hapth:
+        raw,
+        units=U.dimensionless_unscaled,
+        unit_convert=None
+    )
+
+    extractors['FOF_Mass'] = extractor(
+        keytype='fofgroup',
+        filetype='fof',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time',
+            'Units_attr_UnitMass_in_g'
+        ),
+        hpath='/FOF/Mass',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath)
+        * vals.Units_attr_UnitMass_in_g,
+        units=U.g,
+        unit_convert=U.Msun
+    )
+
+    for ts in ('NSF', 'SF', 'Stars'):
+        extractors['FOF_{:s}_AExpMaximumTemperature'.format(ts)] = extractor(
+            keytype='fofgroup',
+            filetype='fof',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time'
+            ),
+            hpath='/FOF/{:s}/AExpMaximumTemperature'.format(ts),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath),
+            units=U.K,
+            unit_convert=None
+        )
+
+        for smooth in ('', 'Smoothed'):
+            for element in elements:
+                extractors[
+                    'FOF_{:s}_{:s}ElementAbundance_{:s}'.format(
+                        ts, smooth, element)
+                ] = extractor(
+                    keytype='fofgroup',
+                    filetype='fof',
+                    dependencies=(
+                        'Header_attr_HubbleParam',
+                        'Header_attr_Time'
+                    ),
+                    hpath='/FOF/{:s}/{:s}ElementAbundance/{:s}'.format(
+                        ts, smooth, element),
+                    attr=None,
+                    convert=lambda vals, raw, path, fname, hpath:
+                    raw * h_a_powers(vals, path, fname, hpath),
+                    units=U.dimensionless_unscaled,
+                    unit_convert=None
+                )
+
+            extractors['FOF_{:s}_{:s}Metallicity'.format(ts, smooth)] = \
+                extractor(
+                    keytype='fofgroup',
+                    filetype='fof',
+                    dependencies=(
+                        'Header_attr_HubbleParam',
+                        'Header_attr_Time'
+                    ),
+                    hpath='/FOF/{:s}/{:s}Metallicity'.format(ts, smooth),
+                    attr=None,
+                    convert=lambda vals, raw, path, fname, hpath:
+                    raw * h_a_powers(vals, path, fname, hpath),
+                    units=U.dimensionless_unscaled,
+                    unit_convert=None
+                )
+
+        extractors[
+            'FOF_{:s}_SmoothedIronMassFracFromSNIa'.format(ts)
+        ] = extractor(
+            keytype='fofgroup',
+            filetype='fof',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time'
+            ),
+            hpath='FOF/{:s}/SmoothedIronMassFracFromSNIa'.format(ts),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath),
+            units=U.dimensionless_unscaled,
+            unit_convert=None
+        )
+
+        extractors['FOF_{:s}_{:s}'.format(ts, Mstring)] = extractor(
+            keytype='fofgroup',
+            filetype='fof',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+                'Units_attr_UnitMass_in_g'
+            ),
+            hpath='/FOF/{:s}/{:s}'.format(ts, Mstring),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath)
+            * vals.Units_attr_UnitMass_in_g,
+            units=U.g,
+            unit_convert=U.Msun
+        )
+
+        extractors['FOF_{:s}_MaximumTemperature'.format(ts)] = extractor(
+            keytype='fofgroup',
+            filetype='fof',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+            ),
+            hpath='/FOF/{:s}/MaximumTemperature'.format(ts),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath),
+            units=U.K,
+            unit_convert=None
+        )
+
+    for ts in ('NSF', 'SF'):
+        extractors['FOF_{:s}_Entropy'.format(ts)] = extractor(
+            keytype='fofgroup',
+            filetype='fof',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+                'Constants_attr_GAMMA',
+                'Units_attr_UnitPressure_in_cgs',
+                'Units_attr_UnitDensity_in_cgs'
+            ),
+            hpath='/FOF/{:s}/Entropy'.format(ts),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw
+            * np.power(
+                vals.Header_attr_HubbleParam,
+                2 - 2 * vals.Constants_attr_GAMMA
+            )
+            * vals.Units_attr_UnitPressure_in_cgs
+            * np.power(
+                vals.Units_attr_UnitDensity_in_cgs,
+                -vals.Constants_attr_GAMMA
+            ),
+            units=U.erg * U.K ** -1,
+            unit_convert=None
+        )
+
+        extractors['FOF_{:s}_Temperature'.format(ts)] = extractor(
+            keytype='fofgroup',
+            filetype='fof',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time'
+            ),
+            hpath='/FOF/{:s}/Temperature'.format(ts),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath),
+            units=U.K,
+            unit_convert=None
+        )
+
+    extractors['FOF_ParticleIDs'] = extractor(
+        keytype='fofgroup',
+        filetype='fof',
+        dependencies=(
+            'Header_attr_HubbleParam',
+            'Header_attr_Time'
+        ),
+        hpath='/FOF/ParticleIDs',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath:
+        raw * h_a_powers(vals, path, fname, hpath),
+        units=U.dimensionless_unscaled,
+        unit_convert=None
+    )
+
+    for ts in ('SF', 'Stars'):
+        extractors['FOF_{:s}_IronMassFracFromSNIa'.format(ts)] = extractor(
+            keytype='fofgroup',
+            filetype='fof',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time'
+            ),
+            hpath='/FOF/{:s}/IronMassFracFromSNIa'.format(ts),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath),
+            units=U.dimensionless_unscaled,
+            unit_convert=None
+        )
+
+        extractors['FOF_StarFormationRate'] = extractor(
+            keytype='fofgroup',
+            filetype='fof',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time'
+            ),
+            hpath='/FOF/StarFormationRate',
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw,
+            units=U.Msun * U.yr ** -1,
+            unit_convert=None
+        )
+
+        extractors['FOF_Stars_InitialMass'] = extractor(
+            keytype='fofgroup',
+            filetype='fof',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time',
+                'Units_attr_UnitMass_in_g'
+            ),
+            hpath='/FOF/Stars/InitialMass',
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath)
+            * vals.Units_attr_UnitMass_in_g,
+            units=U.g,
+            unit_convert=U.Msun
+        )
+
+        extractors['FOF_Stars_InitialMassWeightedStellarAge'] = extractor(
+            keytype='fofgroup',
+            filetype='fof',
+            dependencies=(
+                'Header_attr_HubbleParam',
+                'Header_attr_Time'
+            ),
+            hpath='/FOF/Stars/InitialMassWeightedStellarAge',
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath),
+            units=U.Gyr,
+            unit_convert=None
+        )
+
+        extractors['FOF_{:s}'.format(Vstring)] = extractor(
+            keytype='fofgroup',
+            filetype='fof',
+            dependencies=(
+                'Units_attr_UnitVelocity_in_cm_per_s',
+                'Header_attr_HubbleParam',
+                'Header_attr_Time'
+            ),
+            hpath='/FOF/{:s}'.format(Vstring),
+            attr=None,
+            convert=lambda vals, raw, path, fname, hpath:
+            raw * h_a_powers(vals, path, fname, hpath)
+            * vals.Units_attr_UnitVelocity_in_cm_per_s,
+            units=U.cm * U.s ** -1,
+            unit_convert=U.km * U.s ** -1
+        )
+
+    for k in omit:
+        del extractors[k]
     return extractors

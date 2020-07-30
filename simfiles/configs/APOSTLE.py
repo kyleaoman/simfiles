@@ -61,6 +61,7 @@ for res, vol, phys, snap in product(
 
     group_path = '{:s}/groups_{:s}'.format(path_prefix, suffix[snap])
     group_file = 'eagle_subfind_tab_{:s}'.format(suffix[snap])
+    fof_file = 'group_tab_{:s}'.format(suffix[snap])
     particle_path = '{:s}/particledata_{:s}'.format(path_prefix, suffix[snap])
     particle_file = 'eagle_subfind_particles_{:s}'.format(suffix[snap])
     snapshot_path = '{:s}/snapshot_{:s}'.format(path_prefix, suffix[snap])
@@ -76,6 +77,7 @@ for res, vol, phys, snap in product(
 
     snapshots[snap_id(res=res, phys=phys, vol=vol, snap=snap)] = {
         'group': (group_path, group_file),
+        'fof': (group_path, fof_file),
         'particle': (particle_path, particle_file),
         'snapshot': (snapshot_path, snapshot_file),
     }
@@ -84,5 +86,9 @@ extractors.update(generate_eagle_extractors(
     T=range(6),
     Mstring='Masses',
     Vstring='Velocities',
-    EOSstring='SfFlag'
+    EOSstring='SfFlag',
+    omit=(
+        'Header_attr_ExpansionFactor',
+        'RuntimePars_attr_BH_MaxRepositionDistanceFactor'
+    )
 ))
