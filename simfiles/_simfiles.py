@@ -1,11 +1,19 @@
 import warnings
 from importlib.util import spec_from_file_location, module_from_spec
-from os.path import expanduser
+from os.path import expanduser, dirname, join
 from ._hdf5_io import hdf5_get
 
 # SimFiles is a dict with added features, notably __getattr__ and __setattr__,
 # and automatic loading of data from simulation files as defined using a config
 # file.
+
+
+def dealias(func):
+    def dealias_wrapper(self, key, *args, **kwargs):
+        if not key.startswith('_') and hasattr(self, '_aliases'):
+            key = self._aliases.get(key, key)
+        return func(self, key, *args, **kwargs)
+    return dealias_wrapper
 
 
 class SimFiles(dict):
@@ -99,11 +107,41 @@ class SimFiles(dict):
             raise ValueError("Simfiles: configfile missing 'extractors' "
                              "definition.")
 
+        self._aliases = dict()
+        self._dealiases = dict()
+        try:
+            aliaspath = dirname(config.__file__)
+            aliasfile = join(aliaspath, config.aliasfile)
+        except AttributeError:
+            pass
+        else:
+            with open(aliasfile) as f:
+                lines = f.readlines()
+            for line in lines:
+                v, k = line.strip().split()
+                if k.startswith('_'):
+                    raise ValueError("Aliases may not start with '_'.")
+                self._aliases[k] = v
+                self._dealiases[v] = k
+            if not set(self._aliases.values()).issubset(
+                    self._extractors.keys()
+            ):
+                unknown = set(self._aliases.values()) - \
+                    set(self._extractors.keys())
+                warnings.warn(
+                    'Aliases exist for unknown keys:\n {:s}.'.format(
+                        '\n '.join(unknown)
+                    ),
+                    RuntimeWarning
+                )
+
         return
 
+    @dealias
     def __setattr__(self, key, value):
         return self.__setitem__(key, value)
 
+    @dealias
     def __getattr__(self, key):
         try:
             return self.__getitem__(key)
@@ -111,11 +149,23 @@ class SimFiles(dict):
             raise AttributeError("'SimFiles' object has no attribute '{:s}'."
                                  .format(key))
 
+    __getitem__ = dealias(dict.__getitem__)
+    __setitem__ = dealias(dict.__setitem__)
+
+    @dealias
     def __delitem__(self, key):
         if not self.share_mode:
             return super().__delitem__(key)
         else:
             return
+
+    @dealias
+    def __delattr__(self, key):
+        if key in self.keys():
+            if not self.share_mode:
+                return super().__delitem__(key)
+        else:
+            return super().__delattr__(key)
 
     def load(self, keys=tuple(), filetype=None, intervals=None, verbose=True):
         """
@@ -139,12 +189,15 @@ class SimFiles(dict):
             Setting 'True' prints messages upon loading each key (default:
             True).
         """
+
+        keys = [self._aliases.get(key, key) for key in keys]
+
         loaded_keys = set()
 
         try:
             keys = tuple(keys)
         except TypeError:
-            raise TypeError("SimFiles.load: keys must interpretable as tuple.")
+            raise TypeError("SimFiles.load: keys must be iterable.")
 
         if intervals is None:
             intervals = (None, ) * len(keys)
@@ -158,20 +211,31 @@ class SimFiles(dict):
 
         return loaded_keys
 
-    def fields(self, keytype='all'):
+    def fields(self, keytype='all', aliases=True):
         """
         Return a list of available keys, optionally for a specific keytype.
 
         Parameters
         ----------
         keytype : str
-            Specify which type of keys to include (default: 'all').
+            Specify which type of keys to include. This can be one of the
+            keytypes defined in the extractors, or 'all', or 'aliased'
+            (default: 'all').
+
+        aliases : bool
+            If True, the keys will be replaced by their aliases in the list
+            (default: True).
         """
         if keytype == 'all':
-            return [k for k in self._extractors.keys()]
+            retval = [k for k in self._extractors.keys()]
+        elif keytype == 'aliased':
+            retval = list(self._aliases.values())
         else:
-            return [k for k, E in self._extractors.items()
-                    if E.keytype == keytype]
+            retval = [k for k, E in self._extractors.items()
+                      if E.keytype == keytype]
+        if aliases:
+            retval = [self._dealiases.get(k, k) for k in retval]
+        return retval
 
     def _dependencies(self, _dependencies_list, filetype=None, interval=None,
                       verbose=True):
@@ -198,9 +262,12 @@ class SimFiles(dict):
                 return tuple()
             else:
                 if verbose:
-                    warnings.warn("SimFiles._load_key: overwriting key '{:s}', may"
-                                  " be possible to suppress by changing load "
-                                  "order.".format(key), RuntimeWarning)
+                    warnings.warn(
+                        "SimFiles._load_key: overwriting key '{:s}' (alias: "
+                        "{:s}), may be possible to suppress by changing load "
+                        "order.".format(key, self._dealiases.get(key, 'None')),
+                        RuntimeWarning
+                    )
 
         loaded_keys.update(self._dependencies(
             self._extractors[key].dependencies,
@@ -240,7 +307,9 @@ class SimFiles(dict):
         if E.unit_convert is not None:
             self[key] = self[key].to(E.unit_convert)
         if verbose:
-            print('SimFiles: loaded {:s}.'.format(key))
+            alias = self._dealiases.get(key, None)
+            astr = ' (alias: {:s})'.format(alias) if alias else ''
+            print('SimFiles: loaded {:s}{:s}.'.format(key, astr))
 
         loaded_keys.update((key, ))
 

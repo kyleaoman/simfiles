@@ -638,7 +638,7 @@ def generate_eagle_extractors(
         unit_convert=U.Msun
     )
 
-    extractors['FOF_First_SubhaloID'] = extractor(
+    extractors['FOF_FirstSubhaloID'] = extractor(
         keytype='fofgroup',
         filetype='group',
         dependencies=tuple(),
@@ -3716,7 +3716,7 @@ def generate_eagle_extractors(
 
     for Ti in T:
         extractors[
-            'RuntimePars_attrs_softening{:s}MaxPhys'.format(softstrings[Ti])
+            'RuntimePars_attr_Softening{:s}MaxPhys'.format(softstrings[Ti])
         ] = extractor(
             keytype='meta',
             filetype='snapshot',

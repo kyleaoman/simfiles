@@ -24,6 +24,8 @@ path_bases = {
     'cosma': '/cosma7/data/Eagle/ScienceRuns/Planck1'
 }
 
+aliasfile = 'EAGLE.alias'
+
 boxes = {
     'L0012': {
         'N0188': ['DMONLY', 'REFERENCE'],
