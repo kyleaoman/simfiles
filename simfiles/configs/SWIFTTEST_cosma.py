@@ -1,19 +1,17 @@
 from simfiles._setup_cfg import snapshots, extractor, extractors
 from collections import namedtuple
 from astropy import units as U
-from itertools import product
-import numpy as np
 from simfiles._hdf5_io import hdf5_get
 
 # define snapshot unique id tuple format
 snap_id = namedtuple('snap_id', [])
 
-path_base = '/snap7/scratch/dp004/dc-borr1/softening-runs/AN_REF'
+path_base = '/snap7/scratch/dp004/dc-borr1/scaling/27/'
 
 # next line defines a snapshot by its id and specifies where to find its
 # files
 snapshots[snap_id()] = {
-    'snapshot': (path_base, 'eagle_0028'),  # omit .X.hdf5
+    'snapshot': (path_base, 'eagle_0000'),  # omit .X.hdf5
 }
 
 # define a mnemonic suffix for each particle type in EAGLE
@@ -22,6 +20,7 @@ T = {
     'dm': '1',
     's': '4',
 }
+
 
 # SWIFT gives the conversion to cgs as an attribute, use this concisely
 def to_cgs(path, fname, hpath):
@@ -32,7 +31,8 @@ def to_cgs(path, fname, hpath):
         attr='Conversion factor to physical CGS '
         '(including cosmological corrections)'
     )
- 
+
+
 # a
 extractors['a'] = extractor(
     keytype='header',
@@ -99,4 +99,3 @@ for ptype in T.keys():
         units=U.cm * U.s ** -1,
         unit_convert=U.km * U.s ** -1
     )
-
