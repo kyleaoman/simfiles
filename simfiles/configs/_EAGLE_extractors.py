@@ -29,6 +29,63 @@ def h_a_powers(vals, path, fname, hpath, force_a=None, force_h=None):
         * np.power(vals.Header_attr_Time, aexp_scale_exponent)
 
 
+def generate_extra_extractors(
+        T=(0, 1, 4, 5),
+        Mstring='Mass',
+        Vstring='Velocity',
+        EOSstring='OnEquationOfState'
+):
+    from Hdecompose.atomic_frac import atomic_frac
+    extractors = dict()
+
+    def mu(vals):
+        return 1. / (vals.RuntimePars_attr_InitAbundance_Hydrogen +
+                     .25 * vals.RuntimePars_attr_InitAbundance_Helium)
+
+    extractors['mHI_g'] = extractor(
+        keytype='particle0',
+        filetype='snapshot',
+        dependencies=(
+            'Header_attr_Redshift',
+            'PartType0_Density',
+            'PartType0_ElementAbundance_Hydrogen',
+            'Constants_attr_PROTONMASS',
+            'PartType0_StarFormationRate',
+            'RuntimePars_attr_InitAbundance_Hydrogen',
+            'RuntimePars_attr_InitAbundance_Helium',
+            'PartType0_Temperature',
+            'Units_attr_UnitMass_in_g',
+            'RuntimePars_attr_EOS_Jeans_TempNorm_K',
+            'Constants_attr_GAMMA'
+        ),
+        hpath='/PartType0/Mass',
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath: raw *
+        vals.PartType0_ElementAbundance_Hydrogen *
+        h_a_powers(vals, path, fname, hpath) *
+        atomic_frac(
+            vals.Header_attr_Redshift,
+            vals.PartType0_Density * vals.PartType0_ElementAbundance_Hydrogen
+            / (mu(vals) * vals.Constants_attr_PROTONMASS),
+            vals.PartType0_Temperature,
+            vals.PartType0_Density,
+            vals.PartType0_ElementAbundance_Hydrogen,
+            onlyA1=True,
+            EAGLE_corrections=True,
+            SFR=vals.PartType0_StarFormationRate,
+            mu=mu(vals),
+            gamma=vals.Constants_attr_GAMMA,
+            fH=vals.RuntimePars_attr_InitAbundance_Hydrogen,
+            T0=vals.RuntimePars_attr_EOS_Jeans_TempNorm_K,
+        ) *
+        vals.Units_attr_UnitMass_in_g,
+        units=U.g,
+        unit_convert=U.solMass
+    )
+
+    return extractors
+
+
 def generate_eagle_extractors(
         T=(0, 1, 4, 5),
         Mstring='Mass',

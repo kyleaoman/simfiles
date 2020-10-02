@@ -1,5 +1,6 @@
 from simfiles._setup_cfg import snapshots, extractors
-from simfiles.configs._EAGLE_extractors import generate_eagle_extractors
+from simfiles.configs._EAGLE_extractors import generate_eagle_extractors, \
+    generate_extra_extractors
 from collections import namedtuple
 from itertools import product
 from os.path import dirname, join
@@ -69,3 +70,4 @@ for (box, res, model), snap in product(box_list, range(29)):
     }
 
 extractors.update(generate_eagle_extractors())
+extractors.update(generate_extra_extractors())
