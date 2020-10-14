@@ -1,5 +1,5 @@
 from simfiles._setup_cfg import snapshots, extractors
-from simfiles.configs._EAGLE_extractors import generate_eagle_extractors
+from simfiles.configs._EAGLE_extractors import generate_eagle_extractors, generate_extra_extractors
 from collections import namedtuple
 from itertools import product
 from os.path import dirname, join
@@ -94,4 +94,10 @@ extractors.update(generate_eagle_extractors(
         'Header_attr_ExpansionFactor',
         'RuntimePars_attr_BH_MaxRepositionDistanceFactor'
     )
+))
+extractors.update(generate_extra_extractors(
+    T=range(6),
+    Mstring='Masses',
+    Vstring='Velocities',
+    EOSstring='SfFlag',
 ))

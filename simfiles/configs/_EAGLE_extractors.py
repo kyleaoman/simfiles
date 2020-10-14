@@ -58,7 +58,7 @@ def generate_extra_extractors(
             'RuntimePars_attr_EOS_Jeans_TempNorm_K',
             'Constants_attr_GAMMA'
         ),
-        hpath='/PartType0/Mass',
+        hpath='/PartType0/{:s}'.format(Mstring),
         attr=None,
         convert=lambda vals, raw, path, fname, hpath: raw *
         vals.PartType0_ElementAbundance_Hydrogen *
