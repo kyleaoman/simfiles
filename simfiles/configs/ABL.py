@@ -2,7 +2,6 @@ from simfiles._setup_cfg import snapshots, extractors
 from simfiles.configs._EAGLE_extractors import generate_eagle_extractors, \
     generate_extra_extractors
 from collections import namedtuple
-from itertools import product
 from os.path import dirname, join
 
 with open(join(dirname(__file__), 'machine')) as mfile:
@@ -98,11 +97,11 @@ for modelset, models in boxes.items():
             snapshot_file = 'snap_{:s}'.format(
                 suffix[snap])
 
-    snapshots[snap_id(model=model, snap=snap)] = {
-        'group': (group_path, group_file),
-        'fof': (group_path, fof_file),
-        'snapshot': (snapshot_path, snapshot_file),
-    }
+            snapshots[snap_id(model=model, snap=snap)] = {
+                'group': (group_path, group_file),
+                'fof': (group_path, fof_file),
+                'snapshot': (snapshot_path, snapshot_file),
+            }
 
 extractors.update(generate_eagle_extractors())
 extractors.update(generate_extra_extractors())
