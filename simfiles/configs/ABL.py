@@ -74,16 +74,16 @@ boxes = {
     ],
     'sidm': [
         'CDM_DMO',
-        'CDM_REF',
+        'CDM_RECAL',
         'CDM_SFT10_NOAGN',
         'CDM_SFT50',
         'SIDM10_DMO',
-        'SIDM10_REF',
+        'SIDM10_RECAL',
         'SIDM10_SFT10',
         'SIDM1_DMO',
-        'SIDM1_REF',
+        'SIDM1_RECAL',
         'vdSIDM_3.04_w560_DMO',
-        'vdSIDM_3.04_w560_REF'
+        'vdSIDM_3.04_w560_RECAL'
     ]
 }
 
@@ -91,9 +91,9 @@ for modelset, models in boxes.items():
     for model in models:
         if (modelset == 'ht_lt' and model == 'RECAL_EOS_10_NOAGN') or \
            (modelset == 'sidm'
-            and model in ('CDM_SFT_NOAGN', 'SIDM10_DMO', 'SIDM10_REF',
-                          'SIDM10_SFT10', 'SIDM1_DMO', 'SIDM1_REF',
-                          'vdSIDM_3.04_w560_DMO', 'vdSIDM_3.04_w560_REF')):
+            and model in ('CDM_SFT_NOAGN', 'SIDM10_DMO', 'SIDM10_RECAL',
+                          'SIDM10_SFT10', 'SIDM1_DMO', 'SIDM1_RECAL',
+                          'vdSIDM_3.04_w560_DMO', 'vdSIDM_3.04_w560_RECAL')):
             snaps = 128
             suffix = suffix128
         else:
