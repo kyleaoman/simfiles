@@ -58,7 +58,7 @@ snap_id = namedtuple('snap_id', ['model', 'snap'])
 path_bases = {
     'cosma': {
         'ht_lt': '/cosma6/data/dp004/Eagle/Eagle_Cores',
-        'sidm': ''
+        'sidm': '/cosma7/data/dp004/ndcf31/EAGLE_SIDM/HighSFthreshold'
     }
 }
 
@@ -72,12 +72,28 @@ boxes = {
         'RECAL_EOS_50',
         'RECAL_EOS_50_NOAGN'
     ],
-    'sidm': []
+    'sidm': [
+        'CDM_DMO',
+        'CDM_REF',
+        'CDM_SFT10_NOAGN',
+        'CDM_SFT50',
+        'SIDM10_DMO',
+        'SIDM10_REF',
+        'SIDM10_SFT10',
+        'SIDM1_DMO',
+        'SIDM1_REF',
+        'vdSIDM_3.04_w560_DMO',
+        'vdSIDM_3.04_w560_REF'
+    ]
 }
 
 for modelset, models in boxes.items():
     for model in models:
-        if modelset == 'ht_lt' and model == 'RECAL_EOS_10_NOAGN':
+        if (modelset == 'ht_lt' and model == 'RECAL_EOS_10_NOAGN') or \
+           (modelset == 'sidm'
+            and model in ('CDM_SFT_NOAGN', 'SIDM10_DMO', 'SIDM10_REF',
+                          'SIDM10_SFT10', 'SIDM1_DMO', 'SIDM1_REF',
+                          'vdSIDM_3.04_w560_DMO', 'vdSIDM_3.04_w560_REF')):
             snaps = 128
             suffix = suffix128
         else:
@@ -85,6 +101,8 @@ for modelset, models in boxes.items():
             suffix = suffix29
         path_prefix = '{:s}/{:s}'.format(
             path_bases[machine][modelset], model)
+        if modelset == 'sidm':
+            path_prefix = '{:s}/data'.format(path_prefix)
         for snap in range(snaps):
             group_path = '{:s}/groups_{:s}'.format(
                 path_prefix, suffix[snap])
