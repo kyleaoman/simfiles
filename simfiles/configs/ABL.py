@@ -110,6 +110,10 @@ for modelset, models in boxes.items():
                 suffix[snap])
             fof_file = 'group_tab_{:s}'.format(
                 suffix[snap])
+            particle_path = '{:s}/particledata_{:s}'.format(
+                path_prefix, suffix[snap])
+            particle_file = 'eagle_subfind_particles_{:s}'.format(
+                suffix[snap])
             snapshot_path = '{:s}/snapshot_{:s}'.format(
                 path_prefix, suffix[snap])
             snapshot_file = 'snap_{:s}'.format(
@@ -119,6 +123,7 @@ for modelset, models in boxes.items():
                 'group': (group_path, group_file),
                 'fof': (group_path, fof_file),
                 'snapshot': (snapshot_path, snapshot_file),
+                'particle': (particle_path, particle_file)
             }
 
 extractors.update(generate_eagle_extractors())
