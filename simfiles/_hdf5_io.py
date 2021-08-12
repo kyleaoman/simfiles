@@ -100,6 +100,10 @@ class _hdf5_io():
                     endslice = end - start
                 slices.append((startslice, endslice))
                 start = end
+        if self._interval is not None:
+            if end < self._interval[1]:
+                raise ValueError('Mask interval contains larger indices than '
+                                 'number of particles in files.')
         return slices
 
     def _find_parts(self, path, fbase):
