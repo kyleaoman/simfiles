@@ -33,7 +33,8 @@ def generate_extra_extractors(
         T=(0, 1, 4, 5),
         Mstring='Mass',
         Vstring='Velocity',
-        EOSstring='OnEquationOfState'
+        EOSstring='OnEquationOfState',
+        default_pfiletype='snapshot'
 ):
     from Hdecompose.atomic_frac import atomic_frac
     extractors = dict()
@@ -44,7 +45,7 @@ def generate_extra_extractors(
 
     extractors['mHI_g'] = extractor(
         keytype='particle0',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_Redshift',
             'PartType0_Density',
@@ -91,7 +92,8 @@ def generate_eagle_extractors(
         Mstring='Mass',
         Vstring='Velocity',
         EOSstring='OnEquationOfState',
-        omit=tuple()
+        omit=tuple(),
+        default_pfiletype='snapshot'
 ):
 
     extractors = dict()
@@ -1629,7 +1631,7 @@ def generate_eagle_extractors(
     for Ti in T:
         extractors['PartType{:d}_Coordinates'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='snapshot',
+            filetype=default_pfiletype,
             dependencies=(
                 'Units_attr_UnitLength_in_cm',
                 'Header_attr_HubbleParam',
@@ -1646,7 +1648,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_GroupNumber'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='snapshot',
+            filetype=default_pfiletype,
             dependencies=tuple(),
             hpath='/PartType{:d}/GroupNumber'.format(Ti),
             attr=None,
@@ -1658,7 +1660,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_ParticleIDs'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='snapshot',
+            filetype=default_pfiletype,
             dependencies=tuple(),
             hpath='/PartType{:d}/ParticleIDs'.format(Ti),
             attr=None,
@@ -1670,7 +1672,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_SubGroupNumber'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='snapshot',
+            filetype=default_pfiletype,
             dependencies=tuple(),
             hpath='/PartType{:d}/SubGroupNumber'.format(Ti),
             attr=None,
@@ -1682,7 +1684,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_{:s}'.format(Ti, Vstring)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='snapshot',
+            filetype=default_pfiletype,
             dependencies=(
                 'Units_attr_UnitVelocity_in_cm_per_s',
                 'Header_attr_HubbleParam',
@@ -1700,7 +1702,7 @@ def generate_eagle_extractors(
     for Ti in set((0, 2, 3, 4, 5)).intersection(T):
         extractors['PartType{:d}_{:s}'.format(Ti, Mstring)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='snapshot',
+            filetype=default_pfiletype,
             dependencies=(
                 'Units_attr_UnitMass_in_g',
                 'Header_attr_HubbleParam',
@@ -1719,7 +1721,7 @@ def generate_eagle_extractors(
         extractors['PartType{:d}_AExpMaximumTemperature'.format(Ti)] = \
             extractor(
                 keytype='particle{:d}'.format(Ti),
-                filetype='snapshot',
+                filetype=default_pfiletype,
                 dependencies=(
                     'Header_attr_HubbleParam',
                     'Header_attr_Time'
@@ -1739,7 +1741,7 @@ def generate_eagle_extractors(
                         Ti, smooth, element)
                 ] = extractor(
                     keytype='particle{:d}'.format(Ti),
-                    filetype='snapshot',
+                    filetype=default_pfiletype,
                     dependencies=(
                         'Header_attr_HubbleParam',
                         'Header_attr_Time'
@@ -1756,7 +1758,7 @@ def generate_eagle_extractors(
                 'PartType{:d}_{:s}Metallicity'.format(Ti, smooth)
             ] = extractor(
                 keytype='particle{:d}'.format(Ti),
-                filetype='snapshot',
+                filetype=default_pfiletype,
                 dependencies=(
                     'Header_attr_HubbleParam',
                     'Header_attr_Time'
@@ -1772,7 +1774,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_IronMassFracFromSNIa'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='snapshot',
+            filetype=default_pfiletype,
             dependencies=(
                 'Header_attr_HubbleParam',
                 'Header_attr_Time'
@@ -1787,7 +1789,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_MaximumTemperature'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='snapshot',
+            filetype=default_pfiletype,
             dependencies=(
                 'Header_attr_HubbleParam',
                 'Header_attr_Time'
@@ -1804,7 +1806,7 @@ def generate_eagle_extractors(
             extractors['PartType{:d}_MetalMassFracFrom{:s}'.format(
                 Ti, src)] = extractor(
                     keytype='particle{:d}'.format(Ti),
-                    filetype='snapshot',
+                    filetype=default_pfiletype,
                     dependencies=(
                         'Header_attr_HubbleParam',
                         'Header_attr_Time'
@@ -1821,7 +1823,7 @@ def generate_eagle_extractors(
             extractors['PartType{:d}_TotalMassFrom{:s}'.format(Ti, src)] = \
                 extractor(
                     keytype='particle{:d}'.format(Ti),
-                    filetype='snapshot',
+                    filetype=default_pfiletype,
                     dependencies=(
                         'Header_attr_HubbleParam',
                         'Header_attr_Time'
@@ -1837,7 +1839,7 @@ def generate_eagle_extractors(
         extractors['PartType{:d}_MetalMassWeightedRedshift'.format(Ti)] = \
             extractor(
                 keytype='particle{:d}'.format(Ti),
-                filetype='snapshot',
+                filetype=default_pfiletype,
                 dependencies=(
                     'Header_attr_HubbleParam',
                     'Header_attr_Time'
@@ -1853,7 +1855,7 @@ def generate_eagle_extractors(
         extractors['PartType{:d}_SmoothedIronMassFracFromSNIa'.format(Ti)] = \
             extractor(
                 keytype='particle{:d}'.format(Ti),
-                filetype='snapshot',
+                filetype=default_pfiletype,
                 dependencies=(
                     'Header_attr_HubbleParam',
                     'Header_attr_Time'
@@ -1869,7 +1871,7 @@ def generate_eagle_extractors(
     for Ti in set((0, 4, 5)).intersection(T):
         extractors['PartType{:d}_HostHalo_TVir_Mass'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='snapshot',
+            filetype=default_pfiletype,
             dependencies=(
                 'Header_attr_HubbleParam',
                 'Header_attr_Time',
@@ -1884,7 +1886,7 @@ def generate_eagle_extractors(
 
         extractors['PartType{:d}_SmoothingLength'.format(Ti)] = extractor(
             keytype='particle{:d}'.format(Ti),
-            filetype='snapshot',
+            filetype=default_pfiletype,
             dependencies=(
                 'Units_attr_UnitLength_in_cm',
                 'Header_attr_HubbleParam',
@@ -1901,7 +1903,7 @@ def generate_eagle_extractors(
 
     extractors['PartType0_Density'] = extractor(
         keytype='particle0',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Units_attr_UnitMass_in_g',
             'Units_attr_UnitLength_in_cm',
@@ -1920,7 +1922,7 @@ def generate_eagle_extractors(
 
     extractors['PartType0_Entropy'] = extractor(
         keytype='particle0',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -1947,7 +1949,7 @@ def generate_eagle_extractors(
 
     extractors['PartType0_InternalEnergy'] = extractor(
         keytype='particle0',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1963,7 +1965,7 @@ def generate_eagle_extractors(
 
     extractors['PartType0_{:s}'.format(EOSstring)] = extractor(
         keytype='particle0',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=tuple(),
         hpath='/PartType0/{:s}'.format(EOSstring),
         attr=None,
@@ -1975,7 +1977,7 @@ def generate_eagle_extractors(
 
     extractors['PartType0_StarFormationRate'] = extractor(
         keytype='particle0',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -1990,7 +1992,7 @@ def generate_eagle_extractors(
 
     extractors['PartType0_Temperature'] = extractor(
         keytype='particle0',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -2005,7 +2007,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_BirthDensity'] = extractor(
         keytype='particle4',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -2022,7 +2024,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_Feedback_EnergyFraction'] = extractor(
         keytype='particle4',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -2037,7 +2039,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_HostHalo_TVir'] = extractor(
         keytype='particle4',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -2052,7 +2054,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_InitialMass'] = extractor(
         keytype='particle4',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -2069,7 +2071,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_PreviousStellarEnrichment'] = extractor(
         keytype='particle4',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -2084,7 +2086,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_StellarEnrichmentCounter'] = extractor(
         keytype='particle4',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -2099,7 +2101,7 @@ def generate_eagle_extractors(
 
     extractors['PartType4_StellarFormationTime'] = extractor(
         keytype='particle4',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -2114,7 +2116,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_AccretionLength'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -2131,7 +2133,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_CumlAccrMass'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -2148,7 +2150,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_CumlNumSeeds'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -2163,7 +2165,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_Density'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -2180,7 +2182,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_EnergyReservoir'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -2201,7 +2203,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_FormationTime'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -2216,7 +2218,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_Mass'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -2232,7 +2234,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_Mdot'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -2249,7 +2251,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_MostMassiveProgenitorID'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=tuple(),
         hpath='/PartType5/BH_MostMassiveProgenitorID',
         attr=None,
@@ -2261,7 +2263,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_Pressure'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -2283,7 +2285,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_SoundSpeed'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -2300,7 +2302,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_SurroundingGasVel'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
@@ -2317,7 +2319,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_TimeLastMerger'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time'
@@ -2332,7 +2334,7 @@ def generate_eagle_extractors(
 
     extractors['PartType5_BH_WeightedDensity'] = extractor(
         keytype='particle5',
-        filetype='snapshot',
+        filetype=default_pfiletype,
         dependencies=(
             'Header_attr_HubbleParam',
             'Header_attr_Time',
