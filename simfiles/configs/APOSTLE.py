@@ -8,7 +8,7 @@ import glob
 import re
 
 with open(join(dirname(__file__), 'machine')) as mfile:
-    machine = mfile.read()
+    machine = mfile.read().strip()
 
 # snap_id and snip_id will be identical as far as the snapshot dict indices
 # are concerned, so we need an extra flag

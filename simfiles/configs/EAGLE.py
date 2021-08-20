@@ -6,7 +6,7 @@ from itertools import product
 from os.path import dirname, join
 
 with open(join(dirname(__file__), 'machine')) as mfile:
-    machine = mfile.read()
+    machine = mfile.read().strip()
 
 suffix = [
     '000_z020p000', '001_z015p132', '002_z009p993', '003_z008p988',
