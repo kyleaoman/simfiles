@@ -5,6 +5,7 @@ from collections import namedtuple
 from itertools import product
 from os.path import dirname, join
 import glob
+import re
 
 with open(join(dirname(__file__), 'machine')) as mfile:
     machine = mfile.read()
@@ -38,8 +39,12 @@ for res, vol, phys in product(range(1, 4), range(1, 13), ['hydro', 'DMO']):
 
     path_prefix = '{:s}{:s}_{:s}_{:s}'.format(
         path_bases[machine], vol_str[vol], res_str[res], phys_str[phys])
-    suffixes = ['_'.join(s.split('/')[-1].split('_')[1:])
-                for s in glob.glob('{:s}/snapshot_*'.format(path_prefix))]
+    suffixes = [
+        '_'.join(s.split('/')[-1].split('_')[1:])
+        for s in glob.glob('{:s}/snapshot_*'.format(path_prefix))
+        if bool(re.match("[0-9]{3,4}_z[0-9]{3}p[0-9]{3}",
+                         '_'.join(s.split('/')[-1].split('_')[1:])))
+    ]
 
     for suffix in suffixes:
         snap = int(suffix.split('_')[0])
@@ -58,8 +63,12 @@ for res, vol, phys in product(range(1, 4), range(1, 13), ['hydro', 'DMO']):
             'snapshot': (snapshot_path, snapshot_file),
         }
 
-    snip_suffixes = ['_'.join(s.split('/')[-1].split('_')[1:])
-                     for s in glob.glob('{:s}/snipshot_*'.format(path_prefix))]
+    snip_suffixes = [
+        '_'.join(s.split('/')[-1].split('_')[1:])
+        for s in glob.glob('{:s}/snipshot_*'.format(path_prefix))
+        if bool(re.match("[0-9]{3,4}_z[0-9]{3}p[0-9]{3}",
+                         '_'.join(s.split('/')[-1].split('_')[1:])))
+    ]
     for suffix in snip_suffixes:
         snip = int(suffix.split('_')[0])
         group_path = '{:s}/groups_snip_{:s}'.format(path_prefix, suffix)
