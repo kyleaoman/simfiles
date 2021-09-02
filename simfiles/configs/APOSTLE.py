@@ -33,7 +33,7 @@ for res, vol, phys in product(range(1, 4), range(1, 13), ['hydro', 'DMO']):
        and (
            ((phys == 'hydro') and (vol not in [1, 4, 6, 10, 11]))
            or
-           ((phys == 'DMO') and (vol not in [1, 4, 11]))
+           ((phys == 'DMO') and (vol not in [1, 4, 6, 10, 11]))
        ):
         continue
 
