@@ -81,7 +81,7 @@ def generate_extra_extractors(
         ) *
         vals.Units_attr_UnitMass_in_g,
         units=U.g,
-        unit_convert=U.solMass
+        unit_convert=U.Msun
     )
 
     return extractors
@@ -533,7 +533,7 @@ def generate_eagle_extractors(
         convert=lambda vals, raw, path, fname, hpath:
         raw[1] / vals.Header_attr_HubbleParam * vals.Units_attr_UnitMass_in_g,
         units=U.g,
-        unit_convert=None
+        unit_convert=U.Msun
     )
 
     extractors['Header_attr_NumPart_Total'] = extractor(
@@ -782,7 +782,7 @@ def generate_eagle_extractors(
             raw * h_a_powers(vals, path, fname, hpath)
             * vals.Units_attr_UnitMass_in_g,
             units=U.g,
-            unit_convert=U.solMass
+            unit_convert=U.Msun
         )
 
         extractors['FOF_Group_R_{:s}'.format(overdensity)] = extractor(
@@ -1174,7 +1174,7 @@ def generate_eagle_extractors(
         raw * h_a_powers(vals, path, fname, hpath)
         * vals.Units_attr_UnitMass_in_g,
         units=U.g,
-        unit_convert=U.solMass
+        unit_convert=U.Msun
     )
 
     for ts in ('NSF', 'SF', 'Stars'):
@@ -1714,7 +1714,7 @@ def generate_eagle_extractors(
             raw * h_a_powers(vals, path, fname, hpath)
             * vals.Units_attr_UnitMass_in_g,
             units=U.g,
-            unit_convert=U.solMass
+            unit_convert=U.Msun
         )
 
     for Ti in set((0, 4)).intersection(T):
@@ -1986,7 +1986,7 @@ def generate_eagle_extractors(
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
         raw * h_a_powers(vals, path, fname, hpath),
-        units=U.solMass / U.yr,
+        units=U.Msun / U.yr,
         unit_convert=None
     )
 
@@ -4114,7 +4114,7 @@ def generate_eagle_extractors(
         raw * h_a_powers(vals, path, fname, hpath)
         * vals.Units_attr_UnitMass_in_g,
         units=U.g,
-        unit_convert=U.solMass
+        unit_convert=U.Msun
     )
 
     extractors['FOF_GroupOffsetType'] = extractor(
