@@ -776,7 +776,7 @@ def generate_eagle_extractors(
                 'Header_attr_HubbleParam',
                 'Header_attr_Time'
             ),
-            hpath='/FOF/Group_M_Crit200',
+            hpath='/FOF/Group_M_{:s}'.format(overdensity),
             attr=None,
             convert=lambda vals, raw, path, fname, hpath:
             raw * h_a_powers(vals, path, fname, hpath)
@@ -793,7 +793,7 @@ def generate_eagle_extractors(
                 'Header_attr_HubbleParam',
                 'Header_attr_Time'
             ),
-            hpath='/FOF/Group_R_Crit200',
+            hpath='/FOF/Group_R_{:s}'.format(overdensity),
             attr=None,
             convert=lambda vals, raw, path, fname, hpath:
             raw * h_a_powers(vals, path, fname, hpath)
