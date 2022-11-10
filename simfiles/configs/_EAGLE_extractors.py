@@ -37,6 +37,7 @@ def generate_extra_extractors(
         default_pfiletype='snapshot'
 ):
     from Hdecompose.atomic_frac import atomic_frac
+    from Hdecompose.RahmatiEtal2013 import neutral_frac
     extractors = dict()
 
     def mu(vals):
@@ -78,6 +79,47 @@ def generate_extra_extractors(
             gamma=vals.Constants_attr_GAMMA,
             fH=vals.RuntimePars_attr_InitAbundance_Hydrogen,
             T0=vals.RuntimePars_attr_EOS_Jeans_TempNorm_K,
+        ) *
+        vals.Units_attr_UnitMass_in_g,
+        units=U.g,
+        unit_convert=U.Msun
+    )
+
+    extractors['mHneutral_g'] = extractor(
+        keytype='particle0',
+        filetype=default_pfiletype,
+        dependencies=(
+            'Header_attr_Redshift',
+            'PartType0_Density',
+            'PartType0_ElementAbundance_Hydrogen',
+            'Constants_attr_PROTONMASS',
+            'PartType0_StarFormationRate',
+            'RuntimePars_attr_InitAbundance_Hydrogen',
+            'RuntimePars_attr_InitAbundance_Helium',
+            'PartType0_Temperature',
+            'Units_attr_UnitMass_in_g',
+            'RuntimePars_attr_EOS_Jeans_TempNorm_K',
+            'Constants_attr_GAMMA'
+        ),
+        hpath='/PartType0/{:s}'.format(Mstring),
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath: raw *
+        vals.PartType0_ElementAbundance_Hydrogen *
+        h_a_powers(vals, path, fname, hpath) *
+        neutral_frac(
+            vals.Header_attr_Redshift,
+            vals.PartType0_Density * vals.PartType0_ElementAbundance_Hydrogen
+            / (mu(vals) * vals.Constants_attr_PROTONMASS),
+            vals.PartType0_Temperature,
+            onlyA1=True,
+            EAGLE_corrections=True,
+            SFR=vals.PartType0_StarFormationRate,
+            mu=mu(vals),
+            gamma=vals.Constants_attr_GAMMA,
+            fH=vals.RuntimePars_attr_InitAbundance_Hydrogen,
+            Habundance=vals.PartType0_ElementAbundance_Hydrogen,
+            T0=vals.RuntimePars_attr_EOS_Jeans_TempNorm_K,
+            rho=vals.PartType0_Density,
         ) *
         vals.Units_attr_UnitMass_in_g,
         units=U.g,
