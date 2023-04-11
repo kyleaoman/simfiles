@@ -11,36 +11,33 @@ import re
 with open(join(dirname(__file__), "machine")) as mfile:
     machine = mfile.read().strip()
 
-snap_id = namedtuple("snap_id", ["box", "res", "model", "snap"])
+snap_id = namedtuple("snap_id", ["box", "res", "mwdm", "model", "snap"])
 
 path_bases = {
-    "cosma": "/cosma7/data/Eagle/ScienceRuns/Planck1",
+    "cosma": "/cosma8/data/dp004/dc-oman1/EAGLE_WDM",
 }
 
 aliasfile = "EAGLE.alias"
 
 boxes = {
-    "L0034": {
-        "N1034": ["DMONLY", "RECALIBRATED"],
+    "L0025": {
+        "N0752": {
+            "1p5": ["DMO", "RECAL"],
+            "2p5": ["DMO", "RECAL"],
+        },
     },
 }
 
 box_list = [
-    (box, res, model)
+    (box, res, mwdm, model)
     for box, v in boxes.items()
     for res, vv in v.items()
-    for model in vv
+    for mwdm, vvv in vv.items()
+    for model in vvv
 ]
 
-for box, res, model in box_list:
-    if model == "RECALIBRATED":
-        path_prefix = "{:s}/{:s}{:s}_WDM_L11p2/{:s}/data".format(
-            path_bases[machine], box, res, model
-        )
-    else:
-        path_prefix = "{:s}/{:s}{:s}_WDM_L11p2/PE/{:s}/data".format(
-            path_bases[machine], box, res, model
-        )
+for box, res, mwdm, model in box_list:
+    path_prefix = f"{path_bases[machine]}/{box}{res}/WDM{mwdm}keV-{model}/data"
     suffixes = [
         "_".join(s.split("/")[-1].split("_")[1:])
         for s in glob.glob("{:s}/snapshot_*".format(path_prefix))
@@ -51,6 +48,7 @@ for box, res, model in box_list:
             )
         )
     ]
+    print(suffixes)
     for suffix in suffixes:
         snap = int(suffix.split("_")[0])
         group_path = "{:s}/groups_{:s}".format(path_prefix, suffix)
@@ -61,7 +59,7 @@ for box, res, model in box_list:
         snapshot_path = "{:s}/snapshot_{:s}".format(path_prefix, suffix)
         snapshot_file = "snap_{:s}".format(suffix)
 
-        snapshots[snap_id(box=box, res=res, model=model, snap=snap)] = {
+        snapshots[snap_id(box=box, res=res, model=model, mwdm=mwdm, snap=snap)] = {
             "group": (group_path, group_file),
             "fof": (group_path, fof_file),
             "particle": (particle_path, particle_file),

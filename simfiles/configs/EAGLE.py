@@ -20,20 +20,23 @@ aliasfile = 'EAGLE.alias'
 boxes = {
     'L0012': {
         'N0188': ['DMONLY', 'REFERENCE'],
-        'N0376': ['DMONLY', 'REFERENCE', 'RECALIBRATED']
+        'N0376': ['DMONLY', 'REFERENCE', 'RECALIBRATED'],
     },
     'L0025': {
         'N0188': ['DMONLY', 'REFERENCE'],
         'N0376': ['DMONLY', 'REFERENCE'],
-        'N0752': ['DMONLY', 'REFERENCE', 'RECALIBRATED']
+        'N0752': ['DMONLY', 'REFERENCE', 'RECALIBRATED'],
+    },
+    'L0034': {
+        'N1034': ['DMONLY', 'RECALIBRATED'],
     },
     'L0050': {
         'N0376': ['DMONLY', 'REFERENCE'],
-        'N0752': ['DMONLY', 'REFERENCE']
+        'N0752': ['DMONLY', 'REFERENCE'],
     },
     'L0100': {
         'N0752': ['DMONLY', 'REFERENCE'],
-        'N1504': ['DMONLY', 'REFERENCE']
+        'N1504': ['DMONLY', 'REFERENCE'],
     }
 }
 
