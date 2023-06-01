@@ -37,6 +37,7 @@ def generate_extra_extractors(
         default_pfiletype='snapshot'
 ):
     from Hdecompose.atomic_frac import atomic_frac
+    from Hdecompose.RahmatiEtal2013 import neutral_frac
     extractors = dict()
 
     def mu(vals):
@@ -81,7 +82,48 @@ def generate_extra_extractors(
         ) *
         vals.Units_attr_UnitMass_in_g,
         units=U.g,
-        unit_convert=U.solMass
+        unit_convert=U.Msun
+    )
+
+    extractors['mHneutral_g'] = extractor(
+        keytype='particle0',
+        filetype=default_pfiletype,
+        dependencies=(
+            'Header_attr_Redshift',
+            'PartType0_Density',
+            'PartType0_ElementAbundance_Hydrogen',
+            'Constants_attr_PROTONMASS',
+            'PartType0_StarFormationRate',
+            'RuntimePars_attr_InitAbundance_Hydrogen',
+            'RuntimePars_attr_InitAbundance_Helium',
+            'PartType0_Temperature',
+            'Units_attr_UnitMass_in_g',
+            'RuntimePars_attr_EOS_Jeans_TempNorm_K',
+            'Constants_attr_GAMMA'
+        ),
+        hpath='/PartType0/{:s}'.format(Mstring),
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath: raw *
+        vals.PartType0_ElementAbundance_Hydrogen *
+        h_a_powers(vals, path, fname, hpath) *
+        neutral_frac(
+            vals.Header_attr_Redshift,
+            vals.PartType0_Density * vals.PartType0_ElementAbundance_Hydrogen
+            / (mu(vals) * vals.Constants_attr_PROTONMASS),
+            vals.PartType0_Temperature,
+            onlyA1=True,
+            EAGLE_corrections=True,
+            SFR=vals.PartType0_StarFormationRate,
+            mu=mu(vals),
+            gamma=vals.Constants_attr_GAMMA,
+            fH=vals.RuntimePars_attr_InitAbundance_Hydrogen,
+            Habundance=vals.PartType0_ElementAbundance_Hydrogen,
+            T0=vals.RuntimePars_attr_EOS_Jeans_TempNorm_K,
+            rho=vals.PartType0_Density,
+        ) *
+        vals.Units_attr_UnitMass_in_g,
+        units=U.g,
+        unit_convert=U.Msun
     )
 
     return extractors
@@ -533,7 +575,7 @@ def generate_eagle_extractors(
         convert=lambda vals, raw, path, fname, hpath:
         raw[1] / vals.Header_attr_HubbleParam * vals.Units_attr_UnitMass_in_g,
         units=U.g,
-        unit_convert=None
+        unit_convert=U.Msun
     )
 
     extractors['Header_attr_NumPart_Total'] = extractor(
@@ -776,13 +818,13 @@ def generate_eagle_extractors(
                 'Header_attr_HubbleParam',
                 'Header_attr_Time'
             ),
-            hpath='/FOF/Group_M_Crit200',
+            hpath='/FOF/Group_M_{:s}'.format(overdensity),
             attr=None,
             convert=lambda vals, raw, path, fname, hpath:
             raw * h_a_powers(vals, path, fname, hpath)
             * vals.Units_attr_UnitMass_in_g,
             units=U.g,
-            unit_convert=U.solMass
+            unit_convert=U.Msun
         )
 
         extractors['FOF_Group_R_{:s}'.format(overdensity)] = extractor(
@@ -793,7 +835,7 @@ def generate_eagle_extractors(
                 'Header_attr_HubbleParam',
                 'Header_attr_Time'
             ),
-            hpath='/FOF/Group_R_Crit200',
+            hpath='/FOF/Group_R_{:s}'.format(overdensity),
             attr=None,
             convert=lambda vals, raw, path, fname, hpath:
             raw * h_a_powers(vals, path, fname, hpath)
@@ -1174,7 +1216,7 @@ def generate_eagle_extractors(
         raw * h_a_powers(vals, path, fname, hpath)
         * vals.Units_attr_UnitMass_in_g,
         units=U.g,
-        unit_convert=U.solMass
+        unit_convert=U.Msun
     )
 
     for ts in ('NSF', 'SF', 'Stars'):
@@ -1714,7 +1756,7 @@ def generate_eagle_extractors(
             raw * h_a_powers(vals, path, fname, hpath)
             * vals.Units_attr_UnitMass_in_g,
             units=U.g,
-            unit_convert=U.solMass
+            unit_convert=U.Msun
         )
 
     for Ti in set((0, 4)).intersection(T):
@@ -1986,7 +2028,7 @@ def generate_eagle_extractors(
         attr=None,
         convert=lambda vals, raw, path, fname, hpath:
         raw * h_a_powers(vals, path, fname, hpath),
-        units=U.solMass / U.yr,
+        units=U.Msun / U.yr,
         unit_convert=None
     )
 
@@ -4114,7 +4156,7 @@ def generate_eagle_extractors(
         raw * h_a_powers(vals, path, fname, hpath)
         * vals.Units_attr_UnitMass_in_g,
         units=U.g,
-        unit_convert=U.solMass
+        unit_convert=U.Msun
     )
 
     extractors['FOF_GroupOffsetType'] = extractor(

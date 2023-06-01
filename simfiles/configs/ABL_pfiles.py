@@ -133,5 +133,5 @@ for modelset, models in boxes.items():
                 'particle': (particle_path, particle_file)
             }
 
-extractors.update(generate_eagle_extractors())
-extractors.update(generate_extra_extractors())
+extractors.update(generate_eagle_extractors(default_pfiletype='particle'))
+extractors.update(generate_extra_extractors(default_pfiletype='particle'))
