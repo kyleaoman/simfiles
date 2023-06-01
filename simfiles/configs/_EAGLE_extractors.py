@@ -1576,7 +1576,7 @@ def generate_eagle_extractors(
         units=U.erg,
         unit_convert=U.Msun * U.km ** 2 * U.s ** -2
     )
-    
+
     extractors['Subhalo_Velocity'] = extractor(
         keytype='group',
         filetype='group',
