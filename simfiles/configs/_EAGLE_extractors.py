@@ -1805,8 +1805,8 @@ def generate_eagle_extractors(
                     'Header_attr_HubbleParam',
                     'Header_attr_Time'
                 ),
-                hpath='/PartType{:d}/{:s}ElementAbundance/{:s}'.format(
-                    Ti, smooth, element),
+                hpath='/PartType{:d}/{:s}Metallicity'.format(
+                    Ti, smooth),
                 attr=None,
                 convert=lambda vals, raw, path, fname, hpath:
                 raw * h_a_powers(vals, path, fname, hpath),
