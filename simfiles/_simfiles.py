@@ -10,9 +10,10 @@ from ._hdf5_io import hdf5_get
 
 def dealias(func):
     def dealias_wrapper(self, key, *args, **kwargs):
-        if not key.startswith('_') and hasattr(self, '_aliases'):
+        if not key.startswith("_") and hasattr(self, "_aliases"):
             key = self._aliases.get(key, key)
         return func(self, key, *args, **kwargs)
+
     return dealias_wrapper
 
 
@@ -67,9 +68,9 @@ class SimFiles(dict):
         print(SF.m_s[0], SF['xyz_s'][0])
     """
 
-    def __init__(self, snap_id, configfile=None, ncpu=2, share_mode=False,
-                 single_file=None):
-
+    def __init__(
+        self, snap_id, configfile=None, ncpu=2, share_mode=False, single_file=None
+    ):
         self.snap_id = snap_id
         self.configfile = expanduser(configfile)
         self.ncpu = ncpu
@@ -81,31 +82,30 @@ class SimFiles(dict):
         return
 
     def _read_config(self):
-
         try:
-            spec = spec_from_file_location('config', self.configfile)
+            spec = spec_from_file_location("config", self.configfile)
             config = module_from_spec(spec)
             spec.loader.exec_module(config)
         except FileNotFoundError:
-            raise FileNotFoundError("SimFiles: configfile '{:s}' not found."
-                                    .format(self.configfile))
+            raise FileNotFoundError(
+                "SimFiles: configfile '{:s}' not found.".format(self.configfile)
+            )
         try:
             snapshots = config.snapshots
         except AttributeError:
-            raise ValueError("SimFiles: configfile missing 'snapshots' "
-                             "definition.")
+            raise ValueError("SimFiles: configfile missing 'snapshots' " "definition.")
 
         try:
             self._snapshot = snapshots[self.snap_id]
         except KeyError:
-            raise ValueError("SimFiles: unknown snapshot (not defined in "
-                             "configfile).")
+            raise ValueError(
+                "SimFiles: unknown snapshot (not defined in " "configfile)."
+            )
 
         try:
             self._extractors = config.extractors
         except AttributeError:
-            raise ValueError("Simfiles: configfile missing 'extractors' "
-                             "definition.")
+            raise ValueError("Simfiles: configfile missing 'extractors' " "definition.")
 
         self._aliases = dict()
         self._dealiases = dict()
@@ -119,20 +119,17 @@ class SimFiles(dict):
                 lines = f.readlines()
             for line in lines:
                 v, k = line.strip().split()
-                if k.startswith('_'):
+                if k.startswith("_"):
                     raise ValueError("Aliases may not start with '_'.")
                 self._aliases[k] = v
                 self._dealiases[v] = k
-            if not set(self._aliases.values()).issubset(
-                    self._extractors.keys()
-            ):
-                unknown = set(self._aliases.values()) - \
-                    set(self._extractors.keys())
+            if not set(self._aliases.values()).issubset(self._extractors.keys()):
+                unknown = set(self._aliases.values()) - set(self._extractors.keys())
                 warnings.warn(
-                    'Aliases exist for unknown keys:\n {:s}.'.format(
-                        '\n '.join(unknown)
+                    "Aliases exist for unknown keys:\n {:s}.".format(
+                        "\n ".join(unknown)
                     ),
-                    RuntimeWarning
+                    RuntimeWarning,
                 )
 
         return
@@ -146,8 +143,9 @@ class SimFiles(dict):
         try:
             return self.__getitem__(key)
         except KeyError:
-            raise AttributeError("'SimFiles' object has no attribute '{:s}'."
-                                 .format(key))
+            raise AttributeError(
+                "'SimFiles' object has no attribute '{:s}'.".format(key)
+            )
 
     __getitem__ = dealias(dict.__getitem__)
     __setitem__ = dealias(dict.__setitem__)
@@ -200,18 +198,17 @@ class SimFiles(dict):
             raise TypeError("SimFiles.load: keys must be iterable.")
 
         if intervals is None:
-            intervals = (None, ) * len(keys)
+            intervals = (None,) * len(keys)
         for key, interval in zip(keys, intervals):
-            loaded_keys.update(self._load_key(
-                key,
-                filetype=filetype,
-                interval=interval,
-                verbose=verbose
-            ))
+            loaded_keys.update(
+                self._load_key(
+                    key, filetype=filetype, interval=interval, verbose=verbose
+                )
+            )
 
         return loaded_keys
 
-    def fields(self, keytype='all', aliases=True):
+    def fields(self, keytype="all", aliases=True):
         """
         Return a list of available keys, optionally for a specific keytype.
 
@@ -226,35 +223,32 @@ class SimFiles(dict):
             If True, the keys will be replaced by their aliases in the list
             (default: True).
         """
-        if keytype == 'all':
+        if keytype == "all":
             retval = [k for k in self._extractors.keys()]
-        elif keytype == 'aliased':
+        elif keytype == "aliased":
             retval = list(self._aliases.values())
         else:
-            retval = [k for k, E in self._extractors.items()
-                      if E.keytype == keytype]
+            retval = [k for k, E in self._extractors.items() if E.keytype == keytype]
         if aliases:
             retval = [self._dealiases.get(k, k) for k in retval]
         return retval
 
-    def _dependencies(self, _dependencies_list, filetype=None, interval=None,
-                      verbose=True):
-
+    def _dependencies(
+        self, _dependencies_list, filetype=None, interval=None, verbose=True
+    ):
         loaded_keys = set()
 
         for k in _dependencies_list:
             if k not in self:
-                loaded_keys.update(self._load_key(
-                    k,
-                    filetype=filetype,
-                    interval=interval,
-                    verbose=verbose
-                ))
+                loaded_keys.update(
+                    self._load_key(
+                        k, filetype=filetype, interval=interval, verbose=verbose
+                    )
+                )
 
         return loaded_keys
 
     def _load_key(self, key, filetype=None, interval=None, verbose=True):
-
         loaded_keys = set()
 
         if key in self:
@@ -265,16 +259,18 @@ class SimFiles(dict):
                     warnings.warn(
                         "SimFiles._load_key: overwriting key '{:s}' (alias: "
                         "{:s}), may be possible to suppress by changing load "
-                        "order.".format(key, self._dealiases.get(key, 'None')),
-                        RuntimeWarning
+                        "order.".format(key, self._dealiases.get(key, "None")),
+                        RuntimeWarning,
                     )
 
-        loaded_keys.update(self._dependencies(
-            self._extractors[key].dependencies,
-            filetype=filetype,
-            interval=interval,
-            verbose=verbose
-        ))
+        loaded_keys.update(
+            self._dependencies(
+                self._extractors[key].dependencies,
+                filetype=filetype,
+                interval=interval,
+                verbose=verbose,
+            )
+        )
 
         E = self._extractors[key]
         path, fname = None, None
@@ -282,35 +278,29 @@ class SimFiles(dict):
         try:
             path, fname = self._snapshot[use_filetype]
         except KeyError:
-            raise ValueError("SimFiles: filetype '{:s}' unknown."
-                             .format(use_filetype))
-        if (self.single_file is not None) and \
-           ((use_filetype == 'particle') or (use_filetype == 'snapshot')):
+            raise ValueError("SimFiles: filetype '{:s}' unknown.".format(use_filetype))
+        if (self.single_file is not None) and (
+            (use_filetype == "particle") or (use_filetype == "snapshot")
+        ):
             # will force loading only one file for particles
-            fname = fname + '.{0:.0f}'.format(self.single_file)
-        self[key] = E.convert(
-            self,
+            fname = fname + ".{0:.0f}".format(self.single_file)
+        raw = (
             hdf5_get(
-                path,
-                fname,
-                E.hpath,
-                attr=E.attr,
-                ncpu=self.ncpu,
-                interval=interval
-            ),
-            path,
-            fname,
-            E.hpath
+                path, fname, E.hpath, attr=E.attr, ncpu=self.ncpu, interval=interval
+            )
+            if E.hpath is not None
+            else None
         )
+        self[key] = E.convert(self, raw, path, fname, E.hpath)
         if E.units is not None:
             self[key] = self[key] * E.units
         if E.unit_convert is not None:
             self[key] = self[key].to(E.unit_convert)
         if verbose:
             alias = self._dealiases.get(key, None)
-            astr = ' (alias: {:s})'.format(alias) if alias else ''
-            print('SimFiles: loaded {:s}{:s}.'.format(key, astr))
+            astr = " (alias: {:s})".format(alias) if alias else ""
+            print("SimFiles: loaded {:s}{:s}.".format(key, astr))
 
-        loaded_keys.update((key, ))
+        loaded_keys.update((key,))
 
         return loaded_keys

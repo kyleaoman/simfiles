@@ -49,6 +49,7 @@ def generate_extra_extractors(
         filetype=default_pfiletype,
         dependencies=(
             'Header_attr_Redshift',
+            f'PartType0_{Mstring}',
             'PartType0_Density',
             'PartType0_ElementAbundance_Hydrogen',
             'Constants_attr_PROTONMASS',
@@ -58,30 +59,31 @@ def generate_extra_extractors(
             'PartType0_Temperature',
             'Units_attr_UnitMass_in_g',
             'RuntimePars_attr_EOS_Jeans_TempNorm_K',
-            'Constants_attr_GAMMA'
+            'Constants_attr_GAMMA',
+            'mHneutral_g',
         ),
         hpath='/PartType0/{:s}'.format(Mstring),
         attr=None,
-        convert=lambda vals, raw, path, fname, hpath: raw *
-        vals.PartType0_ElementAbundance_Hydrogen *
-        h_a_powers(vals, path, fname, hpath) *
-        atomic_frac(
-            vals.Header_attr_Redshift,
-            vals.PartType0_Density * vals.PartType0_ElementAbundance_Hydrogen
-            / (mu(vals) * vals.Constants_attr_PROTONMASS),
-            vals.PartType0_Temperature,
-            vals.PartType0_Density,
-            vals.PartType0_ElementAbundance_Hydrogen,
-            onlyA1=True,
-            EAGLE_corrections=True,
-            SFR=vals.PartType0_StarFormationRate,
-            mu=mu(vals),
-            gamma=vals.Constants_attr_GAMMA,
-            fH=vals.RuntimePars_attr_InitAbundance_Hydrogen,
-            T0=vals.RuntimePars_attr_EOS_Jeans_TempNorm_K,
-        ) *
-        vals.Units_attr_UnitMass_in_g,
-        units=U.g,
+        convert=lambda vals, raw, path, fname, hpath: (
+            getattr(vals, f"PartType0_{Mstring}")
+            * vals.PartType0_ElementAbundance_Hydrogen
+            * atomic_frac(
+                T=vals.PartType0_Temperature,
+                rho=vals.PartType0_Density,
+                SFR=vals.PartType0_StarFormationRate,
+                mu=mu(vals),
+                gamma=vals.Constants_attr_GAMMA,
+                fH=vals.RuntimePars_attr_InitAbundance_Hydrogen,
+                T0=vals.RuntimePars_attr_EOS_Jeans_TempNorm_K,
+                EAGLE_corrections=True,
+                neutral_frac=(
+                    vals.mHneutral_g
+                    / getattr(vals, f"PartType0_{Mstring}")
+                    / vals.PartType0_ElementAbundance_Hydrogen
+                ),
+            ) * vals.Units_attr_UnitMass_in_g
+        ),
+        units=None,
         unit_convert=U.Msun
     )
 
@@ -1618,7 +1620,7 @@ def generate_eagle_extractors(
         units=U.erg,
         unit_convert=U.Msun * U.km ** 2 * U.s ** -2
     )
-    
+
     extractors['Subhalo_Velocity'] = extractor(
         keytype='group',
         filetype='group',
