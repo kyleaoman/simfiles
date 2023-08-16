@@ -37,6 +37,7 @@ def generate_extra_extractors(
         default_pfiletype='snapshot'
 ):
     from Hdecompose.atomic_frac import atomic_frac
+    from Hdecompose.RahmatiEtal2013 import neutral_frac
     extractors = dict()
 
     def mu(vals):
@@ -44,6 +45,49 @@ def generate_extra_extractors(
                      .25 * vals.RuntimePars_attr_InitAbundance_Helium)
 
     extractors['mHI_g'] = extractor(
+        keytype='particle0',
+        filetype=default_pfiletype,
+        dependencies=(
+            'Header_attr_Redshift',
+            f'PartType0_{Mstring}',
+            'PartType0_Density',
+            'PartType0_ElementAbundance_Hydrogen',
+            'Constants_attr_PROTONMASS',
+            'PartType0_StarFormationRate',
+            'RuntimePars_attr_InitAbundance_Hydrogen',
+            'RuntimePars_attr_InitAbundance_Helium',
+            'PartType0_Temperature',
+            'Units_attr_UnitMass_in_g',
+            'RuntimePars_attr_EOS_Jeans_TempNorm_K',
+            'Constants_attr_GAMMA',
+            'mHneutral_g',
+        ),
+        hpath='/PartType0/{:s}'.format(Mstring),
+        attr=None,
+        convert=lambda vals, raw, path, fname, hpath: (
+            getattr(vals, f"PartType0_{Mstring}")
+            * vals.PartType0_ElementAbundance_Hydrogen
+            * atomic_frac(
+                T=vals.PartType0_Temperature,
+                rho=vals.PartType0_Density,
+                SFR=vals.PartType0_StarFormationRate,
+                mu=mu(vals),
+                gamma=vals.Constants_attr_GAMMA,
+                fH=vals.RuntimePars_attr_InitAbundance_Hydrogen,
+                T0=vals.RuntimePars_attr_EOS_Jeans_TempNorm_K,
+                EAGLE_corrections=True,
+                neutral_frac=(
+                    vals.mHneutral_g
+                    / getattr(vals, f"PartType0_{Mstring}")
+                    / vals.PartType0_ElementAbundance_Hydrogen
+                ),
+            ) * vals.Units_attr_UnitMass_in_g
+        ),
+        units=None,
+        unit_convert=U.Msun
+    )
+
+    extractors['mHneutral_g'] = extractor(
         keytype='particle0',
         filetype=default_pfiletype,
         dependencies=(
@@ -64,20 +108,20 @@ def generate_extra_extractors(
         convert=lambda vals, raw, path, fname, hpath: raw *
         vals.PartType0_ElementAbundance_Hydrogen *
         h_a_powers(vals, path, fname, hpath) *
-        atomic_frac(
+        neutral_frac(
             vals.Header_attr_Redshift,
             vals.PartType0_Density * vals.PartType0_ElementAbundance_Hydrogen
             / (mu(vals) * vals.Constants_attr_PROTONMASS),
             vals.PartType0_Temperature,
-            vals.PartType0_Density,
-            vals.PartType0_ElementAbundance_Hydrogen,
             onlyA1=True,
             EAGLE_corrections=True,
             SFR=vals.PartType0_StarFormationRate,
             mu=mu(vals),
             gamma=vals.Constants_attr_GAMMA,
             fH=vals.RuntimePars_attr_InitAbundance_Hydrogen,
+            Habundance=vals.PartType0_ElementAbundance_Hydrogen,
             T0=vals.RuntimePars_attr_EOS_Jeans_TempNorm_K,
+            rho=vals.PartType0_Density,
         ) *
         vals.Units_attr_UnitMass_in_g,
         units=U.g,
@@ -776,7 +820,7 @@ def generate_eagle_extractors(
                 'Header_attr_HubbleParam',
                 'Header_attr_Time'
             ),
-            hpath='/FOF/Group_M_Crit200',
+            hpath='/FOF/Group_M_{:s}'.format(overdensity),
             attr=None,
             convert=lambda vals, raw, path, fname, hpath:
             raw * h_a_powers(vals, path, fname, hpath)
@@ -793,7 +837,7 @@ def generate_eagle_extractors(
                 'Header_attr_HubbleParam',
                 'Header_attr_Time'
             ),
-            hpath='/FOF/Group_R_Crit200',
+            hpath='/FOF/Group_R_{:s}'.format(overdensity),
             attr=None,
             convert=lambda vals, raw, path, fname, hpath:
             raw * h_a_powers(vals, path, fname, hpath)
@@ -1576,7 +1620,7 @@ def generate_eagle_extractors(
         units=U.erg,
         unit_convert=U.Msun * U.km ** 2 * U.s ** -2
     )
-    
+
     extractors['Subhalo_Velocity'] = extractor(
         keytype='group',
         filetype='group',
@@ -1763,8 +1807,8 @@ def generate_eagle_extractors(
                     'Header_attr_HubbleParam',
                     'Header_attr_Time'
                 ),
-                hpath='/PartType{:d}/{:s}ElementAbundance/{:s}'.format(
-                    Ti, smooth, element),
+                hpath='/PartType{:d}/{:s}Metallicity'.format(
+                    Ti, smooth),
                 attr=None,
                 convert=lambda vals, raw, path, fname, hpath:
                 raw * h_a_powers(vals, path, fname, hpath),
