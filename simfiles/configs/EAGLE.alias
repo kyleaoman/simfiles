@@ -98,3 +98,4 @@ PartType0_StarFormationRate SFR_g
 PartType0_SmoothingLength hsm_g
 PartType4_SmoothingLength hsm_s
 PartType5_SmoothingLength hsm_bh
+PartType4_StellarFormationTime sft_s

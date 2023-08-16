@@ -48,7 +48,6 @@ for box, res, mwdm, model in box_list:
             )
         )
     ]
-    print(suffixes)
     for suffix in suffixes:
         snap = int(suffix.split("_")[0])
         group_path = "{:s}/groups_{:s}".format(path_prefix, suffix)
