@@ -16,7 +16,7 @@ snap_id = namedtuple('snap_id', ['res', 'phys', 'vol', 'snap'])
 snip_id = namedtuple('snip_id', ['res', 'phys', 'vol', 'snip', 'is_snip'])
 
 path_bases = {
-    'cosma': '/cosma6/data/dp004/lg/snapshots_all/',
+    'cosma': '/cosma7/data/dp004/lg/snapshots_all/',
     'cavi': '/sraid14/azadehf/LG/data_fix/'
 }
 
