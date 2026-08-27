@@ -135,7 +135,7 @@ def generate_extra_extractors(
             vals.Header_attr_Redshift,
             vals.PartType0_Density
             * vals.PartType0_ElementAbundance_Hydrogen
-            / (mu(vals) * vals.Constants_attr_PROTONMASS),
+            / vals.Constants_attr_PROTONMASS,
             vals.PartType0_Temperature,
             onlyA1=True,
             EAGLE_corrections=True,
@@ -887,23 +887,23 @@ def generate_eagle_extractors(
     )
 
     for ap in (1, 3, 5, 10, 20, 30, 40, 50, 70, 100):
-        extractors[
-            "Subhalo_ApertureMeasurements_Mass_{:03d}kpc".format(ap)
-        ] = extractor(
-            keytype="group",
-            filetype="group",
-            dependencies=(
-                "Header_attr_HubbleParam",
-                "Header_attr_Time",
-                "Units_attr_UnitMass_in_g",
-            ),
-            hpath="/Subhalo/ApertureMeasurements/Mass/" "{:03d}kpc".format(ap),
-            attr=None,
-            convert=lambda vals, raw, path, fname, hpath: raw
-            * h_a_powers(vals, path, fname, hpath)
-            * vals.Units_attr_UnitMass_in_g,
-            units=U.g,
-            unit_convert=U.Msun,
+        extractors["Subhalo_ApertureMeasurements_Mass_{:03d}kpc".format(ap)] = (
+            extractor(
+                keytype="group",
+                filetype="group",
+                dependencies=(
+                    "Header_attr_HubbleParam",
+                    "Header_attr_Time",
+                    "Units_attr_UnitMass_in_g",
+                ),
+                hpath="/Subhalo/ApertureMeasurements/Mass/{:03d}kpc".format(ap),
+                attr=None,
+                convert=lambda vals, raw, path, fname, hpath: raw
+                * h_a_powers(vals, path, fname, hpath)
+                * vals.Units_attr_UnitMass_in_g,
+                units=U.g,
+                unit_convert=U.Msun,
+            )
         )
 
         extractors["Subhalo_ApertureMeasurements_SFR_{:03d}kpc".format(ap)] = extractor(
@@ -918,24 +918,24 @@ def generate_eagle_extractors(
             unit_convert=None,
         )
 
-        extractors[
-            "Subhalo_ApertureMeasurements_VelDisp_{:03d}kpc".format(ap)
-        ] = extractor(
-            keytype="group",
-            filetype="group",
-            dependencies=(
-                "Header_attr_HubbleParam",
-                "Header_attr_Time",
-                "Units_attr_UnitVelocity_in_cm_per_s",
-            ),
-            hpath="/Subhalo/ApertureMeasurements/VelDisp/" "{:03d}kpc".format(ap),
-            attr=None,
-            # error in aexp-scale-exponent, should be 0
-            convert=lambda vals, raw, path, fname, hpath: raw
-            * h_a_powers(vals, path, fname, hpath, force_a=0)
-            * vals.Units_attr_UnitVelocity_in_cm_per_s,
-            units=U.cm * U.s**-1,
-            unit_convert=U.km * U.s**-1,
+        extractors["Subhalo_ApertureMeasurements_VelDisp_{:03d}kpc".format(ap)] = (
+            extractor(
+                keytype="group",
+                filetype="group",
+                dependencies=(
+                    "Header_attr_HubbleParam",
+                    "Header_attr_Time",
+                    "Units_attr_UnitVelocity_in_cm_per_s",
+                ),
+                hpath="/Subhalo/ApertureMeasurements/VelDisp/{:03d}kpc".format(ap),
+                attr=None,
+                # error in aexp-scale-exponent, should be 0
+                convert=lambda vals, raw, path, fname, hpath: raw
+                * h_a_powers(vals, path, fname, hpath, force_a=0)
+                * vals.Units_attr_UnitVelocity_in_cm_per_s,
+                units=U.cm * U.s**-1,
+                unit_convert=U.km * U.s**-1,
+            )
         )
 
     extractors["Subhalo_BlackHoleMass"] = extractor(
@@ -1770,18 +1770,18 @@ def generate_eagle_extractors(
         )
 
         for src in ("AGB", "SNII", "SNIa"):
-            extractors[
-                "PartType{:d}_MetalMassFracFrom{:s}".format(Ti, src)
-            ] = extractor(
-                keytype="particle{:d}".format(Ti),
-                filetype=default_pfiletype,
-                dependencies=("Header_attr_HubbleParam", "Header_attr_Time"),
-                hpath="/PartType{:d}/MetalMassFracFrom{:s}".format(Ti, src),
-                attr=None,
-                convert=lambda vals, raw, path, fname, hpath: raw
-                * h_a_powers(vals, path, fname, hpath),
-                units=U.dimensionless_unscaled,
-                unit_convert=None,
+            extractors["PartType{:d}_MetalMassFracFrom{:s}".format(Ti, src)] = (
+                extractor(
+                    keytype="particle{:d}".format(Ti),
+                    filetype=default_pfiletype,
+                    dependencies=("Header_attr_HubbleParam", "Header_attr_Time"),
+                    hpath="/PartType{:d}/MetalMassFracFrom{:s}".format(Ti, src),
+                    attr=None,
+                    convert=lambda vals, raw, path, fname, hpath: raw
+                    * h_a_powers(vals, path, fname, hpath),
+                    units=U.dimensionless_unscaled,
+                    unit_convert=None,
+                )
             )
 
             extractors["PartType{:d}_TotalMassFrom{:s}".format(Ti, src)] = extractor(
@@ -3533,43 +3533,43 @@ def generate_eagle_extractors(
     )
 
     for Ti in T:
-        extractors[
-            "RuntimePars_attr_Softening{:s}".format(softstrings[Ti])
-        ] = extractor(
-            keytype="meta",
-            filetype="snapshot",
-            dependencies=(
-                "Units_attr_UnitLength_in_cm",
-                "Header_attr_HubbleParam",
-                "Header_attr_Time",
-            ),
-            hpath="/RuntimePars",
-            attr="Softening{:s}".format(softstrings[Ti]),
-            convert=lambda vals, raw, path, fname, hpath: raw
-            / vals.Header_attr_HubbleParam
-            * vals.Units_attr_UnitLength_in_cm,
-            units=U.cm,
-            unit_convert=U.kpc,
+        extractors["RuntimePars_attr_Softening{:s}".format(softstrings[Ti])] = (
+            extractor(
+                keytype="meta",
+                filetype="snapshot",
+                dependencies=(
+                    "Units_attr_UnitLength_in_cm",
+                    "Header_attr_HubbleParam",
+                    "Header_attr_Time",
+                ),
+                hpath="/RuntimePars",
+                attr="Softening{:s}".format(softstrings[Ti]),
+                convert=lambda vals, raw, path, fname, hpath: raw
+                / vals.Header_attr_HubbleParam
+                * vals.Units_attr_UnitLength_in_cm,
+                units=U.cm,
+                unit_convert=U.kpc,
+            )
         )
 
     for Ti in T:
-        extractors[
-            "RuntimePars_attr_Softening{:s}MaxPhys".format(softstrings[Ti])
-        ] = extractor(
-            keytype="meta",
-            filetype="snapshot",
-            dependencies=(
-                "Units_attr_UnitLength_in_cm",
-                "Header_attr_HubbleParam",
-                "Header_attr_Time",
-            ),
-            hpath="/RuntimePars",
-            attr="Softening{:s}MaxPhys".format(softstrings[Ti]),
-            convert=lambda vals, raw, path, fname, hpath: raw
-            / vals.Header_attr_HubbleParam
-            * vals.Units_attr_UnitLength_in_cm,
-            units=U.cm,
-            unit_convert=U.kpc,
+        extractors["RuntimePars_attr_Softening{:s}MaxPhys".format(softstrings[Ti])] = (
+            extractor(
+                keytype="meta",
+                filetype="snapshot",
+                dependencies=(
+                    "Units_attr_UnitLength_in_cm",
+                    "Header_attr_HubbleParam",
+                    "Header_attr_Time",
+                ),
+                hpath="/RuntimePars",
+                attr="Softening{:s}MaxPhys".format(softstrings[Ti]),
+                convert=lambda vals, raw, path, fname, hpath: raw
+                / vals.Header_attr_HubbleParam
+                * vals.Units_attr_UnitLength_in_cm,
+                units=U.cm,
+                unit_convert=U.kpc,
+            )
         )
 
     extractors["RuntimePars_attr_StarformationOn"] = extractor(
